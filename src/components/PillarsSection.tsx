@@ -78,7 +78,7 @@ export const PillarsSection = () => {
             >
               {/* Icon */}
               <div className={`w-16 h-16 bg-${pillar.color} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
-                <pillar.icon className="text-nn-black" size={32} />
+                <pillar.icon className="text-nn-purple" size={32} />
               </div>
 
               {/* Content */}
