@@ -2,94 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Brand Colors - Nada Normal */
+    --nn-cyan: 190 100% 50%;
+    --nn-pink: 330 100% 50%;
+    --nn-yellow: 54 100% 50%;
+    --nn-green: 100 68% 50%;
+    --nn-black: 0 0% 5%;
+    --nn-white: 0 0% 98%;
+    
+    /* Dark Theme by Default */
+    --background: 0 0% 3%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 330 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 190 100% 50%;
+    --secondary-foreground: 0 0% 5%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 54 100% 50%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 330 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0rem;
+
+    /* Custom Properties */
+    --font-display: 'Anton', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    
+    /* Gradients */
+    --gradient-chaos: linear-gradient(135deg, hsl(var(--nn-pink)), hsl(var(--nn-cyan)));
+    --gradient-fire: linear-gradient(135deg, hsl(var(--nn-pink)), hsl(var(--nn-yellow)));
+    --gradient-neon: linear-gradient(90deg, hsl(var(--nn-cyan)), hsl(var(--nn-pink)), hsl(var(--nn-yellow)));
+    
+    /* Shadows */
+    --shadow-neon-pink: 0 0 30px hsl(var(--nn-pink) / 0.5);
+    --shadow-neon-cyan: 0 0 30px hsl(var(--nn-cyan) / 0.5);
+    --shadow-brutal: 4px 4px 0 hsl(var(--nn-black));
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
@@ -101,5 +77,153 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer components {
+  .text-gradient-chaos {
+    background: var(--gradient-chaos);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-gradient-neon {
+    background: var(--gradient-neon);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .bg-gradient-chaos {
+    background: var(--gradient-chaos);
+  }
+  
+  .bg-gradient-fire {
+    background: var(--gradient-fire);
+  }
+  
+  .shadow-neon-pink {
+    box-shadow: var(--shadow-neon-pink);
+  }
+  
+  .shadow-neon-cyan {
+    box-shadow: var(--shadow-neon-cyan);
+  }
+  
+  .shadow-brutal {
+    box-shadow: var(--shadow-brutal);
+  }
+  
+  .font-display {
+    font-family: var(--font-display);
+  }
+  
+  .text-stroke {
+    -webkit-text-stroke: 2px hsl(var(--nn-black));
+    paint-order: stroke fill;
+  }
+  
+  .text-stroke-thick {
+    -webkit-text-stroke: 4px hsl(var(--nn-black));
+    paint-order: stroke fill;
+  }
+  
+  /* Glitch effect */
+  .glitch {
+    position: relative;
+  }
+  
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 hsl(var(--nn-cyan));
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+  }
+  
+  .glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 hsl(var(--nn-pink));
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 5s infinite linear alternate-reverse;
+  }
+  
+  @keyframes glitch-anim {
+    0% { clip: rect(31px, 9999px, 94px, 0); }
+    10% { clip: rect(112px, 9999px, 76px, 0); }
+    20% { clip: rect(85px, 9999px, 77px, 0); }
+    30% { clip: rect(27px, 9999px, 97px, 0); }
+    40% { clip: rect(64px, 9999px, 98px, 0); }
+    50% { clip: rect(61px, 9999px, 85px, 0); }
+    60% { clip: rect(99px, 9999px, 114px, 0); }
+    70% { clip: rect(34px, 9999px, 115px, 0); }
+    80% { clip: rect(98px, 9999px, 129px, 0); }
+    90% { clip: rect(43px, 9999px, 96px, 0); }
+    100% { clip: rect(82px, 9999px, 68px, 0); }
+  }
+  
+  @keyframes glitch-anim2 {
+    0% { clip: rect(65px, 9999px, 99px, 0); }
+    10% { clip: rect(52px, 9999px, 74px, 0); }
+    20% { clip: rect(79px, 9999px, 85px, 0); }
+    30% { clip: rect(43px, 9999px, 27px, 0); }
+    40% { clip: rect(14px, 9999px, 46px, 0); }
+    50% { clip: rect(61px, 9999px, 43px, 0); }
+    60% { clip: rect(98px, 9999px, 73px, 0); }
+    70% { clip: rect(42px, 9999px, 88px, 0); }
+    80% { clip: rect(68px, 9999px, 45px, 0); }
+    90% { clip: rect(53px, 9999px, 96px, 0); }
+    100% { clip: rect(22px, 9999px, 68px, 0); }
+  }
+  
+  /* Marquee animation */
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+  
+  /* Pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(var(--nn-pink) / 0.5);
+    }
+    50% { 
+      box-shadow: 0 0 40px hsl(var(--nn-pink) / 0.8), 0 0 60px hsl(var(--nn-cyan) / 0.3);
+    }
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+  
+  /* Float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
   }
 }
