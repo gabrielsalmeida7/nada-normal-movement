@@ -35,7 +35,7 @@ export const Header = () => {
           opacity: 1,
           x: 0
         }} className="flex items-center">
-            <img alt="Nada Normal" className="h-14 w-auto" src="/lovable-uploads/954aa667-c5fd-44ca-b757-b6ae62dbdb1e.png" />
+            <img alt="Nada Normal" className="h-[84px] w-auto" src="/lovable-uploads/954aa667-c5fd-44ca-b757-b6ae62dbdb1e.png" />
           </motion.a>
 
           {/* Desktop Navigation */}

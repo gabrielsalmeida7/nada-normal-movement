@@ -98,7 +98,7 @@ export const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <img alt="Nada Normal" className="h-20 w-auto mb-6" src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png" />
+            <img alt="Nada Normal" className="h-[120px] w-auto mb-6" src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png" />
             <p className="text-muted-foreground mb-6 max-w-sm">
               Não corremos para caber em planilhas. Corremos porque o silêncio do 
               asfalto é o único lugar que entende nossa loucura.

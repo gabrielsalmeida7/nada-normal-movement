@@ -1,6 +1,20 @@
 import { motion } from "framer-motion";
 import { Flame, Heart, Zap, Users } from "lucide-react";
 
+const colorMap = {
+  "nn-pink": "bg-nn-pink",
+  "nn-yellow": "bg-nn-yellow",
+  "nn-cyan": "bg-nn-cyan",
+  "nn-purple": "bg-nn-purple",
+};
+
+const textColorMap = {
+  "nn-pink": "text-nn-pink",
+  "nn-yellow": "text-nn-yellow",
+  "nn-cyan": "text-nn-cyan",
+  "nn-purple": "text-nn-purple",
+};
+
 const pillars = [
   {
     icon: Flame,
@@ -28,7 +42,7 @@ const pillars = [
     title: "Caos Coletivo",
     subtitle: "A resenha anormal",
     description: "Transformar o sofrimento em piada interna e o esforço individual em celebração coletiva.",
-    color: "nn-green",
+    color: "nn-purple",
   },
 ];
 
@@ -77,12 +91,12 @@ export const PillarsSection = () => {
               className="group bg-background border-4 border-border p-6 hover:border-nn-pink transition-all duration-300"
             >
               {/* Icon */}
-              <div className={`w-16 h-16 bg-${pillar.color} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
-                <pillar.icon className="text-nn-purple" size={32} />
+              <div className={`w-16 h-16 ${colorMap[pillar.color as keyof typeof colorMap]} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
+                <pillar.icon className="text-black" size={32} />
               </div>
 
               {/* Content */}
-              <span className={`text-${pillar.color} font-display text-xs tracking-widest`}>
+              <span className={`${textColorMap[pillar.color as keyof typeof textColorMap]} font-display text-xs tracking-widest`}>
                 {pillar.subtitle}
               </span>
               <h3 className="font-display text-2xl text-foreground mt-1 mb-3">
