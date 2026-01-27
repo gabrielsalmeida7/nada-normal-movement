@@ -10,7 +10,7 @@ const categories = [
     title: "Running",
     subtitle: "Obsessão em Movimento",
     description: "Para quem acorda às 4h da manhã e chama isso de privilégio.",
-    color: "nn-pink",
+    color: "nn-purple-neon",
     image: categoryRunning,
   },
   {
@@ -18,7 +18,7 @@ const categories = [
     title: "Street",
     subtitle: "Autenticidade Urbana",
     description: "Leve o caos para as ruas. Vista sua anormalidade.",
-    color: "nn-cyan",
+    color: "nn-blue-neon",
     image: categoryStreet,
   },
   {
@@ -26,15 +26,25 @@ const categories = [
     title: "Social",
     subtitle: "Caos Coletivo",
     description: "Porque a resenha pós-treino é tão importante quanto o treino.",
-    color: "nn-yellow",
+    color: "nn-green-neon",
     image: categorySocial,
   },
 ];
 
 export const CategorySection = () => {
   return (
-    <section className="py-24 bg-background">
-      <div className="container">
+    <section className="py-24 bg-background relative overflow-hidden">
+      {/* Decorative brand image */}
+      <motion.img
+        src="/lovable-uploads/NN.png"
+        alt=""
+        className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-64 opacity-10"
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 0.1, scale: 1 }}
+        viewport={{ once: true }}
+      />
+
+      <div className="container relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -42,8 +52,8 @@ export const CategorySection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="font-display text-4xl md:text-6xl mb-4">
-            <span className="text-nn-cyan">CATEGORIAS</span>
+          <h2 className="font-display text-5xl md:text-7xl mb-4">
+            <span className="text-nn-blue-neon glow-text-blue">CATEGORIAS</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Cada peça é uma declaração. Cada categoria, um manifesto.
@@ -61,7 +71,7 @@ export const CategorySection = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
               whileHover={{ y: -10 }}
-              className="group relative overflow-hidden bg-card border-4 border-border hover:border-nn-pink transition-all duration-300 cursor-pointer"
+              className="group relative overflow-hidden bg-card border-4 border-border hover:border-nn-purple-neon transition-all duration-300 cursor-pointer hover:shadow-neon-purple"
             >
               {/* Image */}
               <div className="relative h-96 overflow-hidden">
@@ -78,13 +88,13 @@ export const CategorySection = () => {
                 <span className={`text-${category.color} font-display text-sm tracking-widest`}>
                   {category.subtitle}
                 </span>
-                <h3 className="font-display text-4xl text-foreground mb-2 group-hover:text-nn-pink transition-colors">
+                <h3 className="font-display text-4xl text-foreground mb-2 group-hover:text-nn-purple-neon transition-colors">
                   {category.title}
                 </h3>
                 <p className="text-foreground/70 text-sm mb-4">
                   {category.description}
                 </p>
-                <div className="flex items-center gap-2 text-nn-pink font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                <div className="flex items-center gap-2 text-nn-purple-neon font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
                   Explorar
                   <ArrowRight size={18} />
                 </div>

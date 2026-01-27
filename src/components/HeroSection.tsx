@@ -6,10 +6,10 @@ export const HeroSection = () => {
   return (
     <section
       id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-28"
     >
       {/* Background with gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-nn-black via-background to-nn-black" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-[hsl(270,30%,12%)] to-background" />
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -23,7 +23,7 @@ export const HeroSection = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-nn-pink/20 to-transparent rounded-full blur-3xl"
+          className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-nn-purple-neon/30 to-transparent rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -35,12 +35,28 @@ export const HeroSection = () => {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-nn-cyan/20 to-transparent rounded-full blur-3xl"
+          className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-nn-blue-neon/30 to-transparent rounded-full blur-3xl"
         />
       </div>
 
+      {/* Floating Brand Images */}
+      <motion.img
+        src="/lovable-uploads/NNRaio.png"
+        alt=""
+        className="absolute right-10 top-40 w-32 md:w-48 opacity-90 drop-shadow-[0_0_30px_hsl(270,100%,60%,0.6)]"
+        animate={{ y: [0, -20, 0], rotate: [-5, 5, -5] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.img
+        src="/lovable-uploads/MaoNN.png"
+        alt=""
+        className="absolute left-10 bottom-40 w-24 md:w-40 opacity-80 drop-shadow-[0_0_25px_hsl(210,100%,55%,0.6)]"
+        animate={{ y: [0, -15, 0], rotate: [5, -5, 5] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       {/* Marquee Banner */}
-      <div className="absolute top-24 left-0 right-0 overflow-hidden bg-nn-pink py-3">
+      <div className="absolute top-28 left-0 right-0 overflow-hidden bg-gradient-to-r from-nn-purple-neon via-nn-blue-neon to-nn-purple-neon py-3">
         <div className="animate-marquee flex whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="font-display text-nn-black text-lg mx-8 flex items-center gap-4">
@@ -66,18 +82,18 @@ export const HeroSection = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-nn-cyan font-display text-xl md:text-2xl mb-6 tracking-widest"
+            className="text-nn-blue-neon font-display text-xl md:text-2xl mb-6 tracking-widest glow-text-blue"
           >
             BEM-VINDO AO MOVIMENTO
           </motion.p>
 
           {/* Main title with glitch effect */}
           <h1
-            className="font-display text-6xl md:text-8xl lg:text-9xl leading-none mb-8 glitch"
+            className="font-display text-7xl md:text-9xl lg:text-[10rem] leading-none mb-8 glitch"
             data-text="NADA NORMAL"
           >
-            <span className="text-nn-pink text-stroke">NADA</span>{" "}
-            <span className="text-nn-yellow text-stroke">NORMAL</span>
+            <span className="text-nn-purple-neon text-stroke glow-text">NADA</span>{" "}
+            <span className="text-nn-green-neon text-stroke glow-text-green">NORMAL</span>
           </h1>
 
           {/* Manifesto */}
@@ -89,7 +105,7 @@ export const HeroSection = () => {
           >
             Não corremos para caber em planilhas. Corremos porque o silêncio do asfalto 
             é o único lugar que entende nossa loucura.{" "}
-            <span className="text-nn-pink font-semibold">
+            <span className="text-nn-purple-neon font-semibold">
               Ser comum é uma escolha. Nós escolhemos o oposto.
             </span>
           </motion.p>

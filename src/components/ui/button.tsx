@@ -9,17 +9,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:scale-105 hover:shadow-neon-pink",
+        default: "bg-primary text-primary-foreground hover:scale-105 hover:shadow-neon-purple",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:scale-105 hover:shadow-neon-cyan",
+        secondary: "bg-secondary text-secondary-foreground hover:scale-105 hover:shadow-neon-blue",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Nada Normal variants
-        hero: "bg-gradient-chaos text-primary-foreground shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black",
-        chaos: "bg-nn-cyan text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black",
-        fire: "bg-nn-yellow text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black",
-        neon: "bg-transparent border-2 border-nn-pink text-nn-pink hover:bg-nn-pink hover:text-nn-black animate-pulse-glow",
+        // Nada Normal variants - NEON
+        hero: "bg-gradient-to-r from-nn-purple-neon to-nn-blue-neon text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-purple",
+        chaos: "bg-nn-blue-neon text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-blue",
+        fire: "bg-nn-green-neon text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-green",
+        neon: "bg-transparent border-2 border-nn-purple-neon text-nn-purple-neon hover:bg-nn-purple-neon hover:text-nn-black animate-pulse-glow",
       },
       size: {
         default: "h-12 px-6 py-3",

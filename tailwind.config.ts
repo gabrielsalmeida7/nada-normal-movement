@@ -47,12 +47,14 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Nada Normal Brand Colors
+        // Nada Normal Brand Colors - NEON
         nn: {
+          "blue-neon": "hsl(var(--nn-blue-neon))",
+          "purple-neon": "hsl(var(--nn-purple-neon))",
+          "green-neon": "hsl(var(--nn-green-neon))",
           cyan: "hsl(var(--nn-cyan))",
           pink: "hsl(var(--nn-pink))",
           yellow: "hsl(var(--nn-yellow))",
-          green: "hsl(var(--nn-green))",
           black: "hsl(var(--nn-black))",
           white: "hsl(var(--nn-white))",
         },
@@ -68,7 +70,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Anton", "sans-serif"],
+        display: ["Bebas Neue", "sans-serif"],
         body: ["Inter", "sans-serif"],
       },
       borderRadius: {
