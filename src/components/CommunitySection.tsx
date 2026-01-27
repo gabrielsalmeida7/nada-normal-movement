@@ -29,7 +29,18 @@ export const CommunitySection = () => {
   return (
     <section id="community" className="py-24 bg-card relative overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-nn-pink/10 via-transparent to-nn-cyan/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-nn-purple-neon/15 via-transparent to-nn-blue-neon/15" />
+
+      {/* Graffiti brand image */}
+      <motion.img
+        src="/lovable-uploads/Norm.png"
+        alt=""
+        className="absolute right-0 bottom-0 w-80 opacity-20"
+        initial={{ x: 100, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 0.2 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+      />
 
       <div className="container relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -39,12 +50,12 @@ export const CommunitySection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-nn-cyan font-display text-sm tracking-widest">
+            <span className="text-nn-blue-neon font-display text-sm tracking-widest glow-text-blue">
               FAÇA PARTE
             </span>
-            <h2 className="font-display text-4xl md:text-6xl mt-2 mb-6">
+            <h2 className="font-display text-5xl md:text-7xl mt-2 mb-6">
               COMUNIDADE{" "}
-              <span className="text-nn-pink">NADA NORMAL</span>
+              <span className="text-nn-purple-neon glow-text">NADA NORMAL</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
               Mais do que uma marca, somos um movimento. Conecte-se com corredores 
@@ -62,11 +73,11 @@ export const CommunitySection = () => {
                   transition={{ delay: index * 0.1 }}
                   className="flex items-center gap-4 group"
                 >
-                  <div className="w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300">
+                  <div className="w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300">
                     <feature.icon size={24} />
                   </div>
                   <div>
-                    <h4 className="font-display text-lg text-foreground group-hover:text-nn-pink transition-colors">
+                    <h4 className="font-display text-lg text-foreground group-hover:text-nn-purple-neon transition-colors">
                       {feature.title}
                     </h4>
                     <p className="text-muted-foreground text-sm">
@@ -90,7 +101,7 @@ export const CommunitySection = () => {
             className="grid grid-cols-2 gap-4"
           >
             <div className="space-y-4">
-              <div className="relative overflow-hidden border-4 border-border hover:border-nn-pink transition-all duration-300">
+              <div className="relative overflow-hidden border-4 border-border hover:border-nn-purple-neon transition-all duration-300 hover:shadow-neon-purple">
                 <img
                   src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80"
                   alt="Runner"
@@ -98,7 +109,7 @@ export const CommunitySection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-nn-black/60 to-transparent" />
               </div>
-              <div className="relative overflow-hidden border-4 border-border hover:border-nn-cyan transition-all duration-300">
+              <div className="relative overflow-hidden border-4 border-border hover:border-nn-blue-neon transition-all duration-300 hover:shadow-neon-blue">
                 <img
                   src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80"
                   alt="Community"
@@ -107,14 +118,14 @@ export const CommunitySection = () => {
               </div>
             </div>
             <div className="space-y-4 pt-8">
-              <div className="relative overflow-hidden border-4 border-border hover:border-nn-yellow transition-all duration-300">
+              <div className="relative overflow-hidden border-4 border-border hover:border-nn-green-neon transition-all duration-300 hover:shadow-neon-green">
                 <img
                   src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80"
                   alt="Training"
                   className="w-full aspect-square object-cover"
                 />
               </div>
-              <div className="relative overflow-hidden border-4 border-border hover:border-nn-green transition-all duration-300">
+              <div className="relative overflow-hidden border-4 border-border hover:border-nn-purple-neon transition-all duration-300 hover:shadow-neon-purple">
                 <img
                   src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80"
                   alt="Event"
