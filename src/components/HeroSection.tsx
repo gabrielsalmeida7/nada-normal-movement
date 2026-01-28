@@ -77,16 +77,6 @@ export const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="max-w-5xl mx-auto"
         >
-          {/* Pre-title */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-nn-blue-neon font-display text-xl md:text-2xl mb-6 tracking-widest glow-text-blue"
-          >
-            BEM-VINDO AO MOVIMENTO
-          </motion.p>
-
           {/* Main title with glitch effect */}
           <h1
             className="font-display text-7xl md:text-9xl lg:text-[10rem] leading-none mb-8 glitch"
@@ -127,22 +117,6 @@ export const HeroSection = () => {
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex flex-col items-center gap-2 text-foreground/60"
-        >
-          <span className="text-xs uppercase tracking-widest font-display">Rolar</span>
-          <ChevronDown size={24} />
-        </motion.div>
-      </motion.div>
     </section>
   );
 };
