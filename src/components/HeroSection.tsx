@@ -70,7 +70,7 @@ export const HeroSection = () => {
       </div>
 
       {/* Content */}
-      <div className="container relative z-10 text-center px-4">
+      <div className="container relative z-10 text-center px-4 pt-20 md:pt-16 lg:pt-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -79,7 +79,7 @@ export const HeroSection = () => {
         >
           {/* Main title with glitch effect */}
           <h1
-            className="font-display text-7xl md:text-9xl lg:text-[10rem] leading-none mb-8 glitch"
+            className="font-display text-5xl sm:text-6xl md:text-8xl lg:text-[10rem] leading-none mb-6 md:mb-8 glitch mt-8 md:mt-4"
             data-text="NADA NORMAL"
           >
             <span className="text-nn-purple-neon text-stroke glow-text">NADA</span>{" "}
@@ -91,7 +91,7 @@ export const HeroSection = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto mb-12 leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed px-2"
           >
             Não corremos para caber em planilhas. Corremos porque o silêncio do asfalto 
             é o único lugar que entende nossa loucura.{" "}
