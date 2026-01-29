@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
 
 // Images
-import mascotImage from "/lovable-uploads/NadaNormalPet.jpeg";
+import mascotImage from "/lovable-uploads/Vector.png";
 
 const ComingSoon = () => {
   // Launch date: March 30, 2026
@@ -182,7 +182,7 @@ const ComingSoon = () => {
             {/* Mascot */}
             <motion.div
               className="absolute top-1/2 -translate-y-1/2 z-10"
-              style={{ left: `calc(${progress}% - 24px)` }}
+              style={{ left: `calc(${progress}% - 32px)` }}
               animate={{
                 y: [-2, -8, -2],
               }}
@@ -193,11 +193,11 @@ const ComingSoon = () => {
               }}
             >
               {/* Glow effect */}
-              <div className="absolute inset-0 blur-xl bg-nn-purple-neon opacity-50 rounded-full scale-150" />
+              <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-50 rounded-full scale-150" />
 
               {/* Trail effect */}
               <motion.div
-                className="absolute -left-8 top-1/2 -translate-y-1/2 w-16 h-2 bg-gradient-to-l from-nn-purple-neon to-transparent opacity-60"
+                className="absolute -left-8 top-1/2 -translate-y-1/2 w-16 h-2 bg-gradient-to-l from-nn-green-neon to-transparent opacity-60"
                 animate={{ scaleX: [0.5, 1, 0.5], opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 0.3, repeat: Infinity }}
               />
@@ -206,7 +206,7 @@ const ComingSoon = () => {
               <img
                 src={mascotImage}
                 alt="Nada Normal Mascot"
-                className="relative w-12 h-12 md:w-16 md:h-16 object-cover rounded-full border-2 border-nn-purple-neon shadow-neon-purple"
+                className="relative w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_hsl(var(--nn-green-neon))]"
               />
             </motion.div>
           </div>
