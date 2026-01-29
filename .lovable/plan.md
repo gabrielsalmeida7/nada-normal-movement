@@ -1,187 +1,141 @@
 
-# Plano: Identidade Visual Impactante "Nada Normal"
+# Plano: Pagina "Em Breve" com Countdown Visual
 
-## Objetivo
-Tornar o site mais impactante e vibrante, adicionando cores neon (azul neon, roxo neon, verde neon), uma fonte mais forte e legível, e espalhando os elementos visuais da marca pelo site com logos maiores.
-
----
-
-## 1. Configuracao de Cores Neon Vibrantes
-
-### Arquivo: `src/index.css`
-Adicionar novas variaveis de cor neon mais intensas:
-- `--nn-blue-neon`: 210 100% 55% (azul neon vibrante)
-- `--nn-purple-neon`: 270 100% 60% (roxo neon intenso)
-- `--nn-green-neon`: 140 100% 50% (verde neon)
-
-Atualizar o esquema de cores primarias para usar roxo neon como primary e azul neon como secondary.
-
-### Arquivo: `tailwind.config.ts`
-Adicionar as novas cores ao tema:
-- `nn-blue-neon`
-- `nn-purple-neon`
-- `nn-green-neon`
-
-Adicionar novos gradientes neon para efeitos de destaque.
+## Conceito
+Criar uma pagina de lancamento com uma pista de corrida onde o mascote do Nada Normal percorre o caminho ate a linha de chegada (30/03/2026). O progresso do mascote sera calculado automaticamente baseado no tempo restante.
 
 ---
 
-## 2. Fonte Mais Impactante e Legivel
-
-### Arquivo: `src/index.css`
-Trocar a fonte "Anton" por "Bebas Neue" ou "Teko" - fontes que sao:
-- Mais impactantes e modernas
-- Melhor legibilidade em tamanhos variados
-- Variedade de pesos (regular, bold)
-
-Importar a nova fonte via Google Fonts:
-```css
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap');
-```
-
-### Arquivo: `tailwind.config.ts`
-Atualizar a familia de fontes display para usar a nova fonte.
-
----
-
-## 3. Aumentar Logos no Header e Footer (50% maior)
-
-### Arquivo: `src/components/Header.tsx`
-- Alterar altura da logo de `h-[84px]` para `h-[126px]` (50% maior)
-- Ajustar altura do header de `h-20` para `h-24` para acomodar
-
-### Arquivo: `src/components/Footer.tsx`
-- Alterar altura da logo de `h-[120px]` para `h-[180px]` (50% maior)
-
----
-
-## 4. Adicionar Imagens da Marca Espalhadas pelo Site
-
-### 4.1 Copiar as novas imagens para o projeto
-Copiar todas as imagens enviadas para `public/lovable-uploads/`:
-- `MaoNN.png` - Maos com sinal de rock e "NN"
-- `NN.png` - Escudo com sapinho e "NN"
-- `NN1.png` - Logo circular com sapinho
-- `NNRaio.png` - Logo com raio amarelo e sapinho
-- `Norm.png` - Grafitti com sapinho
-
-### 4.2 Arquivo: `src/components/HeroSection.tsx`
-Adicionar elementos de marca flutuantes/decorativos:
-- Imagem `NNRaio.png` no canto direito com efeito de flutuacao
-- Imagem `MaoNN.png` no lado esquerdo como elemento decorativo
-- Aplicar animacoes de float e glow
-
-### 4.3 Arquivo: `src/components/CategorySection.tsx`
-- Adicionar `NN.png` (escudo) como elemento decorativo entre as categorias ou no header da secao
-- Usar efeito de parallax leve
-
-### 4.4 Arquivo: `src/components/PillarsSection.tsx`
-- Adicionar `NN1.png` (logo circular) como watermark no background
-- Ou como elemento visual entre os pilares
-
-### 4.5 Arquivo: `src/components/ProductsSection.tsx`
-- Adicionar `MaoNN.png` como elemento flutuante
-- Usar como badge/selo de destaque
-
-### 4.6 Arquivo: `src/components/CommunitySection.tsx`
-- Adicionar `Norm.png` (grafitti) como elemento de arte urbana
-- Integrar no grid de imagens ou como overlay
-
----
-
-## 5. Atualizar Componentes com Cores Vibrantes
-
-### Arquivo: `src/components/HeroSection.tsx`
-- Trocar gradientes de background para usar roxo e azul neon
-- Atualizar marquee para cores mais vibrantes
-- Adicionar efeitos de glow neon nos textos principais
-
-### Arquivo: `src/components/CategorySection.tsx`
-- Atualizar cores de destaque para azul/roxo/verde neon
-- Hover effects com brilho neon
-
-### Arquivo: `src/components/PillarsSection.tsx`
-- Atualizar paleta dos pilares para cores neon
-- Adicionar efeitos de brilho nos icones
-
-### Arquivo: `src/components/ProductsSection.tsx`
-- Tags de produtos com cores neon mais vibrantes
-- Hover effects com glow
-
-### Arquivo: `src/components/CommunitySection.tsx`
-- Gradientes de background com cores neon
-- Bordas e destaques em cores vibrantes
-
-### Arquivo: `src/components/Footer.tsx`
-- Borda superior com gradiente neon
-- Efeitos de hover nos links
-
-### Arquivo: `src/components/ui/button.tsx`
-- Atualizar variantes de botoes para usar cores neon
-- Adicionar novos efeitos de glow com roxo/azul neon
-
----
-
-## 6. Adicionar Efeitos Visuais Extras
-
-### Arquivo: `src/index.css`
-Adicionar novas classes utilitarias:
-- `.shadow-neon-purple`: Box-shadow com roxo neon
-- `.shadow-neon-blue`: Box-shadow com azul neon
-- `.shadow-neon-green`: Box-shadow com verde neon
-- `.bg-gradient-neon-purple`: Gradiente com roxo e azul neon
-- `.glow-text`: Efeito de texto brilhante
-- Animacoes de pulse mais intensas
-
----
-
-## Resumo Visual das Mudancas
+## Estrutura Visual da Pagina
 
 ```text
-+----------------------------------+
-|           ANTES                  |
-+----------------------------------+
-| - Cores: Rosa, Ciano, Amarelo    |
-| - Fonte: Anton                   |
-| - Logo: 84px header, 120px footer|
-| - Poucas imagens de marca        |
-+----------------------------------+
-
-+----------------------------------+
-|           DEPOIS                 |
-+----------------------------------+
-| - Cores: Azul/Roxo/Verde NEON    |
-| - Fonte: Bebas Neue (impactante) |
-| - Logo: 126px header, 180px footer|
-| - 5 imagens espalhadas pelo site |
-| - Efeitos de glow e brilho       |
-+----------------------------------+
++------------------------------------------+
+|            LOGO NADA NORMAL              |
+|                                          |
+|         EM BREVE - 30/03/2026            |
+|                                          |
+|   [===PISTA DE CORRIDA==================]|
+|   START                    [MASCOTE]  END|
+|   ▼                                    ▼ |
+|   Hoje                           30/03/26|
+|                                          |
+|   DIAS: XX  HORAS: XX  MIN: XX  SEG: XX  |
+|                                          |
+|   "ONDE A SUA LOUCURA FAZ SENTIDO"       |
+|                                          |
+|   [ Instagram ]  [ TikTok ]  [ Email ]   |
++------------------------------------------+
 ```
 
 ---
 
-## Arquivos a Modificar
+## Arquivos a Criar/Modificar
 
-| Arquivo | Mudancas |
-|---------|----------|
-| `src/index.css` | Nova fonte, novas cores neon, efeitos de glow |
-| `tailwind.config.ts` | Adicionar cores neon e gradientes |
-| `src/components/Header.tsx` | Logo 50% maior |
-| `src/components/Footer.tsx` | Logo 50% maior |
-| `src/components/HeroSection.tsx` | Cores neon, imagens de marca |
-| `src/components/CategorySection.tsx` | Cores neon, imagem de marca |
-| `src/components/PillarsSection.tsx` | Cores neon, imagem de marca |
-| `src/components/ProductsSection.tsx` | Cores neon, imagem de marca |
-| `src/components/CommunitySection.tsx` | Cores neon, imagem de marca |
-| `src/components/ui/button.tsx` | Novas variantes com cores neon |
+### 1. Copiar Imagem do Mascote
+- Copiar `user-uploads://NadaNormalPet.jpeg` para `public/lovable-uploads/NadaNormalPet.jpeg`
+
+### 2. Criar Pagina ComingSoon.tsx
+**Arquivo:** `src/pages/ComingSoon.tsx`
+
+Componentes principais:
+- **Header simplificado** com logo grande e centralizada
+- **Titulo "EM BREVE"** com efeitos neon e glitch
+- **Pista de corrida visual** representada como uma "track" horizontal
+- **Mascote animado** que se move baseado no progresso do countdown
+- **Linha de chegada** com a data 30/03/2026
+- **Countdown digital** mostrando dias, horas, minutos, segundos
+- **Frase do manifesto** "Onde a sua loucura faz sentido"
+- **Links sociais** para manter contato antes do lancamento
+
+### 3. Logica do Countdown e Progresso
+```text
+Data de Lancamento: 30 de Marco de 2026
+Data de Inicio (referencia): Hoje (data atual)
+
+Progresso = (Tempo Passado / Tempo Total) * 100%
+
+O mascote tera sua posicao CSS calculada:
+- left: 0% no inicio
+- left: 100% no dia do lancamento
+```
+
+### 4. Atualizar Rotas
+**Arquivo:** `src/App.tsx`
+- Adicionar rota `/coming-soon` para a pagina de "Em Breve"
+- Temporariamente redirecionar `/` para `/coming-soon` (opcional - voce decide)
 
 ---
 
-## Arquivos Novos
+## Detalhes Tecnicos
 
-Copiar as 5 imagens para `public/lovable-uploads/`:
-- `MaoNN.png`
-- `NN.png`
-- `NN1.png`
-- `NNRaio.png`
-- `Norm.png`
+### Componente da Pista de Corrida
+- Background escuro com linhas neon representando a pista
+- Marcacoes ao longo da pista (km markers ou checkpoints)
+- Efeitos de glow nas bordas (roxo/azul neon)
+- Linha de chegada com padrao xadrez ou banner neon
+
+### Animacao do Mascote
+- Posicao horizontal calculada pelo countdown
+- Leve animacao de "bounce" para parecer que esta correndo
+- Sombra neon abaixo do mascote
+- Efeito de "rastro" ou particulas atras
+
+### Countdown Timer
+- UseEffect com setInterval para atualizar a cada segundo
+- Exibicao em formato brutalista com bordas neon
+- Numeros grandes usando fonte Bebas Neue
+- Efeito pulse nos segundos
+
+### Elementos Visuais Extras
+- Particulas flutuantes no background (estrelas/pontos neon)
+- Imagens da marca espalhadas (MaoNN, NNRaio) como decoracao
+- Gradientes animados no fundo
+
+---
+
+## Estrutura de Arquivos
+
+| Arquivo | Acao | Descricao |
+|---------|------|-----------|
+| `public/lovable-uploads/NadaNormalPet.jpeg` | Criar | Copiar mascote |
+| `src/pages/ComingSoon.tsx` | Criar | Pagina principal do countdown |
+| `src/App.tsx` | Editar | Adicionar rota da pagina |
+
+---
+
+## Responsividade
+
+- **Mobile:** Pista vertical ou horizontal compactada, countdown empilhado
+- **Tablet:** Layout intermediario
+- **Desktop:** Pista horizontal completa com todos os elementos
+
+---
+
+## Codigo Exemplo da Logica de Progresso
+
+```typescript
+// Data de lancamento
+const launchDate = new Date('2026-03-30T00:00:00');
+
+// Data de inicio do countdown (ex: 60 dias antes)
+const startDate = new Date('2026-01-29T00:00:00');
+
+// Calcular progresso
+const totalDuration = launchDate.getTime() - startDate.getTime();
+const elapsed = Date.now() - startDate.getTime();
+const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+// Posicao do mascote
+const mascotPosition = `${progress}%`;
+```
+
+---
+
+## Resultado Esperado
+
+Uma pagina visualmente impactante que:
+1. Mostra o mascote "correndo" em direcao ao lancamento
+2. Atualiza em tempo real (a cada segundo)
+3. Mantem a identidade visual neon da marca
+4. Cria expectativa e engajamento para o lancamento
+5. Permite que visitantes conhecam a marca antes do lancamento oficial
