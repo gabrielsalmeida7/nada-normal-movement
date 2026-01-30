@@ -1,73 +1,114 @@
-# Welcome to your Lovable project
+# Nada Normal - Movement
 
-## Project info
+> **Não corremos para caber em planilhas. Corremos porque o silêncio do asfalto é o único lugar que entende nossa loucura. Ser comum é uma escolha. Nós escolhemos o oposto.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Sobre o Projeto
 
-## How can I edit this code?
+**Nada Normal** é mais que uma marca, é um movimento. Uma plataforma digital que conecta corredores que não se encaixam no padrão, que buscam autenticidade acima da conformidade e que transformam o sofrimento em superação.
 
-There are several ways of editing your application.
+Este projeto representa a presença digital do ecossistema Nada Normal, criado para quem:
+- É **doido pelo que faz** (A Obsessão)
+- É **doido na vida** (A Autenticidade)
+- Está **fora da curva** (A Performance)
+- Vive o **caos coletivo** (A Resenha Anormal)
 
-**Use Lovable**
+## Manifesto
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Ser "Nada Normal" é transformar o sofrimento em piada interna e o esforço individual em uma celebração coletiva. É ter a coragem de ser estranho em um mundo de cópias bem vestidas.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tecnologias Utilizadas
 
-**Use your preferred IDE**
+Este projeto foi construído com as seguintes tecnologias:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Vite** - Build tool e dev server de alta performance
+- **React** - Biblioteca JavaScript para construção de interfaces
+- **TypeScript** - Superset do JavaScript com tipagem estática
+- **Tailwind CSS** - Framework CSS utility-first
+- **shadcn/ui** - Componentes de UI construídos com Radix UI
+- **React Router** - Roteamento para aplicações React
+- **Framer Motion** - Biblioteca de animações
+- **Vitest** - Framework de testes
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Como Executar o Projeto
 
-Follow these steps:
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior) - [Instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- npm ou gerenciador de pacotes compatível
+
+### Instalação
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone o repositório
+git clone <URL_DO_REPOSITORIO>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navegue até o diretório do projeto
+cd nada-normal-movement
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Instale as dependências
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Desenvolvimento
+
+```sh
+# Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+O projeto estará disponível em `http://localhost:5173` (ou outra porta indicada no terminal).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build para Produção
 
-**Use GitHub Codespaces**
+```sh
+# Crie uma build otimizada para produção
+npm run build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Visualize a build localmente
+npm run preview
+```
 
-## What technologies are used for this project?
+### Testes
 
-This project is built with:
+```sh
+# Execute os testes
+npm test
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Execute os testes em modo watch
+npm run test:watch
+```
 
-## How can I deploy this project?
+### Linting
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+```sh
+# Execute o linter
+npm run lint
+```
 
-## Can I connect a custom domain to my Lovable project?
+## Estrutura do Projeto
 
-Yes, you can!
+```
+nada-normal-movement/
+├── src/
+│   ├── components/     # Componentes React reutilizáveis
+│   ├── pages/         # Páginas da aplicação
+│   ├── hooks/         # Custom hooks
+│   ├── lib/           # Utilitários e helpers
+│   └── assets/        # Imagens e recursos estáticos
+├── public/            # Arquivos públicos estáticos
+└── package.json       # Dependências e scripts
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Contribuindo
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Este é um projeto em desenvolvimento ativo. Contribuições são bem-vindas, especialmente de quem entende que ser "Nada Normal" não é um defeito, é uma escolha.
+
+## Licença
+
+Este projeto é propriedade da marca Nada Normal. Todos os direitos reservados.
+
+---
+
+**NADA NORMAL** - Mais que uma Marca, um Movimento.
+
+*Pronto para ir além do normal?*
