@@ -6,19 +6,81 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+bun-debug.log*
 
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Build outputs
 dist
 dist-ssr
+build
 *.local
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+*.env
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+*.credentials
+secrets.json
+config/secrets.json
+
+# API keys and tokens
+**/api-keys.json
+**/tokens.json
+**/.secrets
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
+*.swp
+*.swo
+*~
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Testing
+coverage
+.nyc_output
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+.cache
+.temp
+
+# Lock files (opcional - descomente se não quiser versionar)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+# bun.lockb
+
+# Lovable specific
+.lovable/plan.md
