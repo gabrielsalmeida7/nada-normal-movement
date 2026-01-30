@@ -103,7 +103,7 @@ const ComingSoon = () => {
         <motion.img
           src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png"
           alt="Nada Normal"
-          className="w-32 md:w-48 mb-3 md:mb-6"
+          className="w-32 md:w-48 mb-3 md:mb-6 mt-4 md:mt-0"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
