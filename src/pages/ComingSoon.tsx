@@ -53,7 +53,7 @@ const ComingSoon = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden relative">
+    <div className="h-screen bg-background overflow-hidden relative">
       {/* Floating particles background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(30)].map((_, i) => (
@@ -98,12 +98,12 @@ const ComingSoon = () => {
       />
 
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 py-4">
         {/* Logo */}
         <motion.img
           src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png"
           alt="Nada Normal"
-          className="w-32 md:w-48 mb-6"
+          className="w-32 md:w-48 mb-3 md:mb-6 mt-4 md:mt-0"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -111,7 +111,7 @@ const ComingSoon = () => {
 
         {/* Title */}
         <motion.h1
-          className="font-display text-4xl md:text-6xl lg:text-8xl text-center mb-2 glitch glow-text"
+          className="font-display text-4xl md:text-6xl lg:text-8xl text-center mb-1 glitch glow-text"
           data-text="EM BREVE"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -121,7 +121,7 @@ const ComingSoon = () => {
         </motion.h1>
 
         <motion.p
-          className="font-display text-xl md:text-2xl text-nn-blue-neon mb-8"
+          className="font-display text-xl md:text-2xl text-nn-blue-neon mb-4 md:mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
@@ -131,7 +131,7 @@ const ComingSoon = () => {
 
         {/* Race Track */}
         <motion.div
-          className="w-full max-w-4xl mx-auto mb-8 px-4"
+          className="w-full max-w-4xl mx-auto mb-4 md:mb-6 px-4"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
@@ -214,7 +214,7 @@ const ComingSoon = () => {
 
         {/* Countdown */}
         <motion.div
-          className="grid grid-cols-4 gap-2 md:gap-4 mb-8"
+          className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
@@ -237,7 +237,7 @@ const ComingSoon = () => {
                   : undefined
               }
             >
-              <div className="w-16 h-16 md:w-24 md:h-24 bg-card border-2 border-nn-purple-neon flex items-center justify-center shadow-neon-purple">
+              <div className="w-14 h-14 md:w-20 md:h-20 bg-card border-2 border-nn-purple-neon flex items-center justify-center shadow-neon-purple">
                 <span className="font-display text-2xl md:text-4xl text-gradient-neon">
                   {String(item.value).padStart(2, "0")}
                 </span>
@@ -251,7 +251,7 @@ const ComingSoon = () => {
 
         {/* Manifesto */}
         <motion.p
-          className="font-display text-lg md:text-2xl text-center text-nn-blue-neon mb-8 glow-text-blue"
+          className="font-display text-lg md:text-2xl text-center text-nn-blue-neon mb-3 md:mb-6 glow-text-blue"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
