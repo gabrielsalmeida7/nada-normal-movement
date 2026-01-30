@@ -4,6 +4,7 @@ import { Instagram, Mail } from "lucide-react";
 
 // Images
 import mascotImage from "/lovable-uploads/Vector.png";
+import nnLogo from "@/assets/nn-logo.svg";
 
 const ComingSoon = () => {
   // Launch date: March 30, 2026
@@ -101,9 +102,9 @@ const ComingSoon = () => {
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 py-4">
         {/* Logo */}
         <motion.img
-          src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png"
+          src={nnLogo}
           alt="Nada Normal"
-          className="w-32 md:w-48 mb-3 md:mb-6 mt-4 md:mt-0"
+          className="w-24 md:w-32 mb-2 md:mb-4"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -131,13 +132,13 @@ const ComingSoon = () => {
 
         {/* Race Track */}
         <motion.div
-          className="w-full max-w-4xl mx-auto mb-4 md:mb-6 px-4"
+          className="w-full max-w-3xl mx-auto mb-2 md:mb-4 px-4"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
           {/* Track container */}
-          <div className="relative h-24 md:h-32">
+          <div className="relative h-20 md:h-28">
             {/* Track background */}
             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 md:h-16 bg-muted border-2 border-nn-purple-neon rounded-lg shadow-neon-purple overflow-hidden">
               {/* Track lines */}
@@ -214,7 +215,7 @@ const ComingSoon = () => {
 
         {/* Countdown */}
         <motion.div
-          className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6"
+          className="grid grid-cols-4 gap-2 md:gap-3 mb-2 md:mb-3"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
@@ -237,12 +238,12 @@ const ComingSoon = () => {
                   : undefined
               }
             >
-              <div className="w-14 h-14 md:w-20 md:h-20 bg-card border-2 border-nn-purple-neon flex items-center justify-center shadow-neon-purple">
-                <span className="font-display text-2xl md:text-4xl text-gradient-neon">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-card border-2 border-nn-purple-neon flex items-center justify-center shadow-neon-purple">
+                <span className="font-display text-xl md:text-3xl text-gradient-neon">
                   {String(item.value).padStart(2, "0")}
                 </span>
               </div>
-              <span className="font-display text-xs md:text-sm text-muted-foreground mt-2">
+              <span className="font-display text-xs text-muted-foreground mt-1">
                 {item.label}
               </span>
             </motion.div>
@@ -251,7 +252,7 @@ const ComingSoon = () => {
 
         {/* Manifesto */}
         <motion.p
-          className="font-display text-lg md:text-2xl text-center text-nn-blue-neon mb-3 md:mb-6 glow-text-blue"
+          className="font-display text-base md:text-xl text-center text-nn-blue-neon mb-2 md:mb-3 glow-text-blue"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
@@ -261,7 +262,7 @@ const ComingSoon = () => {
 
         {/* Social Links */}
         <motion.div
-          className="flex gap-4"
+          className="flex gap-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
@@ -270,7 +271,7 @@ const ComingSoon = () => {
             href="https://instagram.com/nadanormal"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 bg-card border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
+            className="w-10 h-10 bg-card border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
           >
             <Instagram className="w-5 h-5" />
           </a>
@@ -278,7 +279,7 @@ const ComingSoon = () => {
             href="https://tiktok.com/@nadanormal"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-12 h-12 bg-card border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
+            className="w-10 h-10 bg-card border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
           >
             <svg
               className="w-5 h-5"
@@ -290,7 +291,7 @@ const ComingSoon = () => {
           </a>
           <a
             href="mailto:contato@nadanormal.com"
-            className="w-12 h-12 bg-card border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
+            className="w-10 h-10 bg-card border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
           >
             <Mail className="w-5 h-5" />
           </a>
