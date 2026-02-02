@@ -16,6 +16,7 @@ const categories = [
     shadowClass: "shadow-neon-orange",
     textColor: "text-nn-orange",
     image: categoryRunning,
+    organicStyle: { borderRadius: '10px 60px 10px 60px' },
   },
   {
     id: "street",
@@ -28,6 +29,7 @@ const categories = [
     shadowClass: "shadow-neon-lime",
     textColor: "text-nn-lime",
     image: categoryStreet,
+    organicStyle: { borderRadius: '60px 10px 60px 10px' },
   },
   {
     id: "social",
@@ -40,6 +42,7 @@ const categories = [
     shadowClass: "shadow-neon-yellow",
     textColor: "text-nn-yellow",
     image: categorySocial,
+    organicStyle: { borderRadius: '40px 15px 50px 10px' },
   },
 ];
 
@@ -86,10 +89,11 @@ export const CategorySection = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
               whileHover={{ y: -10 }}
+              style={category.organicStyle}
               className={`group relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 cursor-pointer hover:${category.shadowClass}`}
             >
-              {/* Image */}
-              <div className="relative h-96 overflow-hidden">
+              {/* Image with organic mask */}
+              <div className="relative h-96 overflow-hidden" style={category.organicStyle}>
                 <img
                   src={category.image}
                   alt={category.title}
@@ -115,8 +119,11 @@ export const CategorySection = () => {
                 </div>
               </div>
 
-              {/* Hover overlay line */}
-              <div className={`absolute top-0 left-0 w-1 h-0 bg-${category.color} transition-all duration-300 group-hover:h-full`} />
+              {/* Hover overlay line - organic */}
+              <div 
+                className={`absolute top-0 left-0 w-2 h-0 bg-${category.color} transition-all duration-300 group-hover:h-full`}
+                style={{ borderRadius: '0 10px 10px 0' }}
+              />
             </motion.a>
           ))}
         </div>

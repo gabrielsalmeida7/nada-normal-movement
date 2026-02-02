@@ -2,6 +2,15 @@ import { motion } from "framer-motion";
 import { Play, Headphones, Radio, Users2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const blobClasses = ['shape-blob-1', 'shape-blob-2', 'shape-blob-3', 'shape-blob-4'];
+
+const imageOrganicStyles = [
+  { borderRadius: '10px 40px 10px 40px' },
+  { borderRadius: '40px 10px 40px 10px' },
+  { borderRadius: '5px 30px 50px 15px' },
+  { borderRadius: '50px 15px 5px 35px' },
+];
+
 const communityFeatures = [
   {
     icon: Headphones,
@@ -74,7 +83,8 @@ export const CommunitySection = () => {
                   transition={{ delay: index * 0.1 }}
                   className="flex items-center gap-4 group"
                 >
-                  <div className={`w-12 h-12 ${feature.iconBg} text-nn-black flex items-center justify-center shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
+                  {/* Icon with blob shape */}
+                  <div className={`w-12 h-12 ${feature.iconBg} ${blobClasses[index]} text-nn-black flex items-center justify-center shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
                     <feature.icon size={24} />
                   </div>
                   <div>
@@ -89,12 +99,12 @@ export const CommunitySection = () => {
               ))}
             </div>
 
-            <Button variant="chaosV2" size="lg">
+            <Button variant="chaosV2" size="lg" className="btn-organic">
               Junte-se ao Movimento
             </Button>
           </motion.div>
 
-          {/* Right Content - Image Grid */}
+          {/* Right Content - Image Grid with organic shapes */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -102,7 +112,10 @@ export const CommunitySection = () => {
             className="grid grid-cols-2 gap-4"
           >
             <div className="space-y-4">
-              <div className="relative overflow-hidden border-4 border-nn-black hover:border-nn-orange transition-all duration-300 hover:shadow-neon-orange">
+              <div 
+                style={imageOrganicStyles[0]}
+                className="relative overflow-hidden border-4 border-nn-black hover:border-nn-orange transition-all duration-300 hover:shadow-neon-orange"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&q=80"
                   alt="Runner"
@@ -110,7 +123,10 @@ export const CommunitySection = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-nn-black/60 to-transparent" />
               </div>
-              <div className="relative overflow-hidden border-4 border-nn-black hover:border-nn-lime transition-all duration-300 hover:shadow-neon-lime">
+              <div 
+                style={imageOrganicStyles[1]}
+                className="relative overflow-hidden border-4 border-nn-black hover:border-nn-lime transition-all duration-300 hover:shadow-neon-lime"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80"
                   alt="Community"
@@ -119,14 +135,20 @@ export const CommunitySection = () => {
               </div>
             </div>
             <div className="space-y-4 pt-8">
-              <div className="relative overflow-hidden border-4 border-nn-black hover:border-nn-yellow transition-all duration-300 hover:shadow-neon-yellow">
+              <div 
+                style={imageOrganicStyles[2]}
+                className="relative overflow-hidden border-4 border-nn-black hover:border-nn-yellow transition-all duration-300 hover:shadow-neon-yellow"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&q=80"
                   alt="Training"
                   className="w-full aspect-square object-cover"
                 />
               </div>
-              <div className="relative overflow-hidden border-4 border-nn-black hover:border-nn-red transition-all duration-300 hover:shadow-neon-red">
+              <div 
+                style={imageOrganicStyles[3]}
+                className="relative overflow-hidden border-4 border-nn-black hover:border-nn-red transition-all duration-300 hover:shadow-neon-red"
+              >
                 <img
                   src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80"
                   alt="Event"

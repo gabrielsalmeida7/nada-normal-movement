@@ -11,6 +11,8 @@ const pillars = [
     textColor: "text-nn-orange",
     hoverBorder: "hover:border-nn-orange",
     shadowClass: "hover:shadow-neon-orange",
+    blobClass: "shape-blob-1",
+    cardStyle: { borderRadius: '10px 40px 10px 40px' },
   },
   {
     icon: Heart,
@@ -21,6 +23,8 @@ const pillars = [
     textColor: "text-nn-lime",
     hoverBorder: "hover:border-nn-lime",
     shadowClass: "hover:shadow-neon-lime",
+    blobClass: "shape-blob-2",
+    cardStyle: { borderRadius: '40px 10px 40px 10px' },
   },
   {
     icon: Zap,
@@ -31,6 +35,8 @@ const pillars = [
     textColor: "text-nn-yellow",
     hoverBorder: "hover:border-nn-yellow",
     shadowClass: "hover:shadow-neon-yellow",
+    blobClass: "shape-blob-3",
+    cardStyle: { borderRadius: '5px 30px 50px 15px' },
   },
   {
     icon: Users,
@@ -41,6 +47,8 @@ const pillars = [
     textColor: "text-nn-red",
     hoverBorder: "hover:border-nn-red",
     shadowClass: "hover:shadow-neon-red",
+    blobClass: "shape-blob-4",
+    cardStyle: { borderRadius: '50px 15px 5px 35px' },
   },
 ];
 
@@ -95,10 +103,11 @@ export const PillarsSection = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
-              className={`group bg-nn-black border-4 border-nn-black p-6 ${pillar.hoverBorder} transition-all duration-300 ${pillar.shadowClass}`}
+              style={pillar.cardStyle}
+              className={`group bg-nn-black border-4 border-nn-black p-6 ${pillar.hoverBorder} transition-all duration-300 ${pillar.shadowClass} overflow-hidden`}
             >
-              {/* Icon */}
-              <div className={`w-16 h-16 ${pillar.bgColor} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
+              {/* Icon with blob shape */}
+              <div className={`w-16 h-16 ${pillar.bgColor} ${pillar.blobClass} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
                 <pillar.icon className="text-nn-black" size={32} />
               </div>
 

@@ -6,6 +6,15 @@ import productSocks from "@/assets/product-socks.jpg";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTank from "@/assets/product-tank.jpg";
 
+const organicCardStyles = [
+  { borderRadius: '10px 40px 10px 40px' },
+  { borderRadius: '40px 10px 40px 10px' },
+  { borderRadius: '5px 30px 50px 15px' },
+  { borderRadius: '50px 15px 5px 35px' },
+];
+
+const blobClasses = ['shape-blob-1', 'shape-blob-2', 'shape-blob-3', 'shape-blob-4'];
+
 const products = [
   {
     id: 1,
@@ -81,7 +90,7 @@ export const ProductsSection = () => {
               Peças desenvolvidas para quem vive fora da curva
             </p>
           </div>
-          <Button variant="neonV2" className="mt-6 md:mt-0">
+          <Button variant="neonV2" className="mt-6 md:mt-0 btn-organic">
             Ver Todos
           </Button>
         </motion.div>
@@ -97,41 +106,46 @@ export const ProductsSection = () => {
               transition={{ delay: index * 0.1 }}
               className="group"
             >
-              {/* Image Container */}
-              <div className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-pink transition-all duration-300 group-hover:shadow-neon-pink">
+              {/* Image Container with organic shape */}
+              <div 
+                style={organicCardStyles[index % organicCardStyles.length]}
+                className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-pink transition-all duration-300 group-hover:shadow-neon-pink"
+              >
                 <img
                   src={product.image}
                   alt={product.name}
                   className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
                 />
 
-                {/* Tag */}
+                {/* Tag with organic shape */}
                 {product.tag && (
-                  <span className={`absolute top-4 left-4 ${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider`}>
+                  <span 
+                    className={`absolute top-4 left-4 ${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider tag-organic`}
+                  >
                     {product.tag}
                   </span>
                 )}
 
-                {/* Hover Actions */}
+                {/* Hover Actions with blob shapes */}
                 <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center"
+                    className={`w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center ${blobClasses[0]}`}
                   >
                     <ShoppingBag size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-foreground text-background flex items-center justify-center"
+                    className={`w-12 h-12 bg-foreground text-background flex items-center justify-center ${blobClasses[1]}`}
                   >
                     <Heart size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center"
+                    className={`w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center ${blobClasses[2]}`}
                   >
                     <Eye size={20} />
                   </motion.button>
