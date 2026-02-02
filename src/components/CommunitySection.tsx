@@ -31,7 +31,7 @@ const communityFeatures = [
 
 export const CommunitySection = () => {
   return (
-    <section id="community" className="py-24 relative overflow-hidden bg-gradient-fire-v2">
+    <section id="community" className="py-24 relative overflow-hidden bg-gradient-to-br from-nn-pink via-nn-purple-neon to-nn-blue-neon">
       {/* Graffiti brand image */}
       <motion.img
         src="/lovable-uploads/Norm.png"
@@ -51,14 +51,14 @@ export const CommunitySection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-nn-yellow font-display text-sm tracking-widest glow-text-yellow">
+            <span className="text-nn-lime font-display text-sm tracking-widest glow-text-lime">
               FAÇA PARTE
             </span>
-            <h2 className="font-display text-5xl md:text-7xl mt-2 mb-6 text-nn-black">
+            <h2 className="font-display text-5xl md:text-7xl mt-2 mb-6 text-nn-white">
               COMUNIDADE{" "}
-              <span className="text-nn-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">NADA NORMAL</span>
+              <span className="text-nn-lime drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">NADA NORMAL</span>
             </h2>
-            <p className="text-nn-black/80 text-lg mb-8 leading-relaxed font-medium">
+            <p className="text-nn-white/90 text-lg mb-8 leading-relaxed font-medium">
               Mais do que uma marca, somos um movimento. Conecte-se com corredores 
               que entendem sua loucura, participe de experiências únicas e faça parte 
               do caos coletivo que celebra a anormalidade.
@@ -78,10 +78,10 @@ export const CommunitySection = () => {
                     <feature.icon size={24} />
                   </div>
                   <div>
-                    <h4 className="font-display text-lg text-nn-black group-hover:text-nn-white transition-colors">
+                    <h4 className="font-display text-lg text-nn-white group-hover:text-nn-lime transition-colors">
                       {feature.title}
                     </h4>
-                    <p className="text-nn-black/70 text-sm">
+                    <p className="text-nn-white/70 text-sm">
                       {feature.description}
                     </p>
                   </div>
@@ -89,7 +89,7 @@ export const CommunitySection = () => {
               ))}
             </div>
 
-            <Button variant="fireV2" size="lg">
+            <Button variant="chaosV2" size="lg">
               Junte-se ao Movimento
             </Button>
           </motion.div>

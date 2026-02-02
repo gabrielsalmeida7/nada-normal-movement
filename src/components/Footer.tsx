@@ -33,7 +33,7 @@ const socialLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-nn-black border-t-4 border-nn-orange relative overflow-hidden">
+    <footer className="bg-card border-t-4 border-nn-purple-neon relative overflow-hidden">
       {/* Background brand image */}
       <div className="absolute top-10 right-10 opacity-10">
         <img
@@ -45,7 +45,7 @@ export const Footer = () => {
 
       {/* Newsletter Section */}
       <div className="container py-16 relative z-10">
-        <div className="bg-gradient-tropical border-4 border-nn-black p-8 md:p-12 shadow-brutal">
+        <div className="bg-gradient-to-r from-nn-purple-neon via-nn-pink to-nn-orange border-4 border-nn-black p-8 md:p-12 shadow-brutal">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="font-display text-3xl md:text-4xl text-nn-black mb-4">
@@ -60,12 +60,12 @@ export const Footer = () => {
               <input
                 type="email"
                 placeholder="Seu melhor e-mail"
-                className="flex-1 bg-nn-black border-4 border-nn-black px-4 py-3 text-nn-white placeholder:text-nn-white/50 focus:border-nn-yellow focus:outline-none transition-colors font-body"
+                className="flex-1 bg-nn-black border-4 border-nn-black px-4 py-3 text-nn-white placeholder:text-nn-white/50 focus:border-nn-pink focus:outline-none transition-colors font-body"
               />
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-nn-black text-nn-orange font-display px-6 py-3 uppercase tracking-wider shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300 border-4 border-nn-black"
+                className="bg-nn-black text-nn-pink font-display px-6 py-3 uppercase tracking-wider shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300 border-4 border-nn-black"
               >
                 Enviar
               </motion.button>
@@ -81,10 +81,10 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <img
               alt="Nada Normal"
-              className="h-[180px] w-auto mb-6 drop-shadow-[0_0_20px_hsl(25,100%,55%,0.5)]"
+              className="h-[180px] w-auto mb-6 drop-shadow-[0_0_20px_hsl(270,100%,60%,0.5)]"
               src="/lovable-uploads/ce6d23c5-e49a-4363-9799-40abb2b86648.png"
             />
-            <p className="text-nn-white/70 mb-6 max-w-sm">
+            <p className="text-muted-foreground mb-6 max-w-sm">
               Não corremos para caber em planilhas. Corremos porque o silêncio do
               asfalto é o único lugar que entende nossa loucura.
             </p>
@@ -96,7 +96,7 @@ export const Footer = () => {
                   href={social.href}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="w-12 h-12 bg-card border-2 border-nn-orange/50 hover:border-nn-orange hover:bg-nn-orange hover:text-nn-black flex items-center justify-center transition-all duration-300 hover:shadow-neon-orange text-nn-white"
+                  className="w-12 h-12 bg-card border-2 border-nn-purple-neon/50 hover:border-nn-pink hover:bg-nn-pink hover:text-nn-black flex items-center justify-center transition-all duration-300 hover:shadow-neon-pink text-foreground"
                   aria-label={social.label}
                 >
                   <social.icon size={20} />
@@ -107,13 +107,13 @@ export const Footer = () => {
 
           {/* Links Columns */}
           <div>
-            <h4 className="font-display text-lg text-nn-lime mb-6">LOJA</h4>
+            <h4 className="font-display text-lg text-nn-pink mb-6">LOJA</h4>
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-nn-white/70 hover:text-nn-orange transition-colors"
+                    className="text-muted-foreground hover:text-nn-pink transition-colors"
                   >
                     {link.label}
                   </a>
@@ -123,13 +123,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display text-lg text-nn-yellow mb-6">MARCA</h4>
+            <h4 className="font-display text-lg text-nn-purple-neon mb-6">MARCA</h4>
             <ul className="space-y-3">
               {footerLinks.brand.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-nn-white/70 hover:text-nn-orange transition-colors"
+                    className="text-muted-foreground hover:text-nn-pink transition-colors"
                   >
                     {link.label}
                   </a>
@@ -139,13 +139,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display text-lg text-nn-orange mb-6">SUPORTE</h4>
+            <h4 className="font-display text-lg text-nn-lime mb-6">SUPORTE</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-nn-white/70 hover:text-nn-orange transition-colors"
+                    className="text-muted-foreground hover:text-nn-pink transition-colors"
                   >
                     {link.label}
                   </a>
@@ -157,19 +157,19 @@ export const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-nn-orange/30">
+      <div className="border-t border-nn-purple-neon/30">
         <div className="container py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-nn-white/50 text-sm text-center md:text-left">
+          <p className="text-muted-foreground text-sm text-center md:text-left">
             © 2024 Nada Normal. Todos os direitos reservados.
           </p>
-          <div className="flex items-center gap-6 text-sm text-nn-white/50">
-            <a href="#" className="hover:text-nn-orange transition-colors">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Privacidade
             </a>
-            <a href="#" className="hover:text-nn-orange transition-colors">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Cookies
             </a>
-            <a href="#" className="hover:text-nn-orange transition-colors">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Termos
             </a>
           </div>

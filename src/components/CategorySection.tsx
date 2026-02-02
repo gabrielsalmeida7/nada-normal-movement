@@ -45,7 +45,7 @@ const categories = [
 
 export const CategorySection = () => {
   return (
-    <section className="py-24 bg-nn-black relative overflow-hidden">
+    <section className="py-24 bg-background relative overflow-hidden">
       {/* Decorative brand image */}
       <motion.img
         src="/lovable-uploads/NN.png"
@@ -68,9 +68,9 @@ export const CategorySection = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-5xl md:text-7xl mb-4">
-            <span className="text-nn-orange glow-text-orange">CATEGORIAS</span>
+            <span className="text-nn-pink glow-text">CATEGORIAS</span>
           </h2>
-          <p className="text-nn-white/70 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Cada peça é uma declaração. Cada categoria, um manifesto.
           </p>
         </motion.div>

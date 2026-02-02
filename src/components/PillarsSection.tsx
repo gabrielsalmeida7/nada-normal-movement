@@ -46,7 +46,7 @@ const pillars = [
 
 export const PillarsSection = () => {
   return (
-    <section id="manifesto" className="py-24 relative overflow-hidden bg-gradient-tropical">
+    <section id="manifesto" className="py-24 relative overflow-hidden bg-gradient-to-br from-nn-purple-neon via-nn-pink to-nn-orange">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
