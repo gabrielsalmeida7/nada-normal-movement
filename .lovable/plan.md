@@ -1,202 +1,207 @@
 
-# Plano: Formas Organicas "Nada Normal"
+# Plano: Mascote Interativo Correndo Atras do Cursor
 
 ## Objetivo
-Transformar todos os elementos retangulares e quadrados do site em formas organicas, fluidas e assimétricas - quebrando completamente com o padrão convencional de design. Elementos como cards de categorias, pilares, produtos e ícones da comunidade vão ter bordas irregulares, curvas inesperadas e formatos "estranhos" que refletem a identidade "Nada Normal".
+Adicionar o mascote "Nada Normal" como um elemento interativo que segue o cursor do mouse pela pagina inteira, criando uma experiencia divertida e unica que reforça a identidade da marca.
 
 ---
 
-## Estrategia de Implementacao
+## Comportamento do Mascote
 
-### Tecnica Principal: CSS clip-path + border-radius assimetrico
+O mascote tera os seguintes comportamentos:
 
-Usar combinacoes de `border-radius` com valores diferentes em cada canto e `clip-path` com formas organicas para criar contornos nao-convencionais.
-
----
-
-## Novas Classes CSS (src/index.css)
-
-Adicionar classes utilitarias para formas organicas:
-
-```css
-/* Formas organicas irregulares */
-.shape-blob-1 {
-  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-}
-
-.shape-blob-2 {
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-}
-
-.shape-blob-3 {
-  border-radius: 40% 60% 60% 40% / 70% 30% 70% 30%;
-}
-
-.shape-blob-4 {
-  border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
-}
-
-/* Cards organicos */
-.card-organic-1 {
-  border-radius: 10px 40px 10px 40px;
-}
-
-.card-organic-2 {
-  border-radius: 40px 10px 40px 10px;
-}
-
-.card-organic-3 {
-  border-radius: 5px 30px 50px 15px;
-}
-
-.card-organic-4 {
-  border-radius: 50px 15px 5px 35px;
-}
-
-/* Botoes organicos */
-.btn-organic {
-  border-radius: 20px 5px 20px 5px;
-}
-```
+1. **Segue o cursor** - O mascote se move suavemente em direcao a posicao do mouse
+2. **Efeito de "corrida"** - Pequena oscilacao/bounce enquanto se move
+3. **Espelhamento** - Quando o cursor esta a esquerda do mascote, ele vira para a esquerda (e vice-versa)
+4. **Delay intencional** - Movimento com easing para parecer que esta "perseguindo" o cursor
+5. **Z-index alto** - Sempre visivel acima de outros elementos
+6. **Pointer-events none** - Nao interfere com cliques e interacoes
 
 ---
 
-## Alteracoes por Componente
+## Novo Componente: RunningMascot.tsx
 
-### 1. CategorySection.tsx
-
-**Antes:** Cards retangulares com `border-4`
-**Depois:** Cada categoria com forma organica diferente
-
-| Categoria | Forma |
-|-----------|-------|
-| Running | `border-radius: 10px 60px 10px 60px` |
-| Street | `border-radius: 60px 10px 60px 10px` |
-| Social | `border-radius: 40px 15px 50px 10px` |
-
-As imagens internas tambem terao `overflow: hidden` com a mesma mascara organica.
-
-### 2. PillarsSection.tsx
-
-**Antes:** Cards quadrados com bordas retas
-**Depois:** Cada pilar com formato blob unico
-
-| Pilar | Forma |
-|-------|-------|
-| Obsessao | `shape-blob-1` |
-| Autenticidade | `shape-blob-2` |
-| Performance | `shape-blob-3` |
-| Caos Coletivo | `shape-blob-4` |
-
-Os icones internos tambem terao formatos blob em vez de quadrados.
-
-### 3. ProductsSection.tsx
-
-**Antes:** Cards de produto quadrados
-**Depois:** Formatos organicos alternados
-
-| Produto | Forma |
-|---------|-------|
-| 1 | `card-organic-1` |
-| 2 | `card-organic-2` |
-| 3 | `card-organic-3` |
-| 4 | `card-organic-4` |
-
-Tags de produto tambem com bordas organicas (`border-radius: 15px 3px 15px 3px`).
-
-Botoes de acao (carrinho, favorito, visualizar) com formatos blob.
-
-### 4. CommunitySection.tsx
-
-**Antes:** Icones quadrados de 12x12
-**Depois:** Icones com formato blob
-
-Cada feature icon com `shape-blob-X` diferente.
-
-Imagens do grid tambem com bordas organicas alternadas.
-
-### 5. Button.tsx
-
-**Antes:** Bordas retas
-**Depois:** Variantes organicas
-
-Adicionar propriedade de `border-radius` assimetrico nas variantes existentes ou criar novas variantes organicas.
-
----
-
-## Detalhes Tecnicos
-
-### Arquivos a Modificar
-
-| Arquivo | Alteracao |
-|---------|-----------|
-| src/index.css | Adicionar classes de formas organicas |
-| src/components/CategorySection.tsx | Aplicar formas organicas nos cards |
-| src/components/PillarsSection.tsx | Cards e icones com formato blob |
-| src/components/ProductsSection.tsx | Cards de produto organicos |
-| src/components/CommunitySection.tsx | Icones e imagens organicas |
-| src/components/ui/button.tsx | Border-radius assimetrico |
-
-### Exemplo de Implementacao (Card de Categoria)
+Criar um novo componente em `src/components/RunningMascot.tsx`:
 
 ```tsx
-// Antes
-className="border-4 border-border"
-
-// Depois - com estilo inline para formas diferentes
-style={{ borderRadius: '10px 60px 10px 60px' }}
-className="border-4 border-border overflow-hidden"
+// Funcionalidades principais:
+- useState para posicao X e Y do mascote
+- useEffect para listener de mousemove no window
+- framer-motion animate para movimento suave com spring
+- Logica de flip horizontal baseada na direcao do movimento
+- Animacao de "bounce" constante para simular corrida
 ```
 
-### Exemplo de Implementacao (Icone de Pilar)
-
-```tsx
-// Antes
-className="w-16 h-16 bg-nn-orange"
-
-// Depois
-className="w-16 h-16 bg-nn-orange shape-blob-1"
-```
-
----
-
-## Mapeamento Visual
-
-Estrutura de formas organicas por secao:
+### Estrutura do Componente
 
 ```text
-CATEGORIAS
-+---------------------------+
-|  /```\      ___           |
-| (  R  )    /   \          |
-|  \___/    ( St  )         |
-|            \___/          |
-|    _____                  |
-|   /     ```\              |
-|  (   So     )             |
-|   \_______/               |
-+---------------------------+
-
-PILARES
-+---------------------------+
-|  (o)    /\    <->   {*}   |
-|  blob   blob  blob  blob  |
-+---------------------------+
-
-PRODUTOS  
-+---------------------------+
-|  /--\   \--/   /-\   \-/  |
-|  |  |   |  |   | |   | |  |
-|  \--/   /--\   \-/   /-\  |
-+---------------------------+
++--------------------------------------------------+
+|  RunningMascot Component                          |
+|                                                   |
+|  State:                                           |
+|  - mousePosition: { x, y }                        |
+|  - mascotPosition: { x, y }                       |
+|  - isFlipped: boolean (direcao)                   |
+|                                                   |
+|  Logic:                                           |
+|  - Listener global de mousemove                   |
+|  - Calculo de direcao para flip                   |
+|  - Animacao spring para movimento suave           |
+|                                                   |
+|  Render:                                          |
+|  - motion.img com position fixed                  |
+|  - transform: scaleX(-1) quando flipped           |
+|  - animate: y oscillation para efeito corrida     |
++--------------------------------------------------+
 ```
+
+---
+
+## Implementacao Tecnica
+
+### 1. Copiar Imagem do Mascote
+
+Copiar a imagem enviada para o projeto:
+```
+user-uploads://Vector_1.png -> src/assets/mascot-running.png
+```
+
+### 2. Criar Componente RunningMascot
+
+**Arquivo:** `src/components/RunningMascot.tsx`
+
+```tsx
+import { useState, useEffect } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
+import mascotImage from "@/assets/mascot-running.png";
+
+export const RunningMascot = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isFlipped, setIsFlipped] = useState(false);
+  
+  // Springs para movimento suave
+  const springConfig = { damping: 25, stiffness: 120 };
+  const x = useSpring(0, springConfig);
+  const y = useSpring(0, springConfig);
+  
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Atualiza posicao do mouse
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      
+      // Determina direcao do flip
+      if (e.clientX > x.get() + 50) setIsFlipped(false);
+      if (e.clientX < x.get() - 50) setIsFlipped(true);
+      
+      // Atualiza posicao alvo com offset
+      x.set(e.clientX - 60);
+      y.set(e.clientY - 60);
+    };
+    
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+  
+  return (
+    <motion.img
+      src={mascotImage}
+      alt="Mascote Nada Normal"
+      className="fixed pointer-events-none z-50 w-24 h-auto"
+      style={{ 
+        x, 
+        y,
+        scaleX: isFlipped ? -1 : 1
+      }}
+      animate={{
+        y: [0, -8, 0], // Bounce de corrida
+        rotate: isFlipped ? [-3, 3, -3] : [3, -3, 3]
+      }}
+      transition={{
+        y: { duration: 0.3, repeat: Infinity },
+        rotate: { duration: 0.3, repeat: Infinity }
+      }}
+    />
+  );
+};
+```
+
+### 3. Adicionar ao Index.tsx
+
+```tsx
+import { RunningMascot } from "@/components/RunningMascot";
+
+const Index = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <RunningMascot />
+      <Header />
+      {/* ... resto do conteudo */}
+    </div>
+  );
+};
+```
+
+---
+
+## Detalhes de Animacao
+
+| Propriedade | Valor | Proposito |
+|-------------|-------|-----------|
+| `damping` | 25 | Controla a "resistencia" do movimento |
+| `stiffness` | 120 | Velocidade de resposta ao cursor |
+| Bounce Y | -8px | Simula o movimento de corrida |
+| Rotate | ±3° | Balanco natural do corpo |
+| Duration | 0.3s | Ciclo rapido para parecer correndo |
+
+### Comportamento Visual
+
+```text
+Cursor se move para a direita:
+     CURSOR -->
+              
+        🏃 (mascote corre atras)
+        
+Cursor se move para a esquerda:
+<-- CURSOR
+              
+    (mascote vira) 🏃
+```
+
+---
+
+## Arquivos a Modificar/Criar
+
+| Arquivo | Acao |
+|---------|------|
+| src/assets/mascot-running.png | Criar (copiar imagem) |
+| src/components/RunningMascot.tsx | Criar novo componente |
+| src/pages/Index.tsx | Adicionar componente |
+
+---
+
+## Consideracoes de UX
+
+1. **Performance**: Usar `useSpring` do framer-motion para animacoes GPU-accelerated
+2. **Acessibilidade**: `pointer-events: none` garante que nao interfira com navegacao
+3. **Mobile**: Em dispositivos touch, mascote pode ficar estatico ou ter comportamento alternativo (toque para mover)
+4. **Tamanho**: 96px (w-24) e suficiente para ser visivel sem atrapalhar
+
+---
+
+## Opcao Extra: Mascote Aparece Ocasionalmente
+
+Se preferir algo menos constante, podemos fazer o mascote:
+- Aparecer de um lado da tela e correr ate o outro
+- Surgir em intervalos aleatorios
+- Correr apenas quando o usuario rola a pagina
 
 ---
 
 ## Resultado Esperado
 
-- Nenhum elemento com formato retangular ou quadrado perfeito
-- Cada card/botao/icone com personalidade propria
-- Visual que quebra completamente com padroes convencionais
-- Identidade "Nada Normal" expressada atraves das formas
-- Movimento visual atraves das curvas assimétricas
+Um mascote animado e divertido que:
+- Segue o cursor do mouse com movimento suave
+- Vira para a direcao correta do movimento
+- Tem animacao de corrida constante (bounce + rotate)
+- Nao interfere com a navegacao do site
+- Reforça a identidade "Nada Normal" de forma interativa e memorável
