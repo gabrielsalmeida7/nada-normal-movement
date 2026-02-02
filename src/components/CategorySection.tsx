@@ -10,7 +10,11 @@ const categories = [
     title: "Running",
     subtitle: "Obsessão em Movimento",
     description: "Para quem acorda às 4h da manhã e chama isso de privilégio.",
-    color: "nn-purple-neon",
+    color: "nn-orange",
+    borderColor: "border-nn-orange",
+    hoverBorder: "hover:border-nn-orange",
+    shadowClass: "shadow-neon-orange",
+    textColor: "text-nn-orange",
     image: categoryRunning,
   },
   {
@@ -18,7 +22,11 @@ const categories = [
     title: "Street",
     subtitle: "Autenticidade Urbana",
     description: "Leve o caos para as ruas. Vista sua anormalidade.",
-    color: "nn-blue-neon",
+    color: "nn-lime",
+    borderColor: "border-nn-lime",
+    hoverBorder: "hover:border-nn-lime",
+    shadowClass: "shadow-neon-lime",
+    textColor: "text-nn-lime",
     image: categoryStreet,
   },
   {
@@ -26,14 +34,18 @@ const categories = [
     title: "Social",
     subtitle: "Caos Coletivo",
     description: "Porque a resenha pós-treino é tão importante quanto o treino.",
-    color: "nn-green-neon",
+    color: "nn-yellow",
+    borderColor: "border-nn-yellow",
+    hoverBorder: "hover:border-nn-yellow",
+    shadowClass: "shadow-neon-yellow",
+    textColor: "text-nn-yellow",
     image: categorySocial,
   },
 ];
 
 export const CategorySection = () => {
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section className="py-24 bg-nn-black relative overflow-hidden">
       {/* Decorative brand image */}
       <motion.img
         src="/lovable-uploads/NN.png"
@@ -44,6 +56,9 @@ export const CategorySection = () => {
         viewport={{ once: true }}
       />
 
+      {/* Diagonal accent stripe */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-tropical" />
+
       <div className="container relative z-10">
         {/* Section Header */}
         <motion.div
@@ -53,9 +68,9 @@ export const CategorySection = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-5xl md:text-7xl mb-4">
-            <span className="text-nn-blue-neon glow-text-blue">CATEGORIAS</span>
+            <span className="text-nn-orange glow-text-orange">CATEGORIAS</span>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-nn-white/70 text-lg max-w-2xl mx-auto">
             Cada peça é uma declaração. Cada categoria, um manifesto.
           </p>
         </motion.div>
@@ -71,7 +86,7 @@ export const CategorySection = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
               whileHover={{ y: -10 }}
-              className="group relative overflow-hidden bg-card border-4 border-border hover:border-nn-purple-neon transition-all duration-300 cursor-pointer hover:shadow-neon-purple"
+              className={`group relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 cursor-pointer hover:${category.shadowClass}`}
             >
               {/* Image */}
               <div className="relative h-96 overflow-hidden">
@@ -85,16 +100,16 @@ export const CategorySection = () => {
 
               {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <span className={`text-${category.color} font-display text-sm tracking-widest`}>
+                <span className={`${category.textColor} font-display text-sm tracking-widest`}>
                   {category.subtitle}
                 </span>
-                <h3 className="font-display text-4xl text-foreground mb-2 group-hover:text-nn-purple-neon transition-colors">
+                <h3 className={`font-display text-4xl text-foreground mb-2 group-hover:${category.textColor} transition-colors`}>
                   {category.title}
                 </h3>
                 <p className="text-foreground/70 text-sm mb-4">
                   {category.description}
                 </p>
-                <div className="flex items-center gap-2 text-nn-purple-neon font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                <div className={`flex items-center gap-2 ${category.textColor} font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0`}>
                   Explorar
                   <ArrowRight size={18} />
                 </div>

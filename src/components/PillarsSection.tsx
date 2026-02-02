@@ -1,70 +1,61 @@
 import { motion } from "framer-motion";
 import { Flame, Heart, Zap, Users } from "lucide-react";
 
-const colorMap = {
-  "nn-purple-neon": "bg-nn-purple-neon",
-  "nn-blue-neon": "bg-nn-blue-neon",
-  "nn-green-neon": "bg-nn-green-neon",
-  "nn-pink": "bg-nn-pink",
-};
-
-const textColorMap = {
-  "nn-purple-neon": "text-nn-purple-neon",
-  "nn-blue-neon": "text-nn-blue-neon",
-  "nn-green-neon": "text-nn-green-neon",
-  "nn-pink": "text-nn-pink",
-};
-
-const shadowMap = {
-  "nn-purple-neon": "shadow-neon-purple",
-  "nn-blue-neon": "shadow-neon-blue",
-  "nn-green-neon": "shadow-neon-green",
-  "nn-pink": "shadow-neon-pink",
-};
-
 const pillars = [
   {
     icon: Flame,
     title: "Obsessão",
     subtitle: "Doidos pelo que fazem",
     description: "Para quem não vê o sacrifício como peso, mas como o único ritual que faz a vida valer a pena.",
-    color: "nn-purple-neon",
+    bgColor: "bg-nn-orange",
+    textColor: "text-nn-orange",
+    hoverBorder: "hover:border-nn-orange",
+    shadowClass: "hover:shadow-neon-orange",
   },
   {
     icon: Heart,
     title: "Autenticidade",
     subtitle: "Doidos na vida",
     description: "Ser 'Nada Normal' é ter a coragem de ser estranho em um mundo de cópias bem vestidas.",
-    color: "nn-blue-neon",
+    bgColor: "bg-nn-lime",
+    textColor: "text-nn-lime",
+    hoverBorder: "hover:border-nn-lime",
+    shadowClass: "hover:shadow-neon-lime",
   },
   {
     icon: Zap,
     title: "Performance",
     subtitle: "Fora da curva",
     description: "Estar acima da média não é arrogância, é o resultado inevitável de uma disciplina anormal.",
-    color: "nn-green-neon",
+    bgColor: "bg-nn-yellow",
+    textColor: "text-nn-yellow",
+    hoverBorder: "hover:border-nn-yellow",
+    shadowClass: "hover:shadow-neon-yellow",
   },
   {
     icon: Users,
     title: "Caos Coletivo",
     subtitle: "A resenha anormal",
     description: "Transformar o sofrimento em piada interna e o esforço individual em celebração coletiva.",
-    color: "nn-pink",
+    bgColor: "bg-nn-red",
+    textColor: "text-nn-red",
+    hoverBorder: "hover:border-nn-red",
+    shadowClass: "hover:shadow-neon-red",
   },
 ];
 
 export const PillarsSection = () => {
   return (
-    <section id="manifesto" className="py-24 bg-card relative overflow-hidden">
+    <section id="manifesto" className="py-24 relative overflow-hidden bg-gradient-tropical">
       {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
           backgroundImage: `repeating-linear-gradient(
             45deg,
             transparent,
             transparent 20px,
-            hsl(var(--nn-purple-neon)) 20px,
-            hsl(var(--nn-purple-neon)) 22px
+            hsl(var(--nn-black)) 20px,
+            hsl(var(--nn-black)) 22px
           )`
         }} />
       </div>
@@ -73,7 +64,7 @@ export const PillarsSection = () => {
       <motion.img
         src="/lovable-uploads/NN1.png"
         alt=""
-        className="absolute right-10 top-1/2 -translate-y-1/2 w-72 opacity-10"
+        className="absolute right-10 top-1/2 -translate-y-1/2 w-72 opacity-20"
         animate={{ rotate: [0, 5, 0, -5, 0] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -86,10 +77,10 @@ export const PillarsSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="font-display text-5xl md:text-7xl mb-4">
-            OS <span className="text-nn-purple-neon glow-text">4 PILARES</span> DA ANORMALIDADE
+          <h2 className="font-display text-5xl md:text-7xl mb-4 text-nn-black">
+            OS <span className="text-nn-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">4 PILARES</span> DA ANORMALIDADE
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-nn-black/80 text-lg max-w-2xl mx-auto font-medium">
             Cada pilar representa uma faceta do que significa ser Nada Normal
           </p>
         </motion.div>
@@ -104,21 +95,21 @@ export const PillarsSection = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
-              className={`group bg-background border-4 border-border p-6 hover:border-${pillar.color} transition-all duration-300 hover:${shadowMap[pillar.color as keyof typeof shadowMap]}`}
+              className={`group bg-nn-black border-4 border-nn-black p-6 ${pillar.hoverBorder} transition-all duration-300 ${pillar.shadowClass}`}
             >
               {/* Icon */}
-              <div className={`w-16 h-16 ${colorMap[pillar.color as keyof typeof colorMap]} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
+              <div className={`w-16 h-16 ${pillar.bgColor} flex items-center justify-center mb-6 shadow-brutal group-hover:translate-x-1 group-hover:translate-y-1 group-hover:shadow-none transition-all duration-300`}>
                 <pillar.icon className="text-nn-black" size={32} />
               </div>
 
               {/* Content */}
-              <span className={`${textColorMap[pillar.color as keyof typeof textColorMap]} font-display text-xs tracking-widest`}>
+              <span className={`${pillar.textColor} font-display text-xs tracking-widest`}>
                 {pillar.subtitle}
               </span>
-              <h3 className="font-display text-2xl text-foreground mt-1 mb-3">
+              <h3 className="font-display text-2xl text-nn-white mt-1 mb-3">
                 {pillar.title}
               </h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-nn-white/70 text-sm leading-relaxed">
                 {pillar.description}
               </p>
             </motion.div>

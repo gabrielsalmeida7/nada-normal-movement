@@ -20,6 +20,11 @@ const buttonVariants = cva(
         chaos: "bg-nn-blue-neon text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-blue",
         fire: "bg-nn-green-neon text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-green",
         neon: "bg-transparent border-2 border-nn-purple-neon text-nn-purple-neon hover:bg-nn-purple-neon hover:text-nn-black animate-pulse-glow",
+        // V2 High Contrast variants
+        heroV2: "bg-gradient-to-r from-nn-orange to-nn-yellow text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-orange",
+        chaosV2: "bg-nn-lime text-nn-black shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-lime",
+        fireV2: "bg-nn-red text-nn-white shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none border-4 border-nn-black hover:shadow-neon-red",
+        neonV2: "bg-transparent border-2 border-nn-orange text-nn-orange hover:bg-nn-orange hover:text-nn-black animate-pulse-glow",
       },
       size: {
         default: "h-12 px-6 py-3",
