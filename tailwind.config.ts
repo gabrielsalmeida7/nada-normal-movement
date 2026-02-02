@@ -57,6 +57,10 @@ export default {
           yellow: "hsl(var(--nn-yellow))",
           black: "hsl(var(--nn-black))",
           white: "hsl(var(--nn-white))",
+          // V2 High Contrast Colors
+          orange: "hsl(var(--nn-orange))",
+          lime: "hsl(var(--nn-lime))",
+          red: "hsl(var(--nn-red))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

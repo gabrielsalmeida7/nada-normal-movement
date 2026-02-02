@@ -14,7 +14,8 @@ const products = [
     price: 189.90,
     image: productTshirt,
     tag: "Novo",
-    tagColor: "nn-blue-neon",
+    tagColor: "bg-nn-lime",
+    categoryColor: "text-nn-lime",
   },
   {
     id: 2,
@@ -23,7 +24,8 @@ const products = [
     price: 89.90,
     image: productSocks,
     tag: "Bestseller",
-    tagColor: "nn-purple-neon",
+    tagColor: "bg-nn-orange",
+    categoryColor: "text-nn-orange",
   },
   {
     id: 3,
@@ -33,6 +35,7 @@ const products = [
     image: productJacket,
     tag: null,
     tagColor: null,
+    categoryColor: "text-nn-yellow",
   },
   {
     id: 4,
@@ -41,13 +44,14 @@ const products = [
     price: 149.90,
     image: productTank,
     tag: "Limitado",
-    tagColor: "nn-green-neon",
+    tagColor: "bg-nn-red",
+    categoryColor: "text-nn-red",
   },
 ];
 
 export const ProductsSection = () => {
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section className="py-24 bg-nn-black relative overflow-hidden">
       {/* Floating brand image */}
       <motion.img
         src="/lovable-uploads/MaoNN.png"
@@ -56,6 +60,9 @@ export const ProductsSection = () => {
         animate={{ y: [0, -10, 0], rotate: [-3, 3, -3] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       />
+
+      {/* Accent stripe */}
+      <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-sunset" />
 
       <div className="container relative z-10">
         {/* Section Header */}
@@ -67,13 +74,14 @@ export const ProductsSection = () => {
         >
           <div>
             <h2 className="font-display text-5xl md:text-7xl mb-4">
-              <span className="text-nn-green-neon glow-text-green">PRODUTOS</span> EM DESTAQUE
+              <span className="text-nn-lime glow-text-lime">PRODUTOS</span>{" "}
+              <span className="text-nn-white">EM DESTAQUE</span>
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl">
+            <p className="text-nn-white/70 text-lg max-w-xl">
               Peças desenvolvidas para quem vive fora da curva
             </p>
           </div>
-          <Button variant="outline" className="mt-6 md:mt-0 border-nn-purple-neon text-nn-purple-neon hover:bg-nn-purple-neon hover:text-nn-black">
+          <Button variant="neonV2" className="mt-6 md:mt-0">
             Ver Todos
           </Button>
         </motion.div>
@@ -90,7 +98,7 @@ export const ProductsSection = () => {
               className="group"
             >
               {/* Image Container */}
-              <div className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-purple-neon transition-all duration-300 group-hover:shadow-neon-purple">
+              <div className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-orange transition-all duration-300 group-hover:shadow-neon-orange">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -99,7 +107,7 @@ export const ProductsSection = () => {
 
                 {/* Tag */}
                 {product.tag && (
-                  <span className={`absolute top-4 left-4 bg-${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider`}>
+                  <span className={`absolute top-4 left-4 ${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider`}>
                     {product.tag}
                   </span>
                 )}
@@ -109,21 +117,21 @@ export const ProductsSection = () => {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center"
+                    className="w-12 h-12 bg-nn-orange text-nn-black flex items-center justify-center"
                   >
                     <ShoppingBag size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-foreground text-background flex items-center justify-center"
+                    className="w-12 h-12 bg-nn-white text-nn-black flex items-center justify-center"
                   >
                     <Heart size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-blue-neon text-nn-black flex items-center justify-center"
+                    className="w-12 h-12 bg-nn-lime text-nn-black flex items-center justify-center"
                   >
                     <Eye size={20} />
                   </motion.button>
@@ -132,13 +140,13 @@ export const ProductsSection = () => {
 
               {/* Product Info */}
               <div className="mt-4">
-                <span className="text-nn-blue-neon font-display text-xs tracking-widest">
+                <span className={`${product.categoryColor} font-display text-xs tracking-widest`}>
                   {product.category}
                 </span>
-                <h3 className="font-display text-xl text-foreground mt-1 group-hover:text-nn-purple-neon transition-colors">
+                <h3 className="font-display text-xl text-nn-white mt-1 group-hover:text-nn-orange transition-colors">
                   {product.name}
                 </h3>
-                <p className="text-nn-green-neon font-bold text-lg mt-2">
+                <p className="text-nn-yellow font-bold text-lg mt-2">
                   R$ {product.price.toFixed(2).replace('.', ',')}
                 </p>
               </div>

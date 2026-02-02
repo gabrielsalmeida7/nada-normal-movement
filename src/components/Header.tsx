@@ -16,7 +16,7 @@ export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b-2 border-nn-purple-neon/50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-nn-black/90 backdrop-blur-md border-b-4 border-nn-orange">
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-28">
           {/* Logo - 50% larger */}
@@ -28,7 +28,7 @@ export const Header = () => {
           >
             <img
               alt="Nada Normal"
-              className="h-[126px] w-auto drop-shadow-[0_0_15px_hsl(270,100%,60%,0.5)]"
+              className="h-[126px] w-auto drop-shadow-[0_0_15px_hsl(25,100%,55%,0.5)]"
               src="/lovable-uploads/954aa667-c5fd-44ca-b757-b6ae62dbdb1e.png"
             />
           </motion.a>
@@ -42,10 +42,10 @@ export const Header = () => {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="font-display text-base uppercase tracking-wider text-foreground/80 hover:text-nn-purple-neon transition-colors relative group"
+                className="font-display text-base uppercase tracking-wider text-nn-white/80 hover:text-nn-orange transition-colors relative group"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-nn-purple-neon to-nn-blue-neon transition-all duration-300 group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-nn-orange to-nn-yellow transition-all duration-300 group-hover:w-full" />
               </motion.a>
             ))}
           </nav>
@@ -55,15 +55,15 @@ export const Header = () => {
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="relative p-2 text-foreground/80 hover:text-nn-purple-neon transition-colors"
+              className="relative p-2 text-nn-white/80 hover:text-nn-orange transition-colors"
             >
               <ShoppingBag size={24} />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-nn-purple-neon text-nn-black text-xs font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-nn-orange text-nn-black text-xs font-bold flex items-center justify-center">
                 0
               </span>
             </motion.button>
 
-            <Button variant="neon" size="sm" className="hidden md:flex">
+            <Button variant="neonV2" size="sm" className="hidden md:flex">
               <User size={18} />
               Entrar
             </Button>
@@ -71,7 +71,7 @@ export const Header = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-foreground"
+              className="lg:hidden p-2 text-nn-white"
             >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -86,7 +86,7 @@ export const Header = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-card border-t border-nn-purple-neon/30 overflow-hidden"
+            className="lg:hidden bg-nn-black border-t border-nn-orange/30 overflow-hidden"
           >
             <nav className="container py-6 flex flex-col gap-4">
               {navItems.map((item) => (
@@ -94,12 +94,12 @@ export const Header = () => {
                   key={item.label}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className="font-display text-2xl uppercase tracking-wider text-foreground hover:text-nn-purple-neon transition-colors py-2"
+                  className="font-display text-2xl uppercase tracking-wider text-nn-white hover:text-nn-orange transition-colors py-2"
                 >
                   {item.label}
                 </a>
               ))}
-              <Button variant="hero" size="lg" className="mt-4">
+              <Button variant="heroV2" size="lg" className="mt-4">
                 Entrar no Movimento
               </Button>
             </nav>

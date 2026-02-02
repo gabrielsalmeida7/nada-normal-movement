@@ -16,6 +16,11 @@
     --nn-black: 0 0% 5%;
     --nn-white: 0 0% 98%;
     
+    /* V2 High Contrast Colors */
+    --nn-orange: 25 100% 55%;
+    --nn-lime: 80 100% 50%;
+    --nn-red: 0 100% 55%;
+    
     /* Dark Theme by Default */
     --background: 260 20% 8%;
     --foreground: 0 0% 98%;
@@ -57,12 +62,24 @@
     --gradient-neon: linear-gradient(90deg, hsl(var(--nn-blue-neon)), hsl(var(--nn-purple-neon)), hsl(var(--nn-green-neon)));
     --gradient-electric: linear-gradient(135deg, hsl(var(--nn-blue-neon)), hsl(var(--nn-green-neon)));
     
+    /* V2 High Contrast Gradients */
+    --gradient-chaos-v2: linear-gradient(135deg, hsl(var(--nn-orange)), hsl(var(--nn-yellow)), hsl(var(--nn-lime)));
+    --gradient-fire-v2: linear-gradient(45deg, hsl(var(--nn-red)), hsl(var(--nn-orange)));
+    --gradient-tropical: linear-gradient(90deg, hsl(var(--nn-lime)), hsl(var(--nn-yellow)), hsl(var(--nn-orange)));
+    --gradient-sunset: linear-gradient(135deg, hsl(var(--nn-red)), hsl(var(--nn-orange)), hsl(var(--nn-yellow)));
+    
     /* Shadows NEON */
     --shadow-neon-purple: 0 0 40px hsl(var(--nn-purple-neon) / 0.6);
     --shadow-neon-blue: 0 0 40px hsl(var(--nn-blue-neon) / 0.6);
     --shadow-neon-green: 0 0 40px hsl(var(--nn-green-neon) / 0.6);
     --shadow-neon-pink: 0 0 40px hsl(var(--nn-pink) / 0.6);
     --shadow-brutal: 4px 4px 0 hsl(var(--nn-black));
+    
+    /* V2 High Contrast Shadows */
+    --shadow-neon-orange: 0 0 40px hsl(var(--nn-orange) / 0.6);
+    --shadow-neon-lime: 0 0 40px hsl(var(--nn-lime) / 0.6);
+    --shadow-neon-red: 0 0 40px hsl(var(--nn-red) / 0.6);
+    --shadow-neon-yellow: 0 0 40px hsl(var(--nn-yellow) / 0.6);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -148,6 +165,77 @@
   
   .shadow-brutal {
     box-shadow: var(--shadow-brutal);
+  }
+  
+  .shadow-neon-orange {
+    box-shadow: var(--shadow-neon-orange);
+  }
+  
+  .shadow-neon-lime {
+    box-shadow: var(--shadow-neon-lime);
+  }
+  
+  .shadow-neon-red {
+    box-shadow: var(--shadow-neon-red);
+  }
+  
+  .shadow-neon-yellow {
+    box-shadow: var(--shadow-neon-yellow);
+  }
+  
+  .bg-gradient-chaos-v2 {
+    background: var(--gradient-chaos-v2);
+  }
+  
+  .bg-gradient-fire-v2 {
+    background: var(--gradient-fire-v2);
+  }
+  
+  .bg-gradient-tropical {
+    background: var(--gradient-tropical);
+  }
+  
+  .bg-gradient-sunset {
+    background: var(--gradient-sunset);
+  }
+  
+  .text-gradient-tropical {
+    background: var(--gradient-tropical);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glow-text-orange {
+    text-shadow: 
+      0 0 10px hsl(var(--nn-orange) / 0.8),
+      0 0 20px hsl(var(--nn-orange) / 0.6),
+      0 0 30px hsl(var(--nn-orange) / 0.4),
+      0 0 40px hsl(var(--nn-orange) / 0.2);
+  }
+  
+  .glow-text-lime {
+    text-shadow: 
+      0 0 10px hsl(var(--nn-lime) / 0.8),
+      0 0 20px hsl(var(--nn-lime) / 0.6),
+      0 0 30px hsl(var(--nn-lime) / 0.4),
+      0 0 40px hsl(var(--nn-lime) / 0.2);
+  }
+  
+  .glow-text-yellow {
+    text-shadow: 
+      0 0 10px hsl(var(--nn-yellow) / 0.8),
+      0 0 20px hsl(var(--nn-yellow) / 0.6),
+      0 0 30px hsl(var(--nn-yellow) / 0.4),
+      0 0 40px hsl(var(--nn-yellow) / 0.2);
+  }
+  
+  .glow-text-red {
+    text-shadow: 
+      0 0 10px hsl(var(--nn-red) / 0.8),
+      0 0 20px hsl(var(--nn-red) / 0.6),
+      0 0 30px hsl(var(--nn-red) / 0.4),
+      0 0 40px hsl(var(--nn-red) / 0.2);
   }
   
   .font-display {
