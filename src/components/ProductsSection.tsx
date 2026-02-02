@@ -51,7 +51,7 @@ const products = [
 
 export const ProductsSection = () => {
   return (
-    <section className="py-24 bg-nn-black relative overflow-hidden">
+    <section className="py-24 bg-background relative overflow-hidden">
       {/* Floating brand image */}
       <motion.img
         src="/lovable-uploads/MaoNN.png"
@@ -74,10 +74,10 @@ export const ProductsSection = () => {
         >
           <div>
             <h2 className="font-display text-5xl md:text-7xl mb-4">
-              <span className="text-nn-lime glow-text-lime">PRODUTOS</span>{" "}
-              <span className="text-nn-white">EM DESTAQUE</span>
+              <span className="text-nn-pink glow-text">PRODUTOS</span>{" "}
+              <span className="text-foreground">EM DESTAQUE</span>
             </h2>
-            <p className="text-nn-white/70 text-lg max-w-xl">
+            <p className="text-muted-foreground text-lg max-w-xl">
               Peças desenvolvidas para quem vive fora da curva
             </p>
           </div>
@@ -98,7 +98,7 @@ export const ProductsSection = () => {
               className="group"
             >
               {/* Image Container */}
-              <div className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-orange transition-all duration-300 group-hover:shadow-neon-orange">
+              <div className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-pink transition-all duration-300 group-hover:shadow-neon-pink">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -113,25 +113,25 @@ export const ProductsSection = () => {
                 )}
 
                 {/* Hover Actions */}
-                <div className="absolute inset-0 bg-nn-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
+                <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-orange text-nn-black flex items-center justify-center"
+                    className="w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center"
                   >
                     <ShoppingBag size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-white text-nn-black flex items-center justify-center"
+                    className="w-12 h-12 bg-foreground text-background flex items-center justify-center"
                   >
                     <Heart size={20} />
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="w-12 h-12 bg-nn-lime text-nn-black flex items-center justify-center"
+                    className="w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center"
                   >
                     <Eye size={20} />
                   </motion.button>
@@ -143,10 +143,10 @@ export const ProductsSection = () => {
                 <span className={`${product.categoryColor} font-display text-xs tracking-widest`}>
                   {product.category}
                 </span>
-                <h3 className="font-display text-xl text-nn-white mt-1 group-hover:text-nn-orange transition-colors">
+                <h3 className="font-display text-xl text-foreground mt-1 group-hover:text-nn-pink transition-colors">
                   {product.name}
                 </h3>
-                <p className="text-nn-yellow font-bold text-lg mt-2">
+                <p className="text-nn-purple-neon font-bold text-lg mt-2">
                   R$ {product.price.toFixed(2).replace('.', ',')}
                 </p>
               </div>

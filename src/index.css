@@ -21,11 +21,11 @@
     --nn-lime: 80 100% 50%;
     --nn-red: 0 100% 55%;
     
-    /* Dark Theme by Default */
-    --background: 260 20% 8%;
+    /* Dark Theme by Default - Lighter */
+    --background: 260 15% 14%;
     --foreground: 0 0% 98%;
 
-    --card: 260 20% 10%;
+    --card: 260 15% 18%;
     --card-foreground: 0 0% 98%;
 
     --popover: 260 20% 10%;
