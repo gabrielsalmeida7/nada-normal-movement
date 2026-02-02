@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Flame, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import heroLogo from "@/assets/nn-logo-hero.png";
 
 export const HeroSection = () => {
   return (
@@ -114,7 +115,7 @@ export const HeroSection = () => {
             className="relative inline-block mt-8 md:mt-4"
           >
             <motion.img
-              src="/lovable-uploads/954aa667-c5fd-44ca-b757-b6ae62dbdb1e.png"
+              src={heroLogo}
               alt="Nada Normal"
               className="w-[280px] sm:w-[400px] md:w-[500px] lg:w-[600px] mx-auto"
               animate={{ 
