@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Flame, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroLogo from "@/assets/nn-logo-hero.png";
+import splash1 from "@/assets/splash1.svg";
+import splash2 from "@/assets/splash2.svg";
 
 export const HeroSection = () => {
   return (
@@ -144,6 +146,74 @@ export const HeroSection = () => {
                 ]
               }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {/* Splash 1 - top-left */}
+            <motion.img
+              src={splash1}
+              alt=""
+              className="absolute -top-10 -left-16 w-28 sm:w-36 md:w-44 pointer-events-none"
+              animate={{
+                scale: [1, 1.03, 1],
+                rotate: [-1, 1, -1],
+                filter: [
+                  "drop-shadow(0 0 30px hsl(270,100%,60%,0.5))",
+                  "drop-shadow(0 0 50px hsl(330,100%,55%,0.6))",
+                  "drop-shadow(0 0 30px hsl(270,100%,60%,0.5))"
+                ]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {/* Splash 2 - bottom-right */}
+            <motion.img
+              src={splash2}
+              alt=""
+              className="absolute -bottom-8 -right-14 w-28 sm:w-36 md:w-44 pointer-events-none"
+              animate={{
+                scale: [1, 1.03, 1],
+                rotate: [1, -1, 1],
+                filter: [
+                  "drop-shadow(0 0 30px hsl(330,100%,55%,0.5))",
+                  "drop-shadow(0 0 50px hsl(270,100%,60%,0.6))",
+                  "drop-shadow(0 0 30px hsl(330,100%,55%,0.5))"
+                ]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            />
+
+            {/* Splash 1 rotated - top-right */}
+            <motion.img
+              src={splash1}
+              alt=""
+              className="absolute -top-6 -right-12 w-20 sm:w-28 md:w-32 pointer-events-none rotate-90"
+              animate={{
+                scale: [1, 1.03, 1],
+                rotate: [90, 88, 90],
+                filter: [
+                  "drop-shadow(0 0 25px hsl(25,100%,55%,0.5))",
+                  "drop-shadow(0 0 40px hsl(270,100%,60%,0.6))",
+                  "drop-shadow(0 0 25px hsl(25,100%,55%,0.5))"
+                ]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            />
+
+            {/* Splash 2 rotated - bottom-left */}
+            <motion.img
+              src={splash2}
+              alt=""
+              className="absolute -bottom-6 -left-10 w-20 sm:w-28 md:w-32 pointer-events-none -rotate-45"
+              animate={{
+                scale: [1, 1.03, 1],
+                rotate: [-45, -43, -45],
+                filter: [
+                  "drop-shadow(0 0 25px hsl(330,100%,55%,0.5))",
+                  "drop-shadow(0 0 40px hsl(25,100%,55%,0.6))",
+                  "drop-shadow(0 0 25px hsl(330,100%,55%,0.5))"
+                ]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
             />
           </motion.div>
 
