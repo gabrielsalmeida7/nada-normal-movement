@@ -115,7 +115,7 @@ export const PillarsSection = () => {
               <span className={`${pillar.textColor} font-display text-xs tracking-widest`}>
                 {pillar.subtitle}
               </span>
-              <h3 className="font-display text-2xl text-nn-white mt-1 mb-3">
+              <h3 className="font-display text-2xl text-nn-white mt-1 mb-3 break-words text-center">
                 {pillar.title}
               </h3>
               <p className="text-nn-white/70 text-sm leading-relaxed">
