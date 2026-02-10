@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingBag, User } from "lucide-react";
+import { Menu, X, ShoppingBag, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
@@ -63,9 +63,9 @@ export const Header = () => {
               </span>
             </motion.button>
 
-            <Button variant="neon" size="sm" className="hidden md:flex">
-              <User size={18} />
-              Entrar
+            <Button className="hidden md:flex bg-nn-yellow text-nn-black border-4 border-nn-black hover:bg-nn-yellow/90 animate-pulse-glow font-display text-base tracking-wider rounded-[20px_5px_20px_5px] h-10 px-4 py-2 gap-2 items-center justify-center">
+              <AlertTriangle size={18} />
+              NÃO ENTRE!
             </Button>
 
             {/* Mobile menu button */}

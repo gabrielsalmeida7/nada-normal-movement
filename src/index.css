@@ -8,9 +8,9 @@
   :root {
     /* Core Brand Colors - Nada Normal NEON */
     --nn-blue-neon: 210 100% 55%;
-    --nn-purple-neon: 270 100% 60%;
-    --nn-green-neon: 140 100% 50%;
-    --nn-pink: 330 100% 55%;
+    --nn-purple-neon: 270 100% 65%;
+    --nn-green-neon: 140 100% 55%;
+    --nn-pink: 330 100% 60%;
     --nn-yellow: 54 100% 55%;
     --nn-cyan: 190 100% 55%;
     --nn-black: 0 0% 5%;
@@ -22,7 +22,7 @@
     --nn-red: 0 100% 55%;
     
     /* Dark Theme by Default - Lighter */
-    --background: 260 15% 14%;
+    --background: 250 40% 8%;
     --foreground: 0 0% 98%;
 
     --card: 260 15% 18%;
