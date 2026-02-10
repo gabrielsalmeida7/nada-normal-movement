@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { Flame, Heart, Zap, Users } from "lucide-react";
+import { PartyPopper, Shuffle, HandHeart, Zap } from "lucide-react";
 
 const pillars = [
   {
-    icon: Flame,
+    icon: PartyPopper,
     title: "Resenha Total",
     subtitle: "A zoeira não para",
     description: "Onde o treino vira festa e o sofrimento vira piada. A resenha é o combustível.",
@@ -15,7 +15,7 @@ const pillars = [
     cardStyle: { borderRadius: '10px 40px 10px 40px' },
   },
   {
-    icon: Heart,
+    icon: Shuffle,
     title: "Caos Organizado",
     subtitle: "Método na loucura",
     description: "Parece bagunça, mas cada passo é calculado. O caos é só a superfície.",
@@ -27,7 +27,7 @@ const pillars = [
     cardStyle: { borderRadius: '40px 10px 40px 10px' },
   },
   {
-    icon: Zap,
+    icon: HandHeart,
     title: "Pertencimento",
     subtitle: "Sua tribo te espera",
     description: "Aqui ninguém corre sozinho. A manada anormal é sua família.",
@@ -39,7 +39,7 @@ const pillars = [
     cardStyle: { borderRadius: '5px 30px 50px 15px' },
   },
   {
-    icon: Users,
+    icon: Zap,
     title: "Descontrole",
     subtitle: "Sem freio, sem limite",
     description: "Quando você solta o controle, descobre que nunca precisou dele.",
