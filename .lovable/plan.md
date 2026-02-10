@@ -1,207 +1,143 @@
 
-# Plano: Mascote Interativo Correndo Atras do Cursor
+# Plano: Redesign Visual do Hero e Pilares
 
-## Objetivo
-Adicionar o mascote "Nada Normal" como um elemento interativo que segue o cursor do mouse pela pagina inteira, criando uma experiencia divertida e unica que reforça a identidade da marca.
+## Resumo das Alteracoes
 
----
+Sao 6 mudancas principais solicitadas:
 
-## Comportamento do Mascote
-
-O mascote tera os seguintes comportamentos:
-
-1. **Segue o cursor** - O mascote se move suavemente em direcao a posicao do mouse
-2. **Efeito de "corrida"** - Pequena oscilacao/bounce enquanto se move
-3. **Espelhamento** - Quando o cursor esta a esquerda do mascote, ele vira para a esquerda (e vice-versa)
-4. **Delay intencional** - Movimento com easing para parecer que esta "perseguindo" o cursor
-5. **Z-index alto** - Sempre visivel acima de outros elementos
-6. **Pointer-events none** - Nao interfere com cliques e interacoes
+1. **Fundo mais escuro** - trocar o fundo marrom/cinza por azul/roxo profundo para maior contraste
+2. **Cores mais vibrantes e saturadas** nos elementos e logo
+3. **Frase principal destacada** - "Nada aqui foi criado pra pessoas normais, e isso e exatamente o ponto."
+4. **Splashes estaticos e mais coloridos** - remover laranja, adicionar verde vibrante, sem animacao de movimento
+5. **Botao "NAO ENTRE!"** amarelo no header substituindo o "Entrar"
+6. **Logo com movimento mais dinamico** no Hero
+7. **4 Pilares renomeados** para: Resenha Total, Caos Organizado, Pertencimento, Descontrole
 
 ---
 
-## Novo Componente: RunningMascot.tsx
+## 1. Fundo do Hero (HeroSection.tsx)
 
-Criar um novo componente em `src/components/RunningMascot.tsx`:
+**Antes:** `bg-[hsl(260,15%,14%)]` (cinza-roxo acastanhado)
+**Depois:** `bg-[hsl(250,40%,8%)]` (azul-roxo profundo e escuro)
 
-```tsx
-// Funcionalidades principais:
-- useState para posicao X e Y do mascote
-- useEffect para listener de mousemove no window
-- framer-motion animate para movimento suave com spring
-- Logica de flip horizontal baseada na direcao do movimento
-- Animacao de "bounce" constante para simular corrida
-```
+Tambem ajustar os blobs de fundo para cores mais intensas (aumentar opacidade de /30 para /50).
 
-### Estrutura do Componente
+## 2. Cores Mais Vibrantes (index.css)
+
+Aumentar saturacao e luminosidade das variaveis CSS principais:
+
+| Variavel | Antes | Depois |
+|----------|-------|--------|
+| --nn-purple-neon | 270 100% 60% | 270 100% 65% |
+| --nn-pink | 330 100% 55% | 330 100% 60% |
+| --nn-green-neon | 140 100% 50% | 140 100% 55% |
+| --background | 260 15% 14% | 250 40% 8% |
+
+## 3. Frase Principal Destacada (HeroSection.tsx)
+
+Substituir o texto atual por:
+
+> "Nada aqui foi criado pra pessoas normais, e isso e exatamente o ponto."
+
+Com estilo mais impactante: fonte maior, cor neon, glow effect forte.
+
+## 4. Splashes Estaticos (HeroSection.tsx)
+
+- Remover todas as propriedades `animate` e `transition` dos 4 splashes
+- Manter apenas posicao e tamanho (estaticos)
+- Trocar o drop-shadow laranja por verde vibrante (`hsl(140,100%,55%)`)
+- Aumentar saturacao dos outros drop-shadows
+
+## 5. Botao "NAO ENTRE!" (Header.tsx)
+
+Substituir o botao "Entrar" por:
 
 ```text
-+--------------------------------------------------+
-|  RunningMascot Component                          |
-|                                                   |
-|  State:                                           |
-|  - mousePosition: { x, y }                        |
-|  - mascotPosition: { x, y }                       |
-|  - isFlipped: boolean (direcao)                   |
-|                                                   |
-|  Logic:                                           |
-|  - Listener global de mousemove                   |
-|  - Calculo de direcao para flip                   |
-|  - Animacao spring para movimento suave           |
-|                                                   |
-|  Render:                                          |
-|  - motion.img com position fixed                  |
-|  - transform: scaleX(-1) quando flipped           |
-|  - animate: y oscillation para efeito corrida     |
-+--------------------------------------------------+
+⚠️ NAO ENTRE!
 ```
+
+- Fundo amarelo vibrante (`bg-nn-yellow`)
+- Texto preto bold
+- Icone de alerta (AlertTriangle do lucide)
+- Efeito de pulse/glow para chamar atencao
+
+## 6. Logo com Movimento Dinamico (HeroSection.tsx)
+
+Ampliar a animacao da logo:
+- Escala mais pronunciada: `[1, 1.08, 1]` (antes era 1.03)
+- Rotacao mais ampla: `[-3, 3, -3]` (antes era -1 a 1)
+- Adicionar efeito de "float" vertical: `y: [0, -15, 0]`
+- Drop-shadow mais intenso com cores alternando entre roxo, rosa e verde
+
+## 7. Pilares Renomeados (PillarsSection.tsx)
+
+| Antes | Depois | Subtitulo | Descricao |
+|-------|--------|-----------|-----------|
+| Obsessao | Resenha Total | A zoeira nao para | Onde o treino vira festa e o sofrimento vira piada. A resenha e o combustivel. |
+| Autenticidade | Caos Organizado | Metodo na loucura | Parece bagunca, mas cada passo e calculado. O caos e so a superficie. |
+| Performance | Pertencimento | Sua tribo te espera | Aqui ninguem corre sozinho. A manada anormal e sua familia. |
+| Caos Coletivo | Descontrole | Sem freio, sem limite | Quando voce solta o controle, descobre que nunca precisou dele. |
 
 ---
 
-## Implementacao Tecnica
+## Detalhes Tecnicos
 
-### 1. Copiar Imagem do Mascote
+### Arquivos a Modificar
 
-Copiar a imagem enviada para o projeto:
-```
-user-uploads://Vector_1.png -> src/assets/mascot-running.png
-```
+| Arquivo | Alteracoes |
+|---------|-----------|
+| src/index.css | Cores mais vibrantes, fundo mais escuro |
+| src/components/HeroSection.tsx | Fundo, frase, splashes estaticos, logo dinamica |
+| src/components/Header.tsx | Botao "NAO ENTRE!" amarelo |
+| src/components/PillarsSection.tsx | Renomear 4 pilares |
 
-### 2. Criar Componente RunningMascot
-
-**Arquivo:** `src/components/RunningMascot.tsx`
+### Botao "NAO ENTRE!" - Detalhes
 
 ```tsx
-import { useState, useEffect } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
-import mascotImage from "@/assets/mascot-running.png";
-
-export const RunningMascot = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isFlipped, setIsFlipped] = useState(false);
-  
-  // Springs para movimento suave
-  const springConfig = { damping: 25, stiffness: 120 };
-  const x = useSpring(0, springConfig);
-  const y = useSpring(0, springConfig);
-  
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // Atualiza posicao do mouse
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      
-      // Determina direcao do flip
-      if (e.clientX > x.get() + 50) setIsFlipped(false);
-      if (e.clientX < x.get() - 50) setIsFlipped(true);
-      
-      // Atualiza posicao alvo com offset
-      x.set(e.clientX - 60);
-      y.set(e.clientY - 60);
-    };
-    
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-  
-  return (
-    <motion.img
-      src={mascotImage}
-      alt="Mascote Nada Normal"
-      className="fixed pointer-events-none z-50 w-24 h-auto"
-      style={{ 
-        x, 
-        y,
-        scaleX: isFlipped ? -1 : 1
-      }}
-      animate={{
-        y: [0, -8, 0], // Bounce de corrida
-        rotate: isFlipped ? [-3, 3, -3] : [3, -3, 3]
-      }}
-      transition={{
-        y: { duration: 0.3, repeat: Infinity },
-        rotate: { duration: 0.3, repeat: Infinity }
-      }}
-    />
-  );
-};
+<Button className="hidden md:flex bg-nn-yellow text-nn-black border-4 border-nn-black 
+  hover:bg-nn-yellow/90 animate-pulse-glow font-display text-base tracking-wider
+  rounded-[20px_5px_20px_5px]">
+  <AlertTriangle size={18} />
+  NAO ENTRE!
+</Button>
 ```
 
-### 3. Adicionar ao Index.tsx
+### Logo Animacao Dinamica - Detalhes
 
 ```tsx
-import { RunningMascot } from "@/components/RunningMascot";
-
-const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <RunningMascot />
-      <Header />
-      {/* ... resto do conteudo */}
-    </div>
-  );
-};
+animate={{ 
+  scale: [1, 1.08, 1],
+  rotate: [-3, 3, -3],
+  y: [0, -15, 0],
+  filter: [
+    "drop-shadow(0 0 40px hsl(270,100%,65%,0.7))",
+    "drop-shadow(0 0 60px hsl(330,100%,60%,0.8))",
+    "drop-shadow(0 0 40px hsl(140,100%,55%,0.7))"
+  ]
+}}
 ```
 
----
+### Splashes Estaticos - Detalhes
 
-## Detalhes de Animacao
-
-| Propriedade | Valor | Proposito |
-|-------------|-------|-----------|
-| `damping` | 25 | Controla a "resistencia" do movimento |
-| `stiffness` | 120 | Velocidade de resposta ao cursor |
-| Bounce Y | -8px | Simula o movimento de corrida |
-| Rotate | ±3° | Balanco natural do corpo |
-| Duration | 0.3s | Ciclo rapido para parecer correndo |
-
-### Comportamento Visual
-
-```text
-Cursor se move para a direita:
-     CURSOR -->
-              
-        🏃 (mascote corre atras)
-        
-Cursor se move para a esquerda:
-<-- CURSOR
-              
-    (mascote vira) 🏃
+Remover `animate` e `transition`, manter apenas:
+```tsx
+<img
+  src={splash1}
+  className="absolute -top-10 -left-16 w-28 sm:w-36 md:w-44 pointer-events-none"
+  style={{ filter: "drop-shadow(0 0 30px hsl(270,100%,65%,0.6))" }}
+/>
 ```
 
----
-
-## Arquivos a Modificar/Criar
-
-| Arquivo | Acao |
-|---------|------|
-| src/assets/mascot-running.png | Criar (copiar imagem) |
-| src/components/RunningMascot.tsx | Criar novo componente |
-| src/pages/Index.tsx | Adicionar componente |
-
----
-
-## Consideracoes de UX
-
-1. **Performance**: Usar `useSpring` do framer-motion para animacoes GPU-accelerated
-2. **Acessibilidade**: `pointer-events: none` garante que nao interfira com navegacao
-3. **Mobile**: Em dispositivos touch, mascote pode ficar estatico ou ter comportamento alternativo (toque para mover)
-4. **Tamanho**: 96px (w-24) e suficiente para ser visivel sem atrapalhar
-
----
-
-## Opcao Extra: Mascote Aparece Ocasionalmente
-
-Se preferir algo menos constante, podemos fazer o mascote:
-- Aparecer de um lado da tela e correr ate o outro
-- Surgir em intervalos aleatorios
-- Correr apenas quando o usuario rola a pagina
+Trocar cores laranja por verde vibrante nos drop-shadows.
 
 ---
 
 ## Resultado Esperado
 
-Um mascote animado e divertido que:
-- Segue o cursor do mouse com movimento suave
-- Vira para a direcao correta do movimento
-- Tem animacao de corrida constante (bounce + rotate)
-- Nao interfere com a navegacao do site
-- Reforça a identidade "Nada Normal" de forma interativa e memorável
+- Fundo azul/roxo profundo que destaca todos os elementos neon
+- Cores mais vibrantes e saturadas em todo o site
+- Frase de impacto destacada no Hero
+- Splashes de tinta estaticos e coloridos (sem laranja, com verde)
+- Botao provocativo "NAO ENTRE!" em amarelo chamativo
+- Logo com movimento fluido e dinamico
+- Pilares com nomes e descricoes atualizados
