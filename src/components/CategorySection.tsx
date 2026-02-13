@@ -74,7 +74,7 @@ export const CategorySection = () => {
             <span className="text-nn-pink glow-text">CATEGORIAS</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Cada peça é uma declaração. Cada categoria, um manifesto.
+            Aqui não vestimos o que agrada, vestimos o que incomoda quem vive no automático.
           </p>
         </motion.div>
 

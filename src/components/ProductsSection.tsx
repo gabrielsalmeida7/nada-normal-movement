@@ -87,7 +87,7 @@ export const ProductsSection = () => {
               <span className="text-foreground">EM DESTAQUE</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl">
-              Peças desenvolvidas para quem vive fora da curva
+              Se todo mundo aprova, a gente descarta.
             </p>
           </div>
           <Button variant="neonV2" className="mt-6 md:mt-0 btn-organic">

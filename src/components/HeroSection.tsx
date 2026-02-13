@@ -154,7 +154,7 @@ export const HeroSection = () => {
             transition={{ delay: 0.6 }}
             className="text-xl sm:text-2xl md:text-3xl font-display text-nn-pink max-w-3xl mx-auto mb-8 md:mb-12 leading-relaxed px-2 mt-8 glow-text tracking-wide"
           >
-            "Nada aqui foi criado pra pessoas normais, e isso é exatamente o ponto."
+            "Nada aqui foi criado pra pessoas normais — e isso é exatamente o ponto."
           </motion.p>
 
           {/* CTAs */}
