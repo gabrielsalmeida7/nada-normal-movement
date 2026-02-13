@@ -9,7 +9,8 @@ import splash2 from "@/assets/splash2.svg";
 
 const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
 const START_DATE = new Date("2026-01-29T00:00:00");
-const TOTAL_STEPS = 8;
+// Total days from start to launch
+const TOTAL_DAYS = Math.ceil((LAUNCH_DATE.getTime() - START_DATE.getTime()) / 86400000);
 
 const useCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -42,67 +43,78 @@ const useCountdown = () => {
   return { timeLeft, progress };
 };
 
-const Staircase = ({ progress }: { progress: number }) => {
-  const stepIndex = Math.min(Math.floor((progress / 100) * TOTAL_STEPS), TOTAL_STEPS - 1);
+const Staircase = ({ daysLeft }: { daysLeft: number }) => {
+  const totalSteps = TOTAL_DAYS;
+  const climbedSteps = Math.max(totalSteps - daysLeft, 0);
 
   return (
-    <div className="relative w-full h-full">
-      {/* Steps */}
-      {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
-        const x = (i / TOTAL_STEPS) * 100;
-        const y = 100 - ((i + 1) / TOTAL_STEPS) * 100;
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Draw all steps as a diagonal staircase */}
+      {Array.from({ length: totalSteps }).map((_, i) => {
+        const stepW = 100 / totalSteps;
+        const stepH = 100 / totalSteps;
+        const isClimbed = i < climbedSteps;
+        const isCurrent = i === climbedSteps - 1 || (climbedSteps === 0 && i === 0);
+
         return (
           <div
             key={i}
             className="absolute"
             style={{
-              left: `${x}%`,
-              bottom: `${100 - y - (100 / TOTAL_STEPS)}%`,
-              width: `${100 / TOTAL_STEPS}%`,
-              height: `${100 / TOTAL_STEPS}%`,
+              left: `${i * stepW}%`,
+              bottom: `${i * stepH}%`,
+              width: `${stepW + 0.5}%`,
+              height: `${stepH + 0.5}%`,
             }}
           >
-            {/* Vertical riser */}
-            <div
-              className="absolute right-0 w-1 bg-gradient-to-b from-nn-purple-neon to-nn-blue-neon opacity-60"
-              style={{ bottom: 0, height: "100%" }}
-            />
             {/* Horizontal tread */}
             <div
-              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-nn-purple-neon to-nn-blue-neon opacity-60"
-              style={{ width: "100%" }}
-            />
-            {/* Step surface glow */}
-            <div
-              className={`absolute bottom-0 left-0 w-full h-full transition-opacity duration-500 ${
-                i <= stepIndex ? "opacity-20" : "opacity-5"
-              }`}
+              className="absolute bottom-0 left-0 h-[1px] w-full"
               style={{
-                background: i <= stepIndex
-                  ? "linear-gradient(135deg, hsl(270 100% 65% / 0.3), hsl(210 100% 55% / 0.1))"
-                  : "linear-gradient(135deg, hsl(260 15% 18% / 0.5), transparent)",
+                background: isClimbed
+                  ? "linear-gradient(90deg, hsl(270 100% 65%), hsl(210 100% 55%))"
+                  : "hsl(260 15% 25%)",
               }}
             />
+            {/* Vertical riser */}
+            <div
+              className="absolute right-0 bottom-0 w-[1px]"
+              style={{
+                height: "100%",
+                background: isClimbed
+                  ? "linear-gradient(180deg, hsl(270 100% 65%), hsl(210 100% 55%))"
+                  : "hsl(260 15% 25%)",
+              }}
+            />
+            {/* Glow fill for climbed steps */}
+            {isClimbed && (
+              <div
+                className="absolute inset-0 opacity-15"
+                style={{
+                  background: "linear-gradient(135deg, hsl(270 100% 65% / 0.4), hsl(140 100% 55% / 0.1))",
+                }}
+              />
+            )}
           </div>
         );
       })}
 
-      {/* Mascot on current step */}
+      {/* Mascot positioned on current step */}
       <motion.div
         className="absolute z-10"
         style={{
-          left: `${(stepIndex / TOTAL_STEPS) * 100 + (100 / TOTAL_STEPS) / 2}%`,
-          bottom: `${((stepIndex + 1) / TOTAL_STEPS) * 100 + 2}%`,
+          left: `${(Math.max(climbedSteps, 1) - 0.5) * (100 / totalSteps)}%`,
+          bottom: `${Math.max(climbedSteps, 1) * (100 / totalSteps)}%`,
           transform: "translateX(-50%)",
         }}
-        animate={{ y: [0, -14, 0] }}
+        animate={{ y: [0, -10, 0] }}
         transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
       >
         <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-50 rounded-full scale-[2]" />
         <img
           src={mascotImage}
           alt="Mascote Nada Normal subindo a escada"
-          className="relative w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-[0_0_25px_hsl(140,100%,55%,0.8)]"
+          className="relative w-10 h-10 md:w-16 md:h-16 object-contain drop-shadow-[0_0_20px_hsl(140,100%,55%,0.8)]"
         />
       </motion.div>
     </div>
@@ -227,7 +239,7 @@ const ComingSoon = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <Staircase progress={progress} />
+          <Staircase daysLeft={timeLeft.days} />
         </motion.div>
       </div>
 
