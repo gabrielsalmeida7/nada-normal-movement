@@ -69,7 +69,7 @@ const Staircase = ({ daysLeft }: { daysLeft: number }) => {
           >
             {/* Horizontal tread */}
             <div
-              className="absolute bottom-0 left-0 h-[1px] w-full"
+              className="absolute bottom-0 left-0 h-[3px] w-full"
               style={{
                 background: isClimbed
                   ? "linear-gradient(90deg, hsl(270 100% 65%), hsl(210 100% 55%))"
@@ -78,7 +78,7 @@ const Staircase = ({ daysLeft }: { daysLeft: number }) => {
             />
             {/* Vertical riser */}
             <div
-              className="absolute right-0 bottom-0 w-[1px]"
+              className="absolute right-0 bottom-0 w-[3px]"
               style={{
                 height: "100%",
                 background: isClimbed
