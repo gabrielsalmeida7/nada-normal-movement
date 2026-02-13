@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Headphones, Radio, Users2 } from "lucide-react";
+import { Instagram, Youtube, MessageCircle, CalendarCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const blobClasses = ['shape-blob-1', 'shape-blob-2', 'shape-blob-3', 'shape-blob-4'];
@@ -13,25 +13,25 @@ const imageOrganicStyles = [
 
 const communityFeatures = [
   {
-    icon: Headphones,
-    title: "Podcast Frequência Cardíaca",
-    description: "Histórias de quem vive fora da curva",
+    icon: Instagram,
+    title: "Perfil no Instagram",
+    description: "Acompanhe o caos diário no nosso Insta",
     iconBg: "bg-nn-orange",
   },
   {
-    icon: Play,
-    title: "Bastidores do Caos",
-    description: "Série exclusiva com atletas NN",
+    icon: Youtube,
+    title: "Canal no YouTube",
+    description: "Séries exclusivas com atletas NN — no YouTube",
     iconBg: "bg-nn-lime",
   },
   {
-    icon: Radio,
-    title: "NN Radio",
-    description: "Playlists para cada momento do treino",
+    icon: MessageCircle,
+    title: "Comunidade no WhatsApp",
+    description: "Entre no grupo e faça parte da tribo",
     iconBg: "bg-nn-yellow",
   },
   {
-    icon: Users2,
+    icon: CalendarCheck,
     title: "Eventos NN",
     description: "Corridas, desafios e experiências únicas",
     iconBg: "bg-nn-red",
