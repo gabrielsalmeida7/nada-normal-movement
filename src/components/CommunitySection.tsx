@@ -69,7 +69,7 @@ export const CommunitySection = () => {
             </h2>
             <p className="text-nn-white/90 text-lg mb-8 leading-relaxed font-medium">
               Ser normal nunca mudou nada. Por isso escolhemos ser diferentes. 
-              Conecte-se com corredores que entendem sua loucura e faça parte 
+              Conecte-se com pessoas que entendem sua loucura e faça parte 
               do caos coletivo que celebra a anormalidade.
             </p>
 
