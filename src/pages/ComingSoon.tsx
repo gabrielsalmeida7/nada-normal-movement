@@ -2,300 +2,258 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
 
-// Images
 import mascotImage from "/lovable-uploads/Vector.png";
 import nnLogo from "@/assets/nn-logo.svg";
+import splash1 from "@/assets/splash1.svg";
+import splash2 from "@/assets/splash2.svg";
 
-const ComingSoon = () => {
-  // Launch date: March 30, 2026
-  const launchDate = new Date("2026-03-30T00:00:00");
-  // Start date: January 29, 2026 (today as reference)
-  const startDate = new Date("2026-01-29T00:00:00");
+const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
+const START_DATE = new Date("2026-01-29T00:00:00");
+const TOTAL_STEPS = 8;
 
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+const useCountdown = () => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const calculateTime = () => {
+    const tick = () => {
       const now = new Date();
-      const difference = launchDate.getTime() - now.getTime();
-
-      if (difference > 0) {
+      const diff = LAUNCH_DATE.getTime() - now.getTime();
+      if (diff > 0) {
         setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
+          days: Math.floor(diff / 86400000),
+          hours: Math.floor((diff / 3600000) % 24),
+          minutes: Math.floor((diff / 60000) % 60),
+          seconds: Math.floor((diff / 1000) % 60),
         });
-
-        // Calculate progress
-        const totalDuration = launchDate.getTime() - startDate.getTime();
-        const elapsed = now.getTime() - startDate.getTime();
-        const currentProgress = Math.min(
-          Math.max((elapsed / totalDuration) * 100, 0),
-          100
-        );
-        setProgress(currentProgress);
+        const total = LAUNCH_DATE.getTime() - START_DATE.getTime();
+        const elapsed = now.getTime() - START_DATE.getTime();
+        setProgress(Math.min(Math.max((elapsed / total) * 100, 0), 100));
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         setProgress(100);
       }
     };
-
-    calculateTime();
-    const timer = setInterval(calculateTime, 1000);
-
-    return () => clearInterval(timer);
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
   }, []);
 
+  return { timeLeft, progress };
+};
+
+const Staircase = ({ progress }: { progress: number }) => {
+  const stepIndex = Math.min(Math.floor((progress / 100) * TOTAL_STEPS), TOTAL_STEPS - 1);
+
   return (
-    <div className="h-screen bg-background overflow-hidden relative">
-      {/* Floating particles background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(30)].map((_, i) => (
-          <motion.div
+    <div className="relative w-full h-full">
+      {/* Steps */}
+      {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
+        const x = (i / TOTAL_STEPS) * 100;
+        const y = 100 - ((i + 1) / TOTAL_STEPS) * 100;
+        return (
+          <div
             key={i}
-            className="absolute w-1 h-1 rounded-full"
+            className="absolute"
             style={{
-              background: `hsl(var(--nn-${
-                ["purple-neon", "blue-neon", "green-neon"][i % 3]
-              }))`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${x}%`,
+              bottom: `${100 - y - (100 / TOTAL_STEPS)}%`,
+              width: `${100 / TOTAL_STEPS}%`,
+              height: `${100 / TOTAL_STEPS}%`,
             }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.3, 1, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
+          >
+            {/* Vertical riser */}
+            <div
+              className="absolute right-0 w-1 bg-gradient-to-b from-nn-purple-neon to-nn-blue-neon opacity-60"
+              style={{ bottom: 0, height: "100%" }}
+            />
+            {/* Horizontal tread */}
+            <div
+              className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-nn-purple-neon to-nn-blue-neon opacity-60"
+              style={{ width: "100%" }}
+            />
+            {/* Step surface glow */}
+            <div
+              className={`absolute bottom-0 left-0 w-full h-full transition-opacity duration-500 ${
+                i <= stepIndex ? "opacity-20" : "opacity-5"
+              }`}
+              style={{
+                background: i <= stepIndex
+                  ? "linear-gradient(135deg, hsl(270 100% 65% / 0.3), hsl(210 100% 55% / 0.1))"
+                  : "linear-gradient(135deg, hsl(260 15% 18% / 0.5), transparent)",
+              }}
+            />
+          </div>
+        );
+      })}
+
+      {/* Mascot */}
+      <motion.div
+        className="absolute z-10"
+        style={{
+          left: `${(stepIndex / TOTAL_STEPS) * 100 + (100 / TOTAL_STEPS) / 2 - 8}%`,
+          bottom: `${((stepIndex + 1) / TOTAL_STEPS) * 100}%`,
+        }}
+        animate={{ y: [0, -12, 0] }}
+        transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-40 rounded-full scale-150" />
+        <img
+          src={mascotImage}
+          alt="Mascote Nada Normal"
+          className="relative w-14 h-14 md:w-20 md:h-20 object-contain drop-shadow-[0_0_20px_hsl(140,100%,55%,0.7)]"
+        />
+      </motion.div>
+    </div>
+  );
+};
+
+const CountdownButton = ({ timeLeft }: { timeLeft: { days: number; hours: number; minutes: number; seconds: number } }) => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest glow-text-yellow">
+        NÃO APERTE AQUI ⚠️
+      </span>
+      <div className="bg-nn-yellow text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px]">
+        <span className="text-lg md:text-2xl tracking-wider">
+          {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+        </span>
       </div>
+    </div>
+  );
+};
 
-      {/* Decorative brand images */}
-      <motion.img
-        src="/lovable-uploads/MaoNN.png"
+const SocialLinks = () => (
+  <div className="flex gap-3">
+    <a
+      href="https://instagram.com/nadanormal"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-10 h-10 bg-card border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
+    >
+      <Instagram className="w-5 h-5" />
+    </a>
+    <a
+      href="https://tiktok.com/@nadanormal"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="w-10 h-10 bg-card border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
+    >
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+      </svg>
+    </a>
+    <a
+      href="mailto:contato@nadanormal.com"
+      className="w-10 h-10 bg-card border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
+    >
+      <Mail className="w-5 h-5" />
+    </a>
+  </div>
+);
+
+const ComingSoon = () => {
+  const { timeLeft, progress } = useCountdown();
+
+  return (
+    <div className="h-screen bg-background overflow-hidden relative flex flex-col">
+      {/* Splashes decorativos */}
+      <img
+        src={splash1}
         alt=""
-        className="absolute top-20 left-4 w-16 md:w-24 opacity-20"
-        animate={{ rotate: [0, 10, 0], y: [0, -10, 0] }}
-        transition={{ duration: 4, repeat: Infinity }}
+        className="absolute bottom-0 left-0 w-48 md:w-72 lg:w-96 opacity-30 pointer-events-none"
+        style={{ filter: "hue-rotate(90deg) saturate(2)" }}
       />
-      <motion.img
-        src="/lovable-uploads/NNRaio.png"
+      <img
+        src={splash2}
         alt=""
-        className="absolute bottom-20 right-4 w-16 md:w-24 opacity-20"
-        animate={{ rotate: [0, -10, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 3, repeat: Infinity }}
+        className="absolute bottom-0 right-0 w-48 md:w-72 lg:w-96 opacity-30 pointer-events-none"
+        style={{ filter: "hue-rotate(270deg) saturate(2)" }}
       />
 
-      {/* Main content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 py-4">
+      {/* Top bar */}
+      <div className="relative z-10 flex items-center justify-between px-4 md:px-8 pt-4 md:pt-6">
+        {/* "NADA NORMAL" invertido decorativo */}
+        <span
+          className="font-display text-sm md:text-lg text-muted-foreground tracking-[0.3em] opacity-40"
+          style={{ transform: "rotate(180deg)" }}
+        >
+          NADA NORMAL
+        </span>
         {/* Logo */}
         <motion.img
           src={nnLogo}
           alt="Nada Normal"
-          className="w-24 md:w-32 mb-2 md:mb-4"
-          initial={{ opacity: 0, y: -50 }}
+          className="w-16 md:w-24"
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         />
+      </div>
 
-        {/* Title */}
-        <motion.h1
-          className="font-display text-4xl md:text-6xl lg:text-8xl text-center mb-1 glitch glow-text"
-          data-text="EM BREVE"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <span className="text-gradient-neon">EM BREVE</span>
-        </motion.h1>
+      {/* Main content */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-start px-4 md:px-8 lg:px-16 gap-4 lg:gap-0">
+        {/* Left: Title + Manifesto */}
+        <div className="flex-1 flex flex-col justify-center pt-4 lg:pt-0">
+          <motion.h1
+            className="font-display text-5xl md:text-7xl lg:text-9xl text-foreground leading-[0.9] mb-4"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            LANÇAMENTO
+            <br />
+            <span className="text-gradient-neon">EM BREVE</span>
+          </motion.h1>
 
-        <motion.p
-          className="font-display text-xl md:text-2xl text-nn-blue-neon mb-4 md:mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          30/03/2026
-        </motion.p>
+          <motion.p
+            className="font-body text-sm md:text-base text-muted-foreground max-w-md leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovação não importa.
+            E o automático não entra. Nada aqui foi criado pra pessoas normais, e isso é
+            exatamente o ponto. <span className="text-nn-purple-neon font-semibold">Nada Normal</span>, em breve.
+          </motion.p>
+        </div>
 
-        {/* Race Track */}
+        {/* Right: Staircase */}
         <motion.div
-          className="w-full max-w-3xl mx-auto mb-2 md:mb-4 px-4"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          className="flex-1 w-full h-48 md:h-64 lg:h-full relative"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
         >
-          {/* Track container */}
-          <div className="relative h-20 md:h-28">
-            {/* Track background */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-12 md:h-16 bg-muted border-2 border-nn-purple-neon rounded-lg shadow-neon-purple overflow-hidden">
-              {/* Track lines */}
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full h-1 bg-gradient-to-r from-nn-purple-neon via-nn-blue-neon to-nn-green-neon opacity-30" />
-              </div>
-
-              {/* Kilometer markers */}
-              {[25, 50, 75].map((marker) => (
-                <div
-                  key={marker}
-                  className="absolute top-0 bottom-0 w-0.5 bg-nn-blue-neon opacity-40"
-                  style={{ left: `${marker}%` }}
-                />
-              ))}
-
-              {/* Progress fill */}
-              <motion.div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-nn-purple-neon/30 to-nn-blue-neon/30"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1 }}
-              />
-            </div>
-
-            {/* Start marker */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2">
-              <div className="w-4 h-16 md:h-20 bg-nn-green-neon rounded shadow-neon-green" />
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-display text-nn-green-neon whitespace-nowrap">
-                HOJE
-              </span>
-            </div>
-
-            {/* Finish line */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2">
-              <div className="w-4 h-16 md:h-20 bg-gradient-to-b from-foreground via-background to-foreground bg-[length:100%_8px] rounded animate-pulse-glow" />
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-display text-nn-purple-neon whitespace-nowrap">
-                30/03
-              </span>
-            </div>
-
-            {/* Mascot */}
-            <motion.div
-              className="absolute top-1/2 -translate-y-[60%] z-10"
-              style={{ left: `calc(${progress}% - 32px)` }}
-              animate={{
-                y: [-2, -8, -2],
-              }}
-              transition={{
-                duration: 0.4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              {/* Glow effect */}
-              <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-50 rounded-full scale-150" />
-
-              {/* Trail effect */}
-              <motion.div
-                className="absolute -left-8 top-1/2 -translate-y-1/2 w-16 h-2 bg-gradient-to-l from-nn-green-neon to-transparent opacity-60"
-                animate={{ scaleX: [0.5, 1, 0.5], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 0.3, repeat: Infinity }}
-              />
-
-              {/* Mascot image */}
-              <img
-                src={mascotImage}
-                alt="Nada Normal Mascot"
-                className="relative w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_hsl(var(--nn-green-neon))]"
-              />
-            </motion.div>
-          </div>
+          <Staircase progress={progress} />
         </motion.div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="relative z-10 flex items-end justify-between px-4 md:px-8 pb-4 md:pb-6">
+        {/* Decorative text */}
+        <div className="flex flex-col gap-1">
+          <span className="font-display text-xs md:text-sm text-nn-green-neon tracking-widest glow-text-green">
+            /1 O BAGULHO
+          </span>
+          <span className="font-display text-xs md:text-sm text-nn-green-neon tracking-widest glow-text-green">
+            AQUI É LOKO
+          </span>
+        </div>
+
+        {/* Social links */}
+        <div className="hidden md:flex">
+          <SocialLinks />
+        </div>
 
         {/* Countdown */}
-        <motion.div
-          className="grid grid-cols-4 gap-2 md:gap-3 mb-2 md:mb-3"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
-        >
-          {[
-            { label: "DIAS", value: timeLeft.days },
-            { label: "HORAS", value: timeLeft.hours },
-            { label: "MIN", value: timeLeft.minutes },
-            { label: "SEG", value: timeLeft.seconds },
-          ].map((item, index) => (
-            <motion.div
-              key={item.label}
-              className="flex flex-col items-center"
-              animate={
-                item.label === "SEG" ? { scale: [1, 1.02, 1] } : undefined
-              }
-              transition={
-                item.label === "SEG"
-                  ? { duration: 1, repeat: Infinity }
-                  : undefined
-              }
-            >
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-card border-2 border-nn-purple-neon flex items-center justify-center shadow-neon-purple">
-                <span className="font-display text-xl md:text-3xl text-gradient-neon">
-                  {String(item.value).padStart(2, "0")}
-                </span>
-              </div>
-              <span className="font-display text-xs text-muted-foreground mt-1">
-                {item.label}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
+        <CountdownButton timeLeft={timeLeft} />
+      </div>
 
-        {/* Manifesto */}
-        <motion.p
-          className="font-display text-base md:text-xl text-center text-nn-blue-neon mb-2 md:mb-3 glow-text-blue"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          "ONDE A SUA LOUCURA FAZ SENTIDO"
-        </motion.p>
-
-        {/* Social Links */}
-        <motion.div
-          className="flex gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
-        >
-          <a
-            href="https://instagram.com/nadanormal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-10 h-10 bg-card border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
-          >
-            <Instagram className="w-5 h-5" />
-          </a>
-          <a
-            href="https://tiktok.com/@nadanormal"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-10 h-10 bg-card border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-            </svg>
-          </a>
-          <a
-            href="mailto:contato@nadanormal.com"
-            className="w-10 h-10 bg-card border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
-          >
-            <Mail className="w-5 h-5" />
-          </a>
-        </motion.div>
+      {/* Mobile social links */}
+      <div className="relative z-10 flex md:hidden justify-center pb-3">
+        <SocialLinks />
       </div>
     </div>
   );
