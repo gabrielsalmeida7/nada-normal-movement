@@ -63,7 +63,7 @@ export const HeroSection = () => {
       />
 
       {/* Marquee Banner */}
-      <div className="absolute top-28 left-0 right-0 overflow-hidden bg-gradient-to-r from-nn-purple-neon via-nn-pink to-nn-green-neon border-y-2 border-nn-black py-3 z-30">
+      <div className="absolute top-28 left-0 right-0 overflow-hidden bg-gradient-to-r from-nn-purple-neon via-nn-pink to-nn-green-neon border-y-2 border-nn-black py-3 z-30" style={{ transform: "rotate(-2deg)", transformOrigin: "center center", marginLeft: "-2%", marginRight: "-2%", width: "104%" }}>
         <div className="animate-marquee flex whitespace-nowrap">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="font-display text-lg mx-8 flex items-center gap-4 text-nn-black">
@@ -164,10 +164,10 @@ export const HeroSection = () => {
             transition={{ delay: 0.9 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button variant="hero" size="xl">
+            <Button variant="hero" size="xl" className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal" style={{ transform: "rotate(-2deg)", background: "hsl(30, 100%, 50%)" }}>
               Entrar no Movimento
             </Button>
-            <Button variant="chaosV2" size="xl">
+            <Button variant="chaosV2" size="xl" className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal" style={{ transform: "rotate(2deg)", background: "hsl(330, 100%, 50%)", color: "black" }}>
               Ver Coleção
             </Button>
           </motion.div>
