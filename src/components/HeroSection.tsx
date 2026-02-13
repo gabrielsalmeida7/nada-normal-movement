@@ -164,12 +164,22 @@ export const HeroSection = () => {
             transition={{ delay: 0.9 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button variant="hero" size="xl" className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal" style={{ transform: "rotate(-2deg)", background: "hsl(30, 100%, 50%)" }}>
+            <motion.div
+              style={{ rotate: -2, background: "hsl(30, 100%, 50%)" }}
+              whileHover={{ rotate: 2, scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal cursor-pointer font-display font-bold uppercase tracking-wider text-nn-black"
+            >
               Entrar no Movimento
-            </Button>
-            <Button variant="chaosV2" size="xl" className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal" style={{ transform: "rotate(2deg)", background: "hsl(330, 100%, 50%)", color: "black" }}>
+            </motion.div>
+            <motion.div
+              style={{ rotate: 2, background: "hsl(330, 100%, 50%)", color: "black" }}
+              whileHover={{ rotate: -2, scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              className="px-14 py-6 text-xl border-none rounded-[8px] shadow-brutal cursor-pointer font-display font-bold uppercase tracking-wider text-nn-black"
+            >
               Ver Coleção
-            </Button>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
