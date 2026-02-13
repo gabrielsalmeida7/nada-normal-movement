@@ -44,8 +44,8 @@ const useCountdown = () => {
 };
 
 const Staircase = ({ daysLeft }: { daysLeft: number }) => {
-  const totalSteps = TOTAL_DAYS;
-  const climbedSteps = Math.max(totalSteps - daysLeft, 0);
+  const totalSteps = Math.ceil(TOTAL_DAYS / 2);
+  const climbedSteps = Math.max(Math.ceil((TOTAL_DAYS - daysLeft) / 2), 0);
 
   return (
     <div className="relative w-full h-full overflow-hidden">
@@ -210,7 +210,8 @@ const ComingSoon = () => {
         {/* Left: Title + Manifesto */}
         <div className="flex-1 flex flex-col justify-center pt-4 lg:pt-0">
           <motion.h1
-            className="font-display text-5xl md:text-7xl lg:text-9xl text-foreground leading-[0.9] mb-4"
+            className="text-5xl md:text-7xl lg:text-9xl text-foreground leading-[0.9] mb-4"
+            style={{ fontFamily: "'Permanent Marker', cursive" }}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
