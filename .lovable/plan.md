@@ -1,143 +1,104 @@
 
-# Plano: Redesign Visual do Hero e Pilares
+# Redesign da Pagina Coming Soon
 
-## Resumo das Alteracoes
+## Conceito
 
-Sao 6 mudancas principais solicitadas:
+Baseado na imagem de referencia, a pagina sera completamente redesenhada com um layout mais cinematografico: o mascote subindo uma escada diagonal ao centro, com splashes de tinta nos cantos inferiores, titulo grande a esquerda, texto manifesto abaixo, e o contador de tempo no lugar do botao "NAO APERTE AQUI" no canto inferior direito.
 
-1. **Fundo mais escuro** - trocar o fundo marrom/cinza por azul/roxo profundo para maior contraste
-2. **Cores mais vibrantes e saturadas** nos elementos e logo
-3. **Frase principal destacada** - "Nada aqui foi criado pra pessoas normais, e isso e exatamente o ponto."
-4. **Splashes estaticos e mais coloridos** - remover laranja, adicionar verde vibrante, sem animacao de movimento
-5. **Botao "NAO ENTRE!"** amarelo no header substituindo o "Entrar"
-6. **Logo com movimento mais dinamico** no Hero
-7. **4 Pilares renomeados** para: Resenha Total, Caos Organizado, Pertencimento, Descontrole
-
----
-
-## 1. Fundo do Hero (HeroSection.tsx)
-
-**Antes:** `bg-[hsl(260,15%,14%)]` (cinza-roxo acastanhado)
-**Depois:** `bg-[hsl(250,40%,8%)]` (azul-roxo profundo e escuro)
-
-Tambem ajustar os blobs de fundo para cores mais intensas (aumentar opacidade de /30 para /50).
-
-## 2. Cores Mais Vibrantes (index.css)
-
-Aumentar saturacao e luminosidade das variaveis CSS principais:
-
-| Variavel | Antes | Depois |
-|----------|-------|--------|
-| --nn-purple-neon | 270 100% 60% | 270 100% 65% |
-| --nn-pink | 330 100% 55% | 330 100% 60% |
-| --nn-green-neon | 140 100% 50% | 140 100% 55% |
-| --background | 260 15% 14% | 250 40% 8% |
-
-## 3. Frase Principal Destacada (HeroSection.tsx)
-
-Substituir o texto atual por:
-
-> "Nada aqui foi criado pra pessoas normais, e isso e exatamente o ponto."
-
-Com estilo mais impactante: fonte maior, cor neon, glow effect forte.
-
-## 4. Splashes Estaticos (HeroSection.tsx)
-
-- Remover todas as propriedades `animate` e `transition` dos 4 splashes
-- Manter apenas posicao e tamanho (estaticos)
-- Trocar o drop-shadow laranja por verde vibrante (`hsl(140,100%,55%)`)
-- Aumentar saturacao dos outros drop-shadows
-
-## 5. Botao "NAO ENTRE!" (Header.tsx)
-
-Substituir o botao "Entrar" por:
+## Layout Principal (tela unica, sem scroll)
 
 ```text
-⚠️ NAO ENTRE!
++----------------------------------------------------------+
+|  "NADA NORMAL" (invertido, topo direito)    Logo (topo)   |
+|                                                           |
+|  LANCAMENTO                        [Mascote]              |
+|  EM BREVE                       /  subindo                |
+|                               /   escada                  |
+|  Texto manifesto:           /                             |
+|  "Ser normal nunca        /                               |
+|   mudou nada..."        /                                 |
+|                       /                                   |
+|                                                           |
+|  [Splash tinta]              [Splash tinta]               |
+|  /1 O BAGUI           f t ig   [CONTADOR TEMPO]           |
+|  AQUI E LOKO                   DD:HH:MM:SS               |
++----------------------------------------------------------+
 ```
 
-- Fundo amarelo vibrante (`bg-nn-yellow`)
-- Texto preto bold
-- Icone de alerta (AlertTriangle do lucide)
-- Efeito de pulse/glow para chamar atencao
+## Alteracoes Detalhadas
 
-## 6. Logo com Movimento Dinamico (HeroSection.tsx)
+### 1. Fundo e Estilo Visual
+- Fundo escuro `bg-[hsl(250,40%,8%)]` (igual a pagina principal)
+- Remover particulas flutuantes atuais
+- Adicionar splashes de tinta (splash1.svg e splash2.svg) nos cantos inferiores, estaticos, com cores neon vibrantes (verde, roxo, rosa) - sem laranja
+- Usar as mesmas fontes (Bebas Neue) e estilos de cor da pagina principal
 
-Ampliar a animacao da logo:
-- Escala mais pronunciada: `[1, 1.08, 1]` (antes era 1.03)
-- Rotacao mais ampla: `[-3, 3, -3]` (antes era -1 a 1)
-- Adicionar efeito de "float" vertical: `y: [0, -15, 0]`
-- Drop-shadow mais intenso com cores alternando entre roxo, rosa e verde
+### 2. Titulo "Lancamento em Breve"
+- H1 grande alinhado a esquerda com font-display (Bebas Neue)
+- Cor branca para maximo contraste
+- Tamanho: `text-6xl md:text-8xl lg:text-9xl`
 
-## 7. Pilares Renomeados (PillarsSection.tsx)
+### 3. Texto Manifesto
+- Abaixo do titulo, alinhado a esquerda
+- Texto: "Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovacao nao importa. E o automatico nao entra. Nada aqui foi criado pra pessoas normais, e isso e exatamente o ponto. Nada Normal, em breve."
+- Cor cinza claro, tamanho medio
 
-| Antes | Depois | Subtitulo | Descricao |
-|-------|--------|-----------|-----------|
-| Obsessao | Resenha Total | A zoeira nao para | Onde o treino vira festa e o sofrimento vira piada. A resenha e o combustivel. |
-| Autenticidade | Caos Organizado | Metodo na loucura | Parece bagunca, mas cada passo e calculado. O caos e so a superficie. |
-| Performance | Pertencimento | Sua tribo te espera | Aqui ninguem corre sozinho. A manada anormal e sua familia. |
-| Caos Coletivo | Descontrole | Sem freio, sem limite | Quando voce solta o controle, descobre que nunca precisou dele. |
+### 4. Escada com Mascote
+- Escada diagonal desenhada com CSS (degraus em perspectiva) partindo do centro-inferior para o canto superior-direito
+- Mascote (Vector.png) posicionado no topo da escada com animacao de bounce/pulo
+- Posicao do mascote calculada com base no progresso (quanto mais perto do lancamento, mais alto na escada)
+
+### 5. Contador de Tempo (substitui o botao "NAO APERTE AQUI")
+- Posicionado no canto inferior direito
+- Estilo de botao dourado/amarelo com borda, similar ao "NAO APERTE AQUI" da imagem
+- Mostra o countdown: DD:HH:MM:SS
+- Texto "NAO APERTE AQUI" como label acima, com o contador dentro do botao
+- Fundo amarelo com borda, font-display
+
+### 6. Logo NN
+- Logo SVG no canto superior direito
+- Texto "NADA NORMAL" invertido (rotate 180) no topo direito como elemento decorativo
+
+### 7. Rodape
+- Links sociais (Instagram, TikTok, email) centralizados na base
+- Texto "/1 O BAGUI AQUI E LOKO" no canto inferior esquerdo como elemento decorativo
+
+### 8. Splashes de Tinta
+- Reutilizar splash1.svg e splash2.svg da pagina principal
+- Posicionar nos cantos inferiores (esquerda e direita)
+- Cores neon vibrantes: verde, roxo, rosa (sem laranja)
+- Estaticos (sem animacao)
+- Tamanho grande para impacto visual
 
 ---
 
 ## Detalhes Tecnicos
 
-### Arquivos a Modificar
+### Arquivo a Modificar
+- `src/pages/ComingSoon.tsx` - reescrita completa
 
-| Arquivo | Alteracoes |
-|---------|-----------|
-| src/index.css | Cores mais vibrantes, fundo mais escuro |
-| src/components/HeroSection.tsx | Fundo, frase, splashes estaticos, logo dinamica |
-| src/components/Header.tsx | Botao "NAO ENTRE!" amarelo |
-| src/components/PillarsSection.tsx | Renomear 4 pilares |
+### Escada CSS
+A escada sera construida com divs empilhadas em perspectiva, cada degrau sendo um retangulo com gradiente cinza, posicionados diagonalmente usando transform/translate.
 
-### Botao "NAO ENTRE!" - Detalhes
+### Mascote na Escada
+- Posicao baseada no `progress` (0-100%)
+- Animacao de bounce vertical continua
+- Glow verde neon no mascote
 
+### Contador no Botao
 ```tsx
-<Button className="hidden md:flex bg-nn-yellow text-nn-black border-4 border-nn-black 
-  hover:bg-nn-yellow/90 animate-pulse-glow font-display text-base tracking-wider
-  rounded-[20px_5px_20px_5px]">
-  <AlertTriangle size={18} />
-  NAO ENTRE!
-</Button>
+<div className="bg-nn-yellow text-nn-black border-4 border-nn-black font-display px-8 py-4">
+  NAO APERTE AQUI
+  <div className="text-2xl">{days}:{hours}:{minutes}:{seconds}</div>
+</div>
 ```
 
-### Logo Animacao Dinamica - Detalhes
+### Imports Necessarios
+- Reutilizar `splash1.svg` e `splash2.svg` de `@/assets/`
+- Manter `nn-logo.svg` e `Vector.png` (mascote)
+- Adicionar `framer-motion` para animacoes do mascote
 
-```tsx
-animate={{ 
-  scale: [1, 1.08, 1],
-  rotate: [-3, 3, -3],
-  y: [0, -15, 0],
-  filter: [
-    "drop-shadow(0 0 40px hsl(270,100%,65%,0.7))",
-    "drop-shadow(0 0 60px hsl(330,100%,60%,0.8))",
-    "drop-shadow(0 0 40px hsl(140,100%,55%,0.7))"
-  ]
-}}
-```
-
-### Splashes Estaticos - Detalhes
-
-Remover `animate` e `transition`, manter apenas:
-```tsx
-<img
-  src={splash1}
-  className="absolute -top-10 -left-16 w-28 sm:w-36 md:w-44 pointer-events-none"
-  style={{ filter: "drop-shadow(0 0 30px hsl(270,100%,65%,0.6))" }}
-/>
-```
-
-Trocar cores laranja por verde vibrante nos drop-shadows.
-
----
-
-## Resultado Esperado
-
-- Fundo azul/roxo profundo que destaca todos os elementos neon
-- Cores mais vibrantes e saturadas em todo o site
-- Frase de impacto destacada no Hero
-- Splashes de tinta estaticos e coloridos (sem laranja, com verde)
-- Botao provocativo "NAO ENTRE!" em amarelo chamativo
-- Logo com movimento fluido e dinamico
-- Pilares com nomes e descricoes atualizados
+### Responsividade
+- Layout flexbox com `flex-col lg:flex-row` para titulo/escada
+- Escada reduz tamanho em mobile
+- Titulo ajusta de `text-9xl` para `text-5xl` em mobile
