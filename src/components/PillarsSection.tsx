@@ -92,7 +92,7 @@ export const PillarsSection = () => {
             OS <span className="text-nn-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">4 PILARES</span> DA ANORMALIDADE
           </h2>
           <p className="text-nn-black/80 text-lg max-w-2xl mx-auto font-medium">
-            Cada pilar representa uma faceta do que significa ser Nada Normal
+            Se você se sente confortável sendo igual a todo mundo, essa marca não foi feita pra você.
           </p>
         </motion.div>
 

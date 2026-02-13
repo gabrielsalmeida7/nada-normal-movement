@@ -68,8 +68,8 @@ export const CommunitySection = () => {
               <span className="text-nn-lime drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">NADA NORMAL</span>
             </h2>
             <p className="text-nn-white/90 text-lg mb-8 leading-relaxed font-medium">
-              Mais do que uma marca, somos um movimento. Conecte-se com corredores 
-              que entendem sua loucura, participe de experiências únicas e faça parte 
+              Ser normal nunca mudou nada. Por isso escolhemos ser diferentes. 
+              Conecte-se com corredores que entendem sua loucura e faça parte 
               do caos coletivo que celebra a anormalidade.
             </p>
 
