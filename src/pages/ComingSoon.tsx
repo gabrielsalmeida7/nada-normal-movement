@@ -87,21 +87,22 @@ const Staircase = ({ progress }: { progress: number }) => {
         );
       })}
 
-      {/* Mascot */}
+      {/* Mascot on current step */}
       <motion.div
         className="absolute z-10"
         style={{
-          left: `${(stepIndex / TOTAL_STEPS) * 100 + (100 / TOTAL_STEPS) / 2 - 8}%`,
-          bottom: `${((stepIndex + 1) / TOTAL_STEPS) * 100}%`,
+          left: `${(stepIndex / TOTAL_STEPS) * 100 + (100 / TOTAL_STEPS) / 2}%`,
+          bottom: `${((stepIndex + 1) / TOTAL_STEPS) * 100 + 2}%`,
+          transform: "translateX(-50%)",
         }}
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 0.5, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ y: [0, -14, 0] }}
+        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
       >
-        <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-40 rounded-full scale-150" />
+        <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-50 rounded-full scale-[2]" />
         <img
           src={mascotImage}
-          alt="Mascote Nada Normal"
-          className="relative w-14 h-14 md:w-20 md:h-20 object-contain drop-shadow-[0_0_20px_hsl(140,100%,55%,0.7)]"
+          alt="Mascote Nada Normal subindo a escada"
+          className="relative w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-[0_0_25px_hsl(140,100%,55%,0.8)]"
         />
       </motion.div>
     </div>
@@ -232,16 +233,6 @@ const ComingSoon = () => {
 
       {/* Bottom bar */}
       <div className="relative z-10 flex items-end justify-between px-4 md:px-8 pb-4 md:pb-6">
-        {/* Decorative text */}
-        <div className="flex flex-col gap-1">
-          <span className="font-display text-xs md:text-sm text-nn-green-neon tracking-widest glow-text-green">
-            /1 O BAGULHO
-          </span>
-          <span className="font-display text-xs md:text-sm text-nn-green-neon tracking-widest glow-text-green">
-            AQUI É LOKO
-          </span>
-        </div>
-
         {/* Social links */}
         <div className="hidden md:flex">
           <SocialLinks />
