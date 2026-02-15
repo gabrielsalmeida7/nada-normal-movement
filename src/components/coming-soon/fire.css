@@ -1,0 +1,98 @@
+.fire-container {
+  position: relative;
+  width: 120px;
+  height: 180px;
+}
+
+@media (min-width: 768px) {
+  .fire-container {
+    width: 180px;
+    height: 260px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fire-container {
+    width: 220px;
+    height: 320px;
+  }
+}
+
+.flame {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50% 50% 20% 20%;
+  filter: blur(8px);
+}
+
+.flame-1 {
+  left: 30%;
+  width: 50%;
+  height: 80%;
+  background: linear-gradient(0deg, hsl(25 100% 55% / 0.9), hsl(45 100% 55% / 0.7), transparent);
+  animation: flicker1 1.5s ease-in-out infinite alternate, sway1 2s ease-in-out infinite;
+}
+
+.flame-2 {
+  left: 15%;
+  width: 40%;
+  height: 65%;
+  background: linear-gradient(0deg, hsl(15 100% 50% / 0.8), hsl(40 100% 55% / 0.6), transparent);
+  animation: flicker2 1.2s ease-in-out infinite alternate, sway2 2.5s ease-in-out infinite;
+}
+
+.flame-3 {
+  left: 45%;
+  width: 45%;
+  height: 70%;
+  background: linear-gradient(0deg, hsl(30 100% 50% / 0.85), hsl(50 100% 60% / 0.65), transparent);
+  animation: flicker3 1.8s ease-in-out infinite alternate, sway1 3s ease-in-out infinite reverse;
+}
+
+.flame-4 {
+  left: 25%;
+  width: 55%;
+  height: 90%;
+  background: linear-gradient(0deg, hsl(20 100% 45% / 0.6), hsl(45 100% 55% / 0.4), transparent);
+  animation: flicker1 2s ease-in-out infinite alternate, sway2 1.8s ease-in-out infinite;
+  filter: blur(15px);
+}
+
+.flame-glow {
+  position: absolute;
+  bottom: -20px;
+  left: -20%;
+  width: 140%;
+  height: 60%;
+  background: radial-gradient(ellipse at center bottom, hsl(25 100% 55% / 0.4), transparent 70%);
+  filter: blur(20px);
+  animation: flicker2 2s ease-in-out infinite alternate;
+}
+
+@keyframes flicker1 {
+  0% { opacity: 0.8; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.1); }
+  100% { opacity: 0.7; transform: scaleY(0.95); }
+}
+
+@keyframes flicker2 {
+  0% { opacity: 0.6; transform: scaleY(0.9); }
+  50% { opacity: 0.9; transform: scaleY(1.05); }
+  100% { opacity: 0.7; transform: scaleY(1); }
+}
+
+@keyframes flicker3 {
+  0% { opacity: 0.7; transform: scaleY(1.05); }
+  50% { opacity: 1; transform: scaleY(0.9); }
+  100% { opacity: 0.8; transform: scaleY(1.1); }
+}
+
+@keyframes sway1 {
+  0%, 100% { transform: translateX(0) rotate(-2deg); }
+  50% { transform: translateX(5px) rotate(2deg); }
+}
+
+@keyframes sway2 {
+  0%, 100% { transform: translateX(0) rotate(1deg); }
+  50% { transform: translateX(-5px) rotate(-3deg); }
+}
