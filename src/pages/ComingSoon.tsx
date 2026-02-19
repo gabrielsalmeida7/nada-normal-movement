@@ -13,9 +13,9 @@ const useCountdown = () => {
       if (diff > 0) {
         setTimeLeft({
           days: Math.floor(diff / 86400000),
-          hours: Math.floor((diff / 3600000) % 24),
-          minutes: Math.floor((diff / 60000) % 60),
-          seconds: Math.floor((diff / 1000) % 60),
+          hours: Math.floor(diff / 3600000 % 24),
+          minutes: Math.floor(diff / 60000 % 60),
+          seconds: Math.floor(diff / 1000 % 60)
         });
       }
     };
@@ -52,19 +52,19 @@ const ComingSoon = () => {
           className="absolute inset-0 w-full h-full border-none"
           src="https://www.canva.com/design/DAHAhJX-1-w/vXePEMoHhtBJXYX9PMAbcg/view?embed"
           allowFullScreen
-          allow="fullscreen"
-        />
+          allow="fullscreen" />
+
       </div>
 
       {/* Overlay elements on top of iframe */}
-      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end items-end p-4 md:p-8 pr-[calc(1rem+10px)] md:pr-[calc(2rem+10px)]">
+      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end items-end p-4 md:p-8 pr-[calc(1rem+10px)] md:pr-[calc(2rem+10px)] px-[24px] py-[24px]">
         {/* Countdown button - bottom right */}
         <motion.div
           className="pointer-events-auto flex flex-col items-center gap-1"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}
-        >
+          transition={{ delay: 1, duration: 0.6 }}>
+
           <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest drop-shadow-lg">
             NÃO APERTE AQUI ⚠️
           </span>
@@ -82,29 +82,29 @@ const ComingSoon = () => {
           href="https://instagram.com/nadanormal"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
-        >
+          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple">
+
           <Instagram className="w-5 h-5" />
         </a>
         <a
           href="https://tiktok.com/@nadanormal"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
-        >
+          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue">
+
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
           </svg>
         </a>
         <a
           href="mailto:contato@nadanormal.com"
-          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
-        >
+          className="w-10 h-10 bg-card/80 backdrop-blur border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green">
+
           <Mail className="w-5 h-5" />
         </a>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ComingSoon;
