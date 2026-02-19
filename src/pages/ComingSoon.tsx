@@ -44,24 +44,49 @@ const ComingSoon = () => {
         preload="auto"
       />
 
-      {/* Overlay elements on top of iframe */}
-      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end items-end p-4 md:p-8 pr-[calc(1rem+10px)] md:pr-[calc(2rem+10px)] px-[24px] py-[24px]">
-        {/* Countdown button - bottom right */}
-        <motion.div
-          className="pointer-events-auto flex flex-col items-center gap-1"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, duration: 0.6 }}>
+      {/* Overlay content */}
+      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-12">
+        {/* Top - Title & Manifesto */}
+        <div className="flex flex-col gap-4 md:gap-6">
+          <motion.h1
+            className="font-display text-5xl md:text-8xl lg:text-9xl tracking-wider text-gradient-chaos drop-shadow-lg"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            Nada Normal
+          </motion.h1>
 
-          <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest drop-shadow-lg">
-            NÃO APERTE AQUI ⚠️
-          </span>
-          <div className="bg-nn-yellow text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px]">
-            <span className="text-lg md:text-2xl tracking-wider">
-              {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+          <motion.p
+            className="max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-body"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
+          >
+            Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovação não importa. E o automático não entra. Nada aqui foi criado pra pessoas normais — e isso é exatamente o ponto.{" "}
+            <span className="font-display text-gradient-chaos text-base md:text-lg lg:text-xl">Nada Normal</span>, em breve.
+          </motion.p>
+        </div>
+
+        {/* Bottom row */}
+        <div className="flex justify-end items-end">
+          {/* Countdown button - bottom right */}
+          <motion.div
+            className="pointer-events-auto flex flex-col items-center gap-1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.6 }}
+          >
+            <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest drop-shadow-lg">
+              NÃO APERTE AQUI ⚠️
             </span>
-          </div>
-        </motion.div>
+            <div className="bg-nn-yellow text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px]">
+              <span className="text-lg md:text-2xl tracking-wider">
+                {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+              </span>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Social links overlay - bottom left */}
