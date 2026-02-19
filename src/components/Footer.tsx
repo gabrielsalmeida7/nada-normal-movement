@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const footerLinks = {
   shop: [
-    { label: "Running", href: "#running" },
-    { label: "Street", href: "#street" },
-    { label: "Social", href: "#social" },
+    { label: "Running", href: "/running" },
+    { label: "Street", href: "/street" },
+    { label: "Social", href: "/social" },
     { label: "Acessórios", href: "#" },
     { label: "Suplementação", href: "#" },
   ],
@@ -109,16 +110,21 @@ export const Footer = () => {
           <div>
             <h4 className="font-display text-lg text-nn-pink mb-6">LOJA</h4>
             <ul className="space-y-3">
-              {footerLinks.shop.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-muted-foreground hover:text-nn-pink transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {footerLinks.shop.map((link) => {
+                const isRoute = link.href.startsWith("/");
+                const Comp = isRoute ? Link : "a";
+                const linkProps = isRoute ? { to: link.href } : { href: link.href };
+                return (
+                  <li key={link.label}>
+                    <Comp
+                      {...(linkProps as any)}
+                      className="text-muted-foreground hover:text-nn-pink transition-colors"
+                    >
+                      {link.label}
+                    </Comp>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
