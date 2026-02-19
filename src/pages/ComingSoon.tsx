@@ -57,7 +57,7 @@ const ComingSoon = () => {
       </div>
 
       {/* Overlay elements on top of iframe */}
-      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end items-end p-4 md:p-8">
+      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-end items-end p-4 md:p-8 pr-[calc(1rem+10px)] md:pr-[calc(2rem+10px)]">
         {/* Countdown button - bottom right */}
         <motion.div
           className="pointer-events-auto flex flex-col items-center gap-1"
