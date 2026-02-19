@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Instagram, Mail } from "lucide-react";
+import { Instagram, Facebook, Twitter, Hourglass } from "lucide-react";
 
-import mascotImage from "/lovable-uploads/Vector.png";
-import nnLogo from "@/assets/nn-logo.svg";
-import splash1 from "@/assets/splash1.svg";
-import splash2 from "@/assets/splash2.svg";
+import mascotImage from "@/assets/mascot-nada-normal.png";
+import fireOverlay from "@/assets/fire-overlay.png";
 
 const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
 const START_DATE = new Date("2026-01-29T00:00:00");
-// Total days from start to launch
-const TOTAL_DAYS = Math.ceil((LAUNCH_DATE.getTime() - START_DATE.getTime()) / 86400000);
 
 const useCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -43,221 +39,161 @@ const useCountdown = () => {
   return { timeLeft, progress };
 };
 
-const Staircase = ({ daysLeft }: { daysLeft: number }) => {
-  const totalSteps = Math.ceil(TOTAL_DAYS / 2);
-  const climbedSteps = Math.max(Math.ceil((TOTAL_DAYS - daysLeft) / 2), 0);
+/* 3D Staircase using SVG - wider solid steps like the Canva reference */
+const Staircase = () => {
+  const steps = 16;
+  const w = 600;
+  const h = 600;
+  const stepW = w / steps;
+  const stepH = h / steps;
+  const treadH = stepH * 0.4;
+  const riserH = stepH * 0.6;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      {/* Draw all steps as a diagonal staircase */}
-      {Array.from({ length: totalSteps }).map((_, i) => {
-        const stepW = 100 / totalSteps;
-        const stepH = 100 / totalSteps;
-        const isClimbed = i < climbedSteps;
-        const isCurrent = i === climbedSteps - 1 || (climbedSteps === 0 && i === 0);
+    <div className="absolute z-10" style={{ bottom: "18%", left: "32%", width: "58%", height: "70%" }}>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+        {Array.from({ length: steps }).map((_, i) => {
+          const x = i * stepW;
+          const topY = h - (i + 1) * stepH;
 
-        return (
-          <div
-            key={i}
-            className="absolute"
-            style={{
-              left: `${i * stepW}%`,
-              bottom: `${i * stepH}%`,
-              width: `${stepW + 0.5}%`,
-              height: `${stepH + 0.5}%`,
-            }}
-          >
-            {/* Horizontal tread */}
-            <div
-              className="absolute bottom-0 left-0 h-[3px] w-full"
-              style={{
-                background: isClimbed
-                  ? "linear-gradient(90deg, hsl(270 100% 65%), hsl(210 100% 55%))"
-                  : "hsl(260 15% 25%)",
-              }}
-            />
-            {/* Vertical riser */}
-            <div
-              className="absolute right-0 bottom-0 w-[3px]"
-              style={{
-                height: "100%",
-                background: isClimbed
-                  ? "linear-gradient(180deg, hsl(270 100% 65%), hsl(210 100% 55%))"
-                  : "hsl(260 15% 25%)",
-              }}
-            />
-            {/* Glow fill for climbed steps */}
-            {isClimbed && (
-              <div
-                className="absolute inset-0 opacity-15"
-                style={{
-                  background: "linear-gradient(135deg, hsl(270 100% 65% / 0.4), hsl(140 100% 55% / 0.1))",
-                }}
-              />
-            )}
-          </div>
-        );
-      })}
-
-      {/* Mascot positioned on current step */}
-      <motion.div
-        className="absolute z-10"
-        style={{
-          left: `${(Math.max(climbedSteps, 1) - 0.5) * (100 / totalSteps)}%`,
-          bottom: `${Math.max(climbedSteps, 1) * (100 / totalSteps)}%`,
-          transform: "translateX(-50%)",
-        }}
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="absolute inset-0 blur-xl bg-nn-green-neon opacity-50 rounded-full scale-[2]" />
-        <img
-          src={mascotImage}
-          alt="Mascote Nada Normal subindo a escada"
-          className="relative w-10 h-10 md:w-16 md:h-16 object-contain drop-shadow-[0_0_20px_hsl(140,100%,55%,0.8)]"
-        />
-      </motion.div>
-    </div>
-  );
-};
-
-const CountdownButton = ({ timeLeft }: { timeLeft: { days: number; hours: number; minutes: number; seconds: number } }) => {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest glow-text-yellow">
-        NÃO APERTE AQUI ⚠️
-      </span>
-      <div className="bg-nn-yellow text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px]">
-        <span className="text-lg md:text-2xl tracking-wider">
-          {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const SocialLinks = () => (
-  <div className="flex gap-3">
-    <a
-      href="https://instagram.com/nadanormal"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-10 h-10 bg-card border-2 border-nn-purple-neon flex items-center justify-center hover:bg-nn-purple-neon hover:text-background transition-all duration-300 shadow-neon-purple"
-    >
-      <Instagram className="w-5 h-5" />
-    </a>
-    <a
-      href="https://tiktok.com/@nadanormal"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="w-10 h-10 bg-card border-2 border-nn-blue-neon flex items-center justify-center hover:bg-nn-blue-neon hover:text-background transition-all duration-300 shadow-neon-blue"
-    >
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+          return (
+            <g key={i}>
+              {/* Tread (top face - lighter) */}
+              <rect x={x} y={topY} width={stepW + 0.5} height={treadH} fill="#b8b8b8" />
+              <line x1={x} y1={topY} x2={x + stepW} y2={topY} stroke="#d0d0d0" strokeWidth={1} />
+              {/* Riser (front face - darker) */}
+              <rect x={x} y={topY + treadH} width={stepW + 0.5} height={riserH} fill="#757575" />
+              <line x1={x} y1={topY + treadH} x2={x + stepW} y2={topY + treadH} stroke="#999" strokeWidth={0.5} />
+            </g>
+          );
+        })}
       </svg>
-    </a>
-    <a
-      href="mailto:contato@nadanormal.com"
-      className="w-10 h-10 bg-card border-2 border-nn-green-neon flex items-center justify-center hover:bg-nn-green-neon hover:text-background transition-all duration-300 shadow-neon-green"
-    >
-      <Mail className="w-5 h-5" />
-    </a>
-  </div>
-);
+    </div>
+  );
+};
 
 const ComingSoon = () => {
-  const { timeLeft, progress } = useCountdown();
+  const { timeLeft } = useCountdown();
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div className="h-screen bg-background overflow-hidden relative flex flex-col">
-      {/* Splashes decorativos */}
-      <img
-        src={splash1}
-        alt=""
-        className="absolute bottom-0 left-0 w-48 md:w-72 lg:w-96 opacity-30 pointer-events-none"
-        style={{ filter: "hue-rotate(90deg) saturate(2)" }}
-      />
-      <img
-        src={splash2}
-        alt=""
-        className="absolute bottom-0 right-0 w-48 md:w-72 lg:w-96 opacity-30 pointer-events-none"
-        style={{ filter: "hue-rotate(270deg) saturate(2)" }}
-      />
-
-      {/* Top bar */}
-      <div className="relative z-10 flex items-center justify-between px-4 md:px-8 pt-4 md:pt-6">
-        {/* "NADA NORMAL" invertido decorativo */}
+    <div className="h-screen bg-[hsl(0,0%,2%)] overflow-hidden relative flex flex-col">
+      {/* Top right - "NADA NORMAL" upside down + Hourglass */}
+      <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20 flex flex-col items-center gap-2">
         <span
-          className="font-display text-sm md:text-lg text-muted-foreground tracking-[0.3em] opacity-40"
-          style={{ transform: "rotate(180deg)" }}
+          className="font-display text-xs md:text-sm text-foreground tracking-[0.3em] opacity-70"
+          style={{ transform: "rotate(180deg)", textTransform: "uppercase" }}
         >
           NADA NORMAL
         </span>
-        {/* Logo */}
+        <Hourglass className="w-12 h-12 md:w-20 md:h-20 text-foreground" strokeWidth={1.5} />
+      </div>
+
+      {/* Title area */}
+      <div className="relative z-10 flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-16 pt-8">
+        <motion.h1
+          className="text-5xl md:text-7xl lg:text-[8rem] text-foreground leading-[0.95] font-bold mb-6"
+          style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.02em", textTransform: "none" }}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+        >
+          Lançamento
+          <br />
+          em Breve
+        </motion.h1>
+
+        <motion.p
+          className="text-sm md:text-base text-muted-foreground max-w-lg leading-relaxed"
+          style={{ fontFamily: "var(--font-body)", textTransform: "none" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovação não importa. E o automático não
+          entra. Nada aqui foi criado pra pessoas normais, e isso é exatamente o ponto. Nada Normal, em breve.
+        </motion.p>
+      </div>
+
+      {/* 3D Staircase */}
+      <Staircase />
+
+      {/* Mascot at bottom of staircase - big and visible */}
+      <motion.img
+        src={mascotImage}
+        alt="Mascote Nada Normal"
+        className="absolute z-30 w-32 h-32 md:w-44 md:h-44 lg:w-56 lg:h-56 object-contain drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]"
+        style={{
+          left: "42%",
+          bottom: "14%",
+          transform: "translateX(-50%)",
+        }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Fire overlay with fade mask at top */}
+      <div 
+        className="absolute bottom-0 left-0 w-full z-20 pointer-events-none" 
+        style={{ 
+          height: "45%",
+          WebkitMaskImage: "linear-gradient(to top, black 50%, transparent 100%)",
+          maskImage: "linear-gradient(to top, black 50%, transparent 100%)",
+        }}
+      >
         <motion.img
-          src={nnLogo}
-          alt="Nada Normal"
-          className="w-16 md:w-24"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          src={fireOverlay}
+          alt=""
+          className="w-full h-full object-cover object-bottom"
+          style={{ mixBlendMode: "screen" }}
+          animate={{ 
+            scale: [1, 1.02, 1],
+            opacity: [0.85, 1, 0.85],
+          }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-start px-4 md:px-8 lg:px-16 gap-4 lg:gap-0">
-        {/* Left: Title + Manifesto */}
-        <div className="flex-1 flex flex-col justify-center pt-4 lg:pt-0">
-          <motion.h1
-            className="text-5xl md:text-7xl lg:text-9xl text-foreground leading-[0.9] mb-4"
-            style={{ fontFamily: "'Permanent Marker', cursive" }}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            LANÇAMENTO
-            <br />
-            <span className="text-gradient-neon">EM BREVE</span>
-          </motion.h1>
-
-          <motion.p
-            className="font-body text-sm md:text-base text-muted-foreground max-w-md leading-relaxed"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovação não importa.
-            E o automático não entra. Nada aqui foi criado pra pessoas normais, e isso é
-            exatamente o ponto. <span className="text-nn-purple-neon font-semibold">Nada Normal</span>, em breve.
-          </motion.p>
-        </div>
-
-        {/* Right: Staircase */}
-        <motion.div
-          className="flex-1 w-full h-48 md:h-64 lg:h-full relative"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <Staircase daysLeft={timeLeft.days} />
-        </motion.div>
-      </div>
-
       {/* Bottom bar */}
-      <div className="relative z-10 flex items-end justify-between px-4 md:px-8 pb-4 md:pb-6">
-        {/* Social links */}
-        <div className="hidden md:flex">
-          <SocialLinks />
+      <div className="absolute bottom-4 md:bottom-6 left-0 right-0 z-40 flex items-end justify-between px-6 md:px-12">
+        {/* Left: "O BAGUI AQUI É LOKO" + social */}
+        <div className="flex flex-col gap-1">
+          <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest" style={{ textTransform: "uppercase" }}>
+            O BAGUI
+          </span>
+          <span className="font-display text-xs md:text-sm text-nn-yellow tracking-widest" style={{ textTransform: "uppercase" }}>
+            AQUI É LOKO
+          </span>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="h-[1px] w-12 md:w-20 bg-muted-foreground" />
+            <div className="flex gap-3">
+              <a href="https://facebook.com/nadanormal" target="_blank" rel="noopener noreferrer"
+                className="text-nn-yellow hover:text-foreground transition-colors">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="https://twitter.com/nadanormal" target="_blank" rel="noopener noreferrer"
+                className="text-nn-yellow hover:text-foreground transition-colors">
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a href="https://instagram.com/nadanormal" target="_blank" rel="noopener noreferrer"
+                className="text-nn-yellow hover:text-foreground transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
         </div>
 
-        {/* Countdown */}
-        <CountdownButton timeLeft={timeLeft} />
-      </div>
-
-      {/* Mobile social links */}
-      <div className="relative z-10 flex md:hidden justify-center pb-3">
-        <SocialLinks />
+        {/* Right: CTA Button with countdown */}
+        <div className="flex flex-col items-center gap-1">
+          <button className="bg-nn-yellow text-nn-black border-2 border-nn-black font-display px-6 py-3 md:px-10 md:py-4 cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 text-base md:text-xl tracking-wider shadow-brutal"
+            style={{ textTransform: "uppercase" }}>
+            NÃO APERTE AQUI
+          </button>
+          <span className="font-display text-xs md:text-sm text-muted-foreground tracking-widest mt-1"
+            style={{ textTransform: "none" }}>
+            {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+          </span>
+        </div>
       </div>
     </div>
   );
