@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
 
@@ -30,12 +30,24 @@ const useCountdown = () => {
 const ComingSoon = () => {
   const timeLeft = useCountdown();
   const pad = (n: number) => String(n).padStart(2, "0");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [iframeKey, setIframeKey] = useState(0);
+
+  // Loop: reload iframe every 8 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIframeKey((k) => k + 1);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-background">
       {/* Canva Embed - Full background */}
       <div className="absolute inset-0 w-full h-full">
         <iframe
+          key={iframeKey}
+          ref={iframeRef}
           loading="lazy"
           className="absolute inset-0 w-full h-full border-none"
           src="https://www.canva.com/design/DAHAhJX-1-w/vXePEMoHhtBJXYX9PMAbcg/view?embed"
