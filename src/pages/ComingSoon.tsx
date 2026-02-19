@@ -55,7 +55,7 @@ const ComingSoon = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              Nada Normal
+              Em Breve...
             </motion.h1>
             <motion.img
               src={nnLogoBadge}
