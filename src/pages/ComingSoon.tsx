@@ -1,70 +1,7 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Instagram, Mail } from "lucide-react";
-
-const Hourglass = () => {
-  const [flip, setFlip] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlip((f) => !f);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <motion.div
-      animate={{ rotate: flip ? 180 : 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="w-16 h-16 md:w-20 md:h-20"
-    >
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        <defs>
-          <linearGradient id="hg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="hsl(270, 100%, 65%)" />
-            <stop offset="100%" stopColor="hsl(210, 100%, 55%)" />
-          </linearGradient>
-        </defs>
-        {/* Top and bottom caps */}
-        <rect x="12" y="4" width="40" height="4" rx="2" fill="url(#hg-grad)" />
-        <rect x="12" y="56" width="40" height="4" rx="2" fill="url(#hg-grad)" />
-        {/* Glass outline */}
-        <path
-          d="M16 8 L16 24 L32 36 L48 24 L48 8"
-          stroke="url(#hg-grad)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
-        />
-        <path
-          d="M16 56 L16 40 L32 28 L48 40 L48 56"
-          stroke="url(#hg-grad)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
-        />
-        {/* Sand top - draining */}
-        <motion.path
-          d="M20 10 L20 20 L32 30 L44 20 L44 10 Z"
-          fill="url(#hg-grad)"
-          initial={{ opacity: 0.9 }}
-          animate={{ opacity: [0.9, 0.2] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-        />
-        {/* Sand bottom - filling */}
-        <motion.path
-          d="M20 54 L20 48 L32 40 L44 48 L44 54 Z"
-          fill="url(#hg-grad)"
-          initial={{ opacity: 0.2 }}
-          animate={{ opacity: [0.2, 0.9] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-        />
-        {/* Falling stream */}
-        <motion.line
-          x1="32" y1="30" x2="32" y2="40"
-          stroke="url(#hg-grad)" strokeWidth="2"
-          initial={{ opacity: 0.8 }}
-          animate={{ opacity: [0.8, 0.3, 0.8] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-    </motion.div>
-  );
-};
+import nnLogoBadge from "@/assets/nn-logo-badge.png";
 
 const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
 
@@ -121,13 +58,18 @@ const ComingSoon = () => {
             >
               Nada Normal
             </motion.h1>
-            <motion.div
+            <motion.img
+              src={nnLogoBadge}
+              alt="Nada Normal"
+              className="w-20 h-20 md:w-28 md:h-28 drop-shadow-lg"
               initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              <Hourglass />
-            </motion.div>
+              animate={{ opacity: 1, scale: 1, rotate: 360 }}
+              transition={{
+                opacity: { delay: 0.3, duration: 0.6 },
+                scale: { delay: 0.3, duration: 0.6 },
+                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+              }}
+            />
           </div>
 
           <motion.p
