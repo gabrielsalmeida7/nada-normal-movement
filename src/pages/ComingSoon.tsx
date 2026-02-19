@@ -47,7 +47,7 @@ const ComingSoon = () => {
       {/* Overlay content */}
       <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-12">
         {/* Top - Title & Manifesto */}
-        <div className="flex flex-col gap-4 md:gap-6">
+        <div className="flex flex-col gap-4 md:gap-4">
           <div className="flex justify-between items-start">
             <motion.h1
               className="font-display text-5xl md:text-8xl lg:text-9xl tracking-wider text-gradient-chaos drop-shadow-lg"
@@ -72,7 +72,7 @@ const ComingSoon = () => {
           </div>
 
           <motion.p
-            className="max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display"
+            className="mt-4 max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
