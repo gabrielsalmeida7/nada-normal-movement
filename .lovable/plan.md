@@ -1,78 +1,73 @@
 
 
-# Redesign Completo da Tela Coming Soon
+# Criar Paginas de Categoria: Running, Street e Social
 
-Recriar a pagina Coming Soon para ficar identica a imagem de referencia do Canva.
+## Resumo
+Criar 3 novas paginas dedicadas para as categorias de roupas (Running, Street e Social), cada uma com um catalogo de produtos detalhado seguindo o estilo visual da pagina Home. As paginas terao mais informacoes sobre cada produto (tamanhos, descricao, materiais) comparado a secao "Produtos em Destaque".
 
-## O que vai mudar
+## Estrutura das Paginas
 
-### 1. Escada 3D Realista
-A escada atual e feita de linhas finas. Sera substituida por uma escada com degraus solidos cinza/prata com perspectiva 3D, partindo do centro-inferior e curvando em direcao ao canto superior-direito, exatamente como na imagem.
+Cada pagina de categoria tera:
+1. **Header** - reutilizando o componente existente
+2. **Banner da categoria** - imagem hero com titulo e descricao da categoria
+3. **Grid de produtos** - cards detalhados com informacoes completas
+4. **Footer** - reutilizando o componente existente
 
-### 2. Fogo Animado nos Cantos Inferiores
-Os splashes SVG atuais serao removidos e substituidos por chamas estilizadas laranja/amarelo nos dois cantos inferiores. O fogo tera efeito de crepitar usando animacoes CSS com multiplas camadas:
-- Formas organicas com border-radius irregulares
-- Cores em gradiente de laranja escuro para amarelo claro
-- Animacoes de flicker (opacidade), sway (balanco lateral) e scale (crescimento)
-- 4-5 camadas por lado para profundidade
+## Produtos por Categoria
 
-### 3. Titulo com Degradê Completo
-"Lancamento em Breve" - ambas as linhas terao o gradiente neon completo (nao apenas "EM BREVE"). Fonte grande, alinhado a esquerda.
+### Running
+- Camiseta Caos (R$ 189,90) - Dry-fit, leve, costuras seladas
+- Regata Performance (R$ 149,90) - Ultra leve, ventilacao maxima
+- Meia Compressao NN (R$ 89,90) - Compressao graduada, anti-bolhas
+- Short Obsessao (R$ 159,90) - Bolso para celular, tecido stretch
+- Jaqueta Corta-Vento (R$ 349,90) - Impermeavel, refletiva
+- Bone UV Shield (R$ 79,90) - Protecao UV50+, tecido respiravel
 
-### 4. Mascote Subindo a Escada
-O mascote (Vector.png) sobe a escada conforme o countdown avanca. Ao chegar no topo, ele se "joga" em direcao ao botao "NAO APERTE AQUI" com uma animacao de pulo.
+### Street
+- Jaqueta Obsessao (R$ 449,90) - Oversized, bolsos ocultos
+- Moletom Caos Urbano (R$ 289,90) - Algodao premium, capuz ajustavel
+- Calca Cargo NN (R$ 259,90) - Bolsos utilitarios, barra ajustavel
+- Camiseta Oversized Manifesto (R$ 169,90) - Estampa exclusiva, corte largo
+- Bucket Hat Nada Normal (R$ 99,90) - Dupla face, bordado
+- Pochete Tatica NN (R$ 129,90) - Ziper refletivo, alca ajustavel
 
-### 5. Botao "NAO APERTE AQUI"
-- Retangulo amarelo/dourado com borda preta
-- Texto "NAO APERTE AQUI" como conteudo principal do botao
-- Countdown DD:HH:MM:SS integrado abaixo do texto
-- Posicionado no canto inferior direito
-
-### 6. Icone de Ampulheta
-Na imagem de referencia, ha um icone de ampulheta grande no canto superior direito, abaixo do texto "NADA NORMAL" invertido. Sera adicionado usando Lucide (Hourglass icon).
-
-### 7. Links Sociais
-Icones de Facebook, Twitter/X e Instagram centralizados na parte inferior, entre as chamas.
-
-### 8. Remover
-- Frase "O BAGUI AQUI E LOKO" (como solicitado)
-- Splashes SVG antigos
-- Logo NN SVG atual (substituido pela ampulheta)
+### Social
+- Polo Premium NN (R$ 199,90) - Pique algodao, bordado discreto
+- Camiseta Social Caos (R$ 159,90) - Corte slim, tecido macio
+- Bermuda Resenha (R$ 179,90) - Tecido confortavel, bolsos laterais
+- Chinelo Slide NN (R$ 119,90) - Solado ergonomico, logo em relevo
+- Ecobag Nada Normal (R$ 49,90) - 100% algodao organico
+- Bone Dad Hat NN (R$ 89,90) - Aba curva, fecho regulavel
 
 ## Detalhes Tecnicos
 
-### Arquivo modificado
-- `src/pages/ComingSoon.tsx` - reescrita completa do componente
+### Arquivos a criar
+1. **`src/pages/CategoryRunning.tsx`** - Pagina da categoria Running
+2. **`src/pages/CategoryStreet.tsx`** - Pagina da categoria Street
+3. **`src/pages/CategorySocial.tsx`** - Pagina da categoria Social
+4. **`src/components/ProductCard.tsx`** - Componente reutilizavel de card de produto com detalhes expandidos
 
-### Fogo CSS Animado
-```text
-Estrutura por lado:
-  - 4-5 divs posicionadas absolutamente
-  - Cada uma com border-radius organico diferente
-  - Background: gradiente de #ff6600 para #ffcc00
-  - Keyframes: flicker (0.3-0.8s), sway (1-2s), grow (1.5-3s)
-  - Filter: blur(8-15px) para suavidade
-  - Mix-blend-mode: screen para brilho
-```
+### Alteracoes em arquivos existentes
+1. **`src/App.tsx`** - Adicionar rotas `/running`, `/street`, `/social`
+2. **`src/components/Header.tsx`** - Atualizar links de navegacao para apontar para as novas rotas
+3. **`src/components/CategorySection.tsx`** - Atualizar links dos cards para navegar para as paginas
+4. **`src/components/Footer.tsx`** - Atualizar links da loja para as novas rotas
 
-### Escada 3D
-```text
-  - ~20 degraus com divs solidas
-  - Face horizontal (tread): cinza claro (#999)
-  - Face vertical (riser): cinza escuro (#666)
-  - Perspectiva com CSS transform ou posicionamento absoluto diagonal
-  - Curvatura sutil partindo do centro-inferior para canto superior-direito
-```
+### Componente ProductCard
+Cada card de produto tera:
+- Imagem com borda organica (estilo blob assimetrico)
+- Tag de destaque (Novo, Bestseller, Limitado) quando aplicavel
+- Nome do produto
+- Preco
+- Descricao curta do material/beneficio
+- Tamanhos disponiveis (PP, P, M, G, GG)
+- Botoes de acao no hover (Comprar, Favoritar, Ver Detalhes)
+- Cores disponiveis (circulos coloridos)
 
-### Animacao do Mascote
-```text
-  - Posicao baseada no progresso do countdown
-  - Bounce animation enquanto sobe
-  - Quando progress >= 100%: animacao de pulo em direcao ao botao
-  - Drop shadow verde neon
-```
-
-### Responsividade
-- Mobile: escada e fogo menores, titulo reduzido
-- Desktop: layout completo como na referencia
+### Estilo Visual
+- Seguira o design system existente (cores neon, formas organicas, fonte Permanent Marker/Bebas Neue)
+- Banner hero de cada categoria com a cor tematica: Running = laranja, Street = lime, Social = amarelo
+- Animacoes com framer-motion (fade-in, hover scale, floating elements)
+- Cards com `border-4`, sombras neon e formas organicas assimetricas
+- Imagens de produto reutilizarao os assets existentes (`product-tshirt.jpg`, `product-socks.jpg`, `product-jacket.jpg`, `product-tank.jpg`) e placeholder para os novos
 
