@@ -74,7 +74,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Bebas Neue", "sans-serif"],
+        display: ["Permanent Marker", "cursive"],
         body: ["Inter", "sans-serif"],
       },
       borderRadius: {

@@ -50,8 +50,7 @@ const ComingSoon = () => {
         <div className="flex flex-col gap-4 md:gap-4">
           <div className="flex justify-between items-start">
             <motion.h1
-              className="text-5xl md:text-8xl lg:text-9xl tracking-wider text-gradient-chaos drop-shadow-lg"
-              style={{ fontFamily: "'Bowlby One SC', sans-serif" }}
+              className="font-bowlby text-5xl md:text-8xl lg:text-9xl tracking-wider text-gradient-chaos drop-shadow-lg"
               initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}

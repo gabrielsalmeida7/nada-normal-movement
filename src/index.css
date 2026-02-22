@@ -54,6 +54,7 @@
 
     /* Custom Properties */
     --font-display: 'Permanent Marker', cursive;
+    --font-bowlby: 'Bowlby One SC', sans-serif;
     --font-body: 'Inter', sans-serif;
     
     /* Gradients NEON */
@@ -240,6 +241,10 @@
   
   .font-display {
     font-family: var(--font-display);
+  }
+
+  .font-bowlby {
+    font-family: var(--font-bowlby);
   }
   
   .text-stroke {
