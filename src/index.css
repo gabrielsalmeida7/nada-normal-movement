@@ -339,6 +339,12 @@
     100% { clip: rect(22px, 9999px, 68px, 0); }
   }
   
+  /* Typewriter cursor blink */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
   /* Marquee animation */
   @keyframes marquee {
     0% { transform: translateX(0%); }
