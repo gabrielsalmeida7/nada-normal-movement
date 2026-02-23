@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import nnLogoBadge from "@/assets/nn-logo-badge.png";
 
 const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
@@ -28,6 +28,7 @@ const useCountdown = () => {
 };
 
 const ComingSoon = () => {
+  const [videoReady, setVideoReady] = useState(false);
   const timeLeft = useCountdown();
   const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -42,7 +43,28 @@ const ComingSoon = () => {
         muted
         playsInline
         preload="auto"
+        onCanPlay={() => setVideoReady(true)}
       />
+
+      {/* Loading overlay - logo girando até o vídeo carregar */}
+      <AnimatePresence>
+        {!videoReady && (
+          <motion.div
+            className="absolute inset-0 z-20 flex items-center justify-center bg-background"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.img
+              src={nnLogoBadge}
+              alt="Carregando..."
+              className="w-24 h-24 md:w-32 md:h-32 drop-shadow-lg"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Overlay content */}
       <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-12">
@@ -72,13 +94,12 @@ const ComingSoon = () => {
           </div>
 
           <motion.p
-            className="mt-4 max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display"
+            className="mt-4 max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display font-semibold"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
           >
-            Ser normal nunca mudou nada. Aqui, o conforto acaba. A aprovação não importa. E o automático não entra. Nada aqui foi criado pra pessoas normais — e isso é exatamente o ponto.{" "}
-            <span className="font-display text-gradient-chaos text-base md:text-lg lg:text-xl">Nada Normal</span>, em breve.
+            O normal aqui não entra, nada nesse lugar foi criado para pessoas normais e esse é exatamente o ponto.
           </motion.p>
         </div>
 

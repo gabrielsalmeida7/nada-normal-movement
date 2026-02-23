@@ -74,7 +74,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Permanent Marker", "cursive"],
+        display: ["Inter", "sans-serif"],
         body: ["Inter", "sans-serif"],
       },
       borderRadius: {

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One+SC&family=Inter:wght@400;500;600;700;800;900&family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Bowlby+One+SC&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
@@ -53,7 +53,7 @@
     --radius: 0rem;
 
     /* Custom Properties */
-    --font-display: 'Permanent Marker', cursive;
+    --font-display: 'Inter', sans-serif;
     --font-bowlby: 'Bowlby One SC', sans-serif;
     --font-body: 'Inter', sans-serif;
     
