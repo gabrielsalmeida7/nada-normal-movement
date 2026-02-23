@@ -33,7 +33,7 @@ const ComingSoon = () => {
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-background">
+    <div className="relative w-full min-h-[100dvh] overflow-hidden bg-background" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       {/* Background Video */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
@@ -46,7 +46,7 @@ const ComingSoon = () => {
         onCanPlay={() => setVideoReady(true)}
       />
 
-      {/* Loading overlay - logo girando até o vídeo carregar */}
+      {/* Loading overlay */}
       <AnimatePresence>
         {!videoReady && (
           <motion.div
@@ -66,64 +66,60 @@ const ComingSoon = () => {
         )}
       </AnimatePresence>
 
-      {/* Overlay content */}
-      <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-12">
-        {/* Top - Title & Manifesto */}
-        <div className="flex flex-col gap-4 md:gap-4">
-          <div className="flex justify-between items-start">
-            <motion.h1
-              className="font-bowlby text-5xl md:text-8xl lg:text-9xl tracking-wider text-gradient-chaos drop-shadow-lg"
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              Em Breve...
-            </motion.h1>
-            <motion.img
-              src={nnLogoBadge}
-              alt="Nada Normal"
-              className="w-20 h-20 md:w-28 md:h-28 drop-shadow-lg"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1, rotate: 360 }}
-              transition={{
-                opacity: { delay: 0.3, duration: 0.6 },
-                scale: { delay: 0.3, duration: 0.6 },
-                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-              }}
-            />
-          </div>
+      {/* Overlay content - centered column layout */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-6 py-8 md:px-12 md:py-12 text-center">
+        {/* Logo top-right */}
+        <motion.img
+          src={nnLogoBadge}
+          alt="Nada Normal"
+          className="absolute top-4 right-4 w-16 h-16 md:w-24 md:h-24 drop-shadow-lg"
+          style={{ top: 'max(1rem, env(safe-area-inset-top))' }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1, rotate: 360 }}
+          transition={{
+            opacity: { delay: 0.3, duration: 0.6 },
+            scale: { delay: 0.3, duration: 0.6 },
+            rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+          }}
+        />
 
-          <motion.p
-            className="mt-4 max-w-md md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display font-semibold"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5, duration: 0.7 }}
-          >
-            O normal aqui não entra, nada nesse lugar foi criado para pessoas normais e esse é exatamente o ponto.
-          </motion.p>
-        </div>
+        {/* Title */}
+        <motion.h1
+          className="font-bowlby text-[clamp(2.5rem,12vw,9rem)] leading-none tracking-wider text-gradient-chaos drop-shadow-lg"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Em Breve...
+        </motion.h1>
 
-        {/* Bottom row */}
-        <div className="flex justify-end items-end">
-          {/* Countdown button - bottom right */}
-          <motion.div
-            className="pointer-events-auto flex flex-col items-center gap-1"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
-          >
-            <span className="font-display text-xs md:text-sm tracking-widest drop-shadow-lg" style={{ color: '#fe1089' }}>
-              NÃO APERTE AQUI ⚠️
+        {/* Manifesto */}
+        <motion.p
+          className="mt-4 max-w-xs md:max-w-lg text-sm md:text-base lg:text-lg text-foreground/85 leading-relaxed font-display font-semibold"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5, duration: 0.7 }}
+        >
+          O normal aqui não entra, nada nesse lugar foi criado para pessoas normais e esse é exatamente o ponto.
+        </motion.p>
+
+        {/* Countdown button */}
+        <motion.div
+          className="mt-8 pointer-events-auto flex flex-col items-center gap-1"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.6 }}
+        >
+          <span className="font-display text-xs md:text-sm tracking-widest drop-shadow-lg" style={{ color: '#fe1089' }}>
+            NÃO APERTE AQUI ⚠️
+          </span>
+          <a href="https://instagram.com/nadanormalclub" target="_blank" rel="noopener noreferrer" className="text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px] block" style={{ backgroundColor: '#fe1089' }}>
+            <span className="text-lg md:text-2xl tracking-wider">
+              {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
             </span>
-            <a href="https://instagram.com/nadanormalclub" target="_blank" rel="noopener noreferrer" className="text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px] block" style={{ backgroundColor: '#fe1089' }}>
-              <span className="text-lg md:text-2xl tracking-wider">
-                {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
-              </span>
-            </a>
-          </motion.div>
-        </div>
+          </a>
+        </motion.div>
       </div>
-
     </div>);
 
 };
