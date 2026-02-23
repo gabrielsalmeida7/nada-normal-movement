@@ -36,9 +36,9 @@ const ComingSoon = () => {
 
   return (
     <div className="relative w-full min-h-[100dvh] overflow-hidden bg-background">
-      {/* Background Video - hidden on mobile */}
+      {/* Background Video */}
       <video
-        className="absolute inset-0 w-full h-full object-cover hidden md:block"
+        className="absolute inset-0 w-full h-full object-cover"
         src="/videos/NN6.mp4"
         autoPlay
         loop
@@ -52,7 +52,7 @@ const ComingSoon = () => {
       <AnimatePresence>
         {!videoReady && (
           <motion.div
-            className="absolute inset-0 z-20 hidden md:flex items-center justify-center bg-background"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-background"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
@@ -163,7 +163,7 @@ const ComingSoon = () => {
           <motion.img
             src={mascotImage}
             alt="Mascote Nada Normal"
-            className="relative z-10 mx-auto w-32 h-auto drop-shadow-[0_0_15px_hsl(270,100%,60%,0.5)]"
+            className="relative z-10 ml-auto mr-4 w-32 h-auto drop-shadow-[0_0_15px_hsl(270,100%,60%,0.5)]"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.6 }}
