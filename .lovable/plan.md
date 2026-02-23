@@ -1,49 +1,73 @@
 
 
-# Adaptar Tela Coming Soon ao Layout de Referencia
+# Criar Paginas de Categoria: Running, Street e Social
 
-## O que muda
+## Resumo
+Criar 3 novas paginas dedicadas para as categorias de roupas (Running, Street e Social), cada uma com um catalogo de produtos detalhado seguindo o estilo visual da pagina Home. As paginas terao mais informacoes sobre cada produto (tamanhos, descricao, materiais) comparado a secao "Produtos em Destaque".
 
-A tela atual tem o conteudo espalhado (titulo no topo-esquerda, logo no topo-direita, botao no canto inferior-direito). O layout de referencia centraliza tudo verticalmente no meio da tela, numa coluna unica.
+## Estrutura das Paginas
 
-## Novo Layout
+Cada pagina de categoria tera:
+1. **Header** - reutilizando o componente existente
+2. **Banner da categoria** - imagem hero com titulo e descricao da categoria
+3. **Grid de produtos** - cards detalhados com informacoes completas
+4. **Footer** - reutilizando o componente existente
 
-O conteudo sera reorganizado numa coluna centralizada vertical e horizontalmente:
+## Produtos por Categoria
 
-1. **Logo** - canto superior direito (manter como esta)
-2. **"EM BREVE..."** - titulo centralizado, fonte Bowlby One SC
-3. **"Nao e pra todo mundo."** - subtitulo em negrito, centralizado
-4. **Manifesto** - texto menor centralizado abaixo
-5. **Botao "NAO APERTE AQUI"** - o botao existente com contador, centralizado (substitui o "Quero acesso antecipado" da referencia)
-6. **"Lancamento em:"** - label acima do contador
-7. **Contador** - DD : HH : MM : SS centralizado
-8. **Mascote** - imagem do mascote (`mascot-running.png`) na parte inferior
-9. **Video de fundo** - manter
+### Running
+- Camiseta Caos (R$ 189,90) - Dry-fit, leve, costuras seladas
+- Regata Performance (R$ 149,90) - Ultra leve, ventilacao maxima
+- Meia Compressao NN (R$ 89,90) - Compressao graduada, anti-bolhas
+- Short Obsessao (R$ 159,90) - Bolso para celular, tecido stretch
+- Jaqueta Corta-Vento (R$ 349,90) - Impermeavel, refletiva
+- Bone UV Shield (R$ 79,90) - Protecao UV50+, tecido respiravel
 
-## Compatibilidade Mobile
+### Street
+- Jaqueta Obsessao (R$ 449,90) - Oversized, bolsos ocultos
+- Moletom Caos Urbano (R$ 289,90) - Algodao premium, capuz ajustavel
+- Calca Cargo NN (R$ 259,90) - Bolsos utilitarios, barra ajustavel
+- Camiseta Oversized Manifesto (R$ 169,90) - Estampa exclusiva, corte largo
+- Bucket Hat Nada Normal (R$ 99,90) - Dupla face, bordado
+- Pochete Tatica NN (R$ 129,90) - Ziper refletivo, alca ajustavel
 
-Para resolver os problemas entre Android e iPhone:
-- Usar `min-h-[100dvh]` em vez de `h-screen` (dynamic viewport height resolve a diferenca de barra de navegacao entre Android e iOS)
-- Usar `safe-area-inset` padding para lidar com notch do iPhone
-- Ajustar tamanhos de fonte com clamp() ou classes responsivas adequadas
-- Garantir que o scroll funcione caso o conteudo ultrapasse a tela em dispositivos menores
-- Testar com viewport 390x844 (iPhone) e 360x800 (Android)
+### Social
+- Polo Premium NN (R$ 199,90) - Pique algodao, bordado discreto
+- Camiseta Social Caos (R$ 159,90) - Corte slim, tecido macio
+- Bermuda Resenha (R$ 179,90) - Tecido confortavel, bolsos laterais
+- Chinelo Slide NN (R$ 119,90) - Solado ergonomico, logo em relevo
+- Ecobag Nada Normal (R$ 49,90) - 100% algodao organico
+- Bone Dad Hat NN (R$ 89,90) - Aba curva, fecho regulavel
 
 ## Detalhes Tecnicos
 
-### Arquivo editado: `src/pages/ComingSoon.tsx`
+### Arquivos a criar
+1. **`src/pages/CategoryRunning.tsx`** - Pagina da categoria Running
+2. **`src/pages/CategoryStreet.tsx`** - Pagina da categoria Street
+3. **`src/pages/CategorySocial.tsx`** - Pagina da categoria Social
+4. **`src/components/ProductCard.tsx`** - Componente reutilizavel de card de produto com detalhes expandidos
 
-**Mudancas principais:**
-- Trocar o container de `h-screen` para `min-h-[100dvh]` para compatibilidade cross-device
-- Reorganizar o layout de `justify-between` (espalhado) para uma coluna centralizada com `items-center justify-center`
-- Manter a logo rotativa no canto superior direito (posicao absoluta)
-- Centralizar titulo, subtitulo, manifesto e botao em coluna
-- Adicionar label "Lancamento em:" acima do contador
-- Importar e exibir o mascote (`mascot-running.png`) na parte inferior da tela
-- Adicionar padding com `env(safe-area-inset-*)` para iPhones com notch
-- Ajustar tamanhos de fonte mobile (texto menor em telas < 375px)
+### Alteracoes em arquivos existentes
+1. **`src/App.tsx`** - Adicionar rotas `/running`, `/street`, `/social`
+2. **`src/components/Header.tsx`** - Atualizar links de navegacao para apontar para as novas rotas
+3. **`src/components/CategorySection.tsx`** - Atualizar links dos cards para navegar para as paginas
+4. **`src/components/Footer.tsx`** - Atualizar links da loja para as novas rotas
 
-### Arquivo editado: `src/index.css`
+### Componente ProductCard
+Cada card de produto tera:
+- Imagem com borda organica (estilo blob assimetrico)
+- Tag de destaque (Novo, Bestseller, Limitado) quando aplicavel
+- Nome do produto
+- Preco
+- Descricao curta do material/beneficio
+- Tamanhos disponiveis (PP, P, M, G, GG)
+- Botoes de acao no hover (Comprar, Favoritar, Ver Detalhes)
+- Cores disponiveis (circulos coloridos)
 
-- Adicionar suporte a `100dvh` como fallback para navegadores que nao suportam
+### Estilo Visual
+- Seguira o design system existente (cores neon, formas organicas, fonte Permanent Marker/Bebas Neue)
+- Banner hero de cada categoria com a cor tematica: Running = laranja, Street = lime, Social = amarelo
+- Animacoes com framer-motion (fade-in, hover scale, floating elements)
+- Cards com `border-4`, sombras neon e formas organicas assimetricas
+- Imagens de produto reutilizarao os assets existentes (`product-tshirt.jpg`, `product-socks.jpg`, `product-jacket.jpg`, `product-tank.jpg`) e placeholder para os novos
 
