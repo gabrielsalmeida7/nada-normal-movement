@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import nnLogoBadge from "@/assets/nn-logo-badge.png";
 
 const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
+const TYPEWRITER_TEXT = "Em Breve...";
 
 const useCountdown = () => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -27,9 +28,35 @@ const useCountdown = () => {
   return timeLeft;
 };
 
+const useTypewriter = (text: string, typeSpeed = 120, eraseSpeed = 80, pauseAfterType = 2000, pauseAfterErase = 800) => {
+  const [displayed, setDisplayed] = useState("");
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    if (isTyping) {
+      if (displayed.length < text.length) {
+        timeout = setTimeout(() => setDisplayed(text.slice(0, displayed.length + 1)), typeSpeed);
+      } else {
+        timeout = setTimeout(() => setIsTyping(false), pauseAfterType);
+      }
+    } else {
+      if (displayed.length > 0) {
+        timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), eraseSpeed);
+      } else {
+        timeout = setTimeout(() => setIsTyping(true), pauseAfterErase);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [displayed, isTyping, text, typeSpeed, eraseSpeed, pauseAfterType, pauseAfterErase]);
+
+  return displayed;
+};
+
 const ComingSoon = () => {
   const [videoReady, setVideoReady] = useState(false);
   const timeLeft = useCountdown();
+  const typedText = useTypewriter(TYPEWRITER_TEXT);
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
@@ -77,7 +104,8 @@ const ComingSoon = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              Em Breve...
+              {typedText}
+              <span className="inline-block w-[3px] h-[0.8em] bg-foreground ml-1 align-baseline animate-[blink_1s_step-end_infinite]" />
             </motion.h1>
             <motion.img
               src={nnLogoBadge}
