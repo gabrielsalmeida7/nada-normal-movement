@@ -53,29 +53,55 @@ const useTypewriter = (text: string, typeSpeed = 120, eraseSpeed = 80, pauseAfte
   return displayed;
 };
 
+const VIDEO_DESKTOP = "/videos/NN6.mp4";
+const VIDEO_MOBILE = "/videos/NNMobile.mp4";
+const MOBILE_BREAKPOINT_PX = 768;
+
+const useVideoSrc = () => {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`);
+    const update = () => setSrc(mql.matches ? VIDEO_MOBILE : VIDEO_DESKTOP);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  return src;
+};
+
 const ComingSoon = () => {
   const [videoReady, setVideoReady] = useState(false);
+  const videoSrc = useVideoSrc();
   const timeLeft = useCountdown();
   const typedText = useTypewriter(TYPEWRITER_TEXT);
   const pad = (n: number) => String(n).padStart(2, "0");
 
+  useEffect(() => {
+    setVideoReady(false);
+  }, [videoSrc]);
+
   return (
     <div className="relative w-full min-h-[100dvh] overflow-hidden bg-background" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
-      {/* Background Video */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        src="/videos/NN6.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        onCanPlay={() => setVideoReady(true)}
-      />
+      {/* Background Video - mobile (5MB) ou desktop (11MB) conforme viewport */}
+      {videoSrc && (
+        <video
+          key={videoSrc}
+          className="absolute inset-0 w-full h-full object-cover"
+          src={videoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          onCanPlay={() => setVideoReady(true)}
+        />
+      )}
 
-      {/* Loading overlay */}
+      {/* Loading overlay - até o vídeo adequado carregar */}
       <AnimatePresence>
-        {!videoReady && (
+        {(!videoSrc || !videoReady) && (
           <motion.div
             className="absolute inset-0 z-20 flex items-center justify-center bg-background"
             initial={{ opacity: 1 }}
