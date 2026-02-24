@@ -165,10 +165,10 @@ const ComingSoon = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.6 }}
           >
-            <span className="font-display text-xs md:text-sm tracking-widest drop-shadow-lg" style={{ color: '#fe1089' }}>
+            <span className="font-display font-bold text-xs md:text-sm tracking-widest drop-shadow-lg" style={{ color: '#fe1089' }}>
               NÃO APERTE AQUI ⚠️
             </span>
-            <a href="https://instagram.com/nadanormalclub" target="_blank" rel="noopener noreferrer" className="text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px] block" style={{ backgroundColor: '#fe1089' }}>
+            <a href="https://chat.whatsapp.com/HEO5g8sZe95GOys709ucpg" target="_blank" rel="noopener noreferrer" className="text-nn-black border-4 border-nn-black font-display px-4 py-2 md:px-8 md:py-3 shadow-brutal cursor-pointer hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-200 rounded-[10px_30px_10px_30px] block" style={{ backgroundColor: '#fe1089' }}>
               <span className="text-lg md:text-2xl tracking-wider">
                 {pad(timeLeft.days)}:{pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
               </span>
