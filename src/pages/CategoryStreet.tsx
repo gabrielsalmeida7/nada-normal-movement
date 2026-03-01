@@ -5,10 +5,6 @@ import productJacket from "@/assets/product-jacket.jpg";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import productTank from "@/assets/product-tank.jpg";
 import productSocks from "@/assets/product-socks.jpg";
-<<<<<<< Updated upstream
-import categoryStreet from "@/assets/street-hero.png";
-=======
->>>>>>> Stashed changes
 
 const products: Product[] = [
   {
@@ -105,74 +101,8 @@ const products: Product[] = [
   },
 ];
 
-<<<<<<< Updated upstream
-const CategoryStreet = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        {/* Hero Banner */}
-        <section className="mt-28">
-          <div className="relative w-full overflow-hidden">
-            <img
-              src={categoryStreet}
-              alt="Street"
-              className="w-full h-auto object-contain"
-            />
-            <div className="absolute top-0 left-0 w-full h-2 bg-nn-lime" />
-          </div>
-          <div className="container py-10">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="font-display text-6xl md:text-8xl text-nn-lime glow-text-lime mb-4"
-            >
-              STREET
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-foreground/80 text-lg max-w-xl"
-            >
-              Autenticidade Urbana. Leve o caos para as ruas. Vista sua anormalidade.
-            </motion.p>
-          </div>
-        </section>
-
-        {/* Products Grid */}
-        <section className="py-16 bg-background">
-          <div className="container">
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="text-muted-foreground mb-10 font-display text-sm tracking-widest"
-            >
-              {products.length} PRODUTOS
-            </motion.p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  accentColor="nn-lime"
-                  shadowClass="shadow-neon-lime"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
-};
-=======
 const CategoryStreet = () => (
   <CategoryPage config={CATEGORY_CONFIG.street} products={products} />
 );
->>>>>>> Stashed changes
 
 export default CategoryStreet;

@@ -5,10 +5,6 @@ import productTshirt from "@/assets/product-tshirt.jpg";
 import productSocks from "@/assets/product-socks.jpg";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTank from "@/assets/product-tank.jpg";
-<<<<<<< Updated upstream
-import categoryRunning from "@/assets/running-hero.png";
-=======
->>>>>>> Stashed changes
 
 const products: Product[] = [
   {
@@ -106,74 +102,8 @@ const products: Product[] = [
   },
 ];
 
-<<<<<<< Updated upstream
-const CategoryRunning = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main>
-        {/* Hero Banner */}
-        <section className="mt-28">
-          <div className="relative w-full overflow-hidden">
-            <img
-              src={categoryRunning}
-              alt="Running"
-              className="w-full h-auto object-contain"
-            />
-            <div className="absolute top-0 left-0 w-full h-2 bg-nn-orange" />
-          </div>
-          <div className="container py-10">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="font-display text-6xl md:text-8xl text-nn-orange glow-text-orange mb-4"
-            >
-              RUNNING
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-foreground/80 text-lg max-w-xl"
-            >
-              Obsessão em Movimento. Para quem acorda às 4h da manhã e chama isso de privilégio.
-            </motion.p>
-          </div>
-        </section>
-
-        {/* Products Grid */}
-        <section className="py-16 bg-background">
-          <div className="container">
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              className="text-muted-foreground mb-10 font-display text-sm tracking-widest"
-            >
-              {products.length} PRODUTOS
-            </motion.p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  accentColor="nn-orange"
-                  shadowClass="shadow-neon-orange"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
-};
-=======
 const CategoryRunning = () => (
   <CategoryPage config={CATEGORY_CONFIG.running} products={products} />
 );
->>>>>>> Stashed changes
 
 export default CategoryRunning;
