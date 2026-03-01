@@ -1,21 +1,13 @@
 import { motion } from "framer-motion";
-import { ShoppingBag, Heart, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProductCard } from "@/components/ProductCard";
+import type { Product } from "@/types/product";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import productSocks from "@/assets/product-socks.jpg";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTank from "@/assets/product-tank.jpg";
 
-const organicCardStyles = [
-  { borderRadius: '10px 40px 10px 40px' },
-  { borderRadius: '40px 10px 40px 10px' },
-  { borderRadius: '5px 30px 50px 15px' },
-  { borderRadius: '50px 15px 5px 35px' },
-];
-
-const blobClasses = ['shape-blob-1', 'shape-blob-2', 'shape-blob-3', 'shape-blob-4'];
-
-const products = [
+const products: Product[] = [
   {
     id: 1,
     name: "Camiseta Caos",
@@ -95,76 +87,15 @@ export const ProductsSection = () => {
           </Button>
         </motion.div>
 
-        {/* Products Grid */}
+        {/* Products Grid - reutiliza ProductCard com layout resumido (sem description/material/sizes/colors) */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product, index) => (
-            <motion.div
+            <ProductCard
               key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group"
-            >
-              {/* Image Container with organic shape */}
-              <div 
-                style={organicCardStyles[index % organicCardStyles.length]}
-                className="relative overflow-hidden bg-card border-4 border-border group-hover:border-nn-pink transition-all duration-300 group-hover:shadow-neon-pink"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-
-                {/* Tag with organic shape */}
-                {product.tag && (
-                  <span 
-                    className={`absolute top-4 left-4 ${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider tag-organic`}
-                  >
-                    {product.tag}
-                  </span>
-                )}
-
-                {/* Hover Actions with blob shapes */}
-                <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className={`w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center ${blobClasses[0]}`}
-                  >
-                    <ShoppingBag size={20} />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className={`w-12 h-12 bg-foreground text-background flex items-center justify-center ${blobClasses[1]}`}
-                  >
-                    <Heart size={20} />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className={`w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center ${blobClasses[2]}`}
-                  >
-                    <Eye size={20} />
-                  </motion.button>
-                </div>
-              </div>
-
-              {/* Product Info */}
-              <div className="mt-4">
-                <span className={`${product.categoryColor} font-display text-xs tracking-widest`}>
-                  {product.category}
-                </span>
-                <h3 className="font-display text-xl text-foreground mt-1 group-hover:text-nn-pink transition-colors">
-                  {product.name}
-                </h3>
-                <p className="text-nn-purple-neon font-bold text-lg mt-2">
-                  R$ {product.price.toFixed(2).replace('.', ',')}
-                </p>
-              </div>
-            </motion.div>
+              product={product}
+              index={index}
+              accentKey="nn-pink"
+            />
           ))}
         </div>
       </div>

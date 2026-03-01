@@ -1,14 +1,14 @@
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { ProductCard, Product } from "@/components/ProductCard";
+import { CategoryPage } from "@/components/CategoryPage";
+import { CATEGORY_CONFIG } from "@/config/categories";
+import type { Product } from "@/types/product";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import productTank from "@/assets/product-tank.jpg";
 import productSocks from "@/assets/product-socks.jpg";
+<<<<<<< Updated upstream
 import categoryStreet from "@/assets/street-hero.png";
+=======
+>>>>>>> Stashed changes
 
 const products: Product[] = [
   {
@@ -105,6 +105,7 @@ const products: Product[] = [
   },
 ];
 
+<<<<<<< Updated upstream
 const CategoryStreet = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -168,5 +169,10 @@ const CategoryStreet = () => {
     </div>
   );
 };
+=======
+const CategoryStreet = () => (
+  <CategoryPage config={CATEGORY_CONFIG.street} products={products} />
+);
+>>>>>>> Stashed changes
 
 export default CategoryStreet;

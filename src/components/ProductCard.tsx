@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ShoppingBag, Heart, Eye } from "lucide-react";
+import type { Product } from "@/types/product";
 
 const organicCardStyles = [
   { borderRadius: '10px 40px 10px 40px' },
@@ -12,27 +13,27 @@ const organicCardStyles = [
 
 const blobClasses = ['shape-blob-1', 'shape-blob-2', 'shape-blob-3', 'shape-blob-4'];
 
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  tag?: string | null;
-  tagColor?: string | null;
-  description: string;
-  material: string;
-  sizes: string[];
-  colors: { name: string; hex: string }[];
-}
+/** Mapa de classes Tailwind completas por accent (evita classes dinâmicas que o JIT não gera) */
+const ACCENT_CLASSES: Record<string, { border: string; shadow: string; text: string; textHover: string }> = {
+  'nn-orange': { border: 'group-hover:border-nn-orange', shadow: 'group-hover:shadow-neon-orange', text: 'text-nn-orange', textHover: 'group-hover:text-nn-orange' },
+  'nn-lime': { border: 'group-hover:border-nn-lime', shadow: 'group-hover:shadow-neon-lime', text: 'text-nn-lime', textHover: 'group-hover:text-nn-lime' },
+  'nn-yellow': { border: 'group-hover:border-nn-yellow', shadow: 'group-hover:shadow-neon-yellow', text: 'text-nn-yellow', textHover: 'group-hover:text-nn-yellow' },
+  'nn-pink': { border: 'group-hover:border-nn-pink', shadow: 'group-hover:shadow-neon-pink', text: 'text-nn-pink', textHover: 'group-hover:text-nn-pink' },
+  'nn-red': { border: 'group-hover:border-nn-red', shadow: 'group-hover:shadow-neon-pink', text: 'text-nn-red', textHover: 'group-hover:text-nn-red' },
+};
 
 interface ProductCardProps {
   product: Product;
   index: number;
-  accentColor: string;
-  shadowClass: string;
+  /** Chave do mapa (ex.: 'nn-orange', 'nn-lime') para border/shadow/text */
+  accentKey?: keyof typeof ACCENT_CLASSES;
 }
 
-export const ProductCard = ({ product, index, accentColor, shadowClass }: ProductCardProps) => {
+const defaultAccent: keyof typeof ACCENT_CLASSES = 'nn-pink';
+
+export const ProductCard = ({ product, index, accentKey = defaultAccent }: ProductCardProps) => {
+  const accent = ACCENT_CLASSES[accentKey] ?? ACCENT_CLASSES[defaultAccent];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -44,7 +45,7 @@ export const ProductCard = ({ product, index, accentColor, shadowClass }: Produc
       {/* Image Container */}
       <div
         style={organicCardStyles[index % organicCardStyles.length]}
-        className={`relative overflow-hidden bg-card border-4 border-border group-hover:border-${accentColor} transition-all duration-300 group-hover:${shadowClass}`}
+        className={`relative overflow-hidden bg-card border-4 border-border transition-all duration-300 ${accent.border} ${accent.shadow}`}
       >
         <img
           src={product.image}
@@ -55,7 +56,7 @@ export const ProductCard = ({ product, index, accentColor, shadowClass }: Produc
         {/* Tag */}
         {product.tag && (
           <span
-            className={`absolute top-4 left-4 ${product.tagColor} text-nn-black font-display text-xs px-3 py-1 tracking-wider tag-organic`}
+            className={`absolute top-4 left-4 ${product.tagColor ?? ''} text-nn-black font-display text-xs px-3 py-1 tracking-wider tag-organic`}
           >
             {product.tag}
           </span>
@@ -89,43 +90,56 @@ export const ProductCard = ({ product, index, accentColor, shadowClass }: Produc
 
       {/* Product Info */}
       <div className="mt-4 space-y-2">
-        <h3 className={`font-display text-xl text-foreground group-hover:text-${accentColor} transition-colors`}>
+        {product.category && (
+          <span className={`${product.categoryColor ?? 'text-muted-foreground'} font-display text-xs tracking-widest`}>
+            {product.category}
+          </span>
+        )}
+        <h3 className={`font-display text-xl text-foreground transition-colors ${accent.textHover}`}>
           {product.name}
         </h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {product.description}
-        </p>
-        <p className="text-muted-foreground/70 text-xs italic">
-          {product.material}
-        </p>
+        {product.description != null && (
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            {product.description}
+          </p>
+        )}
+        {product.material != null && (
+          <p className="text-muted-foreground/70 text-xs italic">
+            {product.material}
+          </p>
+        )}
 
         {/* Sizes */}
-        <div className="flex gap-1.5 flex-wrap">
-          {product.sizes.map((size) => (
-            <span
-              key={size}
-              className="text-xs font-display px-2 py-1 border border-border text-muted-foreground hover:border-nn-pink hover:text-nn-pink transition-colors cursor-pointer"
-              style={{ borderRadius: '8px 3px 8px 3px' }}
-            >
-              {size}
-            </span>
-          ))}
-        </div>
+        {product.sizes && product.sizes.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap">
+            {product.sizes.map((size) => (
+              <span
+                key={size}
+                className="text-xs font-display px-2 py-1 border border-border text-muted-foreground hover:border-nn-pink hover:text-nn-pink transition-colors cursor-pointer"
+                style={{ borderRadius: '8px 3px 8px 3px' }}
+              >
+                {size}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Colors */}
-        <div className="flex gap-2 items-center">
-          {product.colors.map((color) => (
-            <button
-              key={color.name}
-              title={color.name}
-              className="w-5 h-5 border-2 border-border hover:border-foreground transition-colors cursor-pointer"
-              style={{ backgroundColor: color.hex, borderRadius: '50% 40% 50% 40%' }}
-            />
-          ))}
-        </div>
+        {product.colors && product.colors.length > 0 && (
+          <div className="flex gap-2 items-center">
+            {product.colors.map((color) => (
+              <button
+                key={color.name}
+                title={color.name}
+                className="w-5 h-5 border-2 border-border hover:border-foreground transition-colors cursor-pointer"
+                style={{ backgroundColor: color.hex, borderRadius: '50% 40% 50% 40%' }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Price */}
-        <p className={`text-${accentColor} font-bold text-lg font-display`}>
+        <p className={`font-bold text-lg font-display ${accent.text}`}>
           R$ {product.price.toFixed(2).replace('.', ',')}
         </p>
       </div>

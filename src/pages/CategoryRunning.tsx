@@ -1,14 +1,14 @@
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { ProductCard, Product } from "@/components/ProductCard";
+import { CategoryPage } from "@/components/CategoryPage";
+import { CATEGORY_CONFIG } from "@/config/categories";
+import type { Product } from "@/types/product";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import productSocks from "@/assets/product-socks.jpg";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTank from "@/assets/product-tank.jpg";
+<<<<<<< Updated upstream
 import categoryRunning from "@/assets/running-hero.png";
+=======
+>>>>>>> Stashed changes
 
 const products: Product[] = [
   {
@@ -106,6 +106,7 @@ const products: Product[] = [
   },
 ];
 
+<<<<<<< Updated upstream
 const CategoryRunning = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -169,5 +170,10 @@ const CategoryRunning = () => {
     </div>
   );
 };
+=======
+const CategoryRunning = () => (
+  <CategoryPage config={CATEGORY_CONFIG.running} products={products} />
+);
+>>>>>>> Stashed changes
 
 export default CategoryRunning;
