@@ -112,22 +112,15 @@ const CategoryStreet = () => {
       <main>
         {/* Hero Banner */}
         <section className="mt-28">
-          <div className="relative h-[50vh] min-h-[350px] overflow-hidden">
+          <div className="relative w-full overflow-hidden">
             <img
               src={categoryStreet}
               alt="Street"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="w-full h-auto object-contain"
             />
             <div className="absolute top-0 left-0 w-full h-2 bg-nn-lime" />
           </div>
           <div className="container py-10">
-            <Link
-              to="/home"
-              className="inline-flex items-center gap-2 text-nn-lime font-display text-sm tracking-wider mb-6 hover:text-nn-yellow transition-colors"
-            >
-              <ArrowLeft size={16} />
-              Voltar
-            </Link>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
