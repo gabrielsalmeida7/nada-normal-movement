@@ -8,7 +8,7 @@ import productTshirt from "@/assets/product-tshirt.jpg";
 import productSocks from "@/assets/product-socks.jpg";
 import productJacket from "@/assets/product-jacket.jpg";
 import productTank from "@/assets/product-tank.jpg";
-import categoryRunning from "@/assets/category-running.jpg";
+import categoryRunning from "@/assets/running-hero.png";
 
 const products: Product[] = [
   {
