@@ -111,16 +111,16 @@ const CategoryStreet = () => {
       <Header />
       <main>
         {/* Hero Banner */}
-        <section className="relative h-[60vh] min-h-[400px] flex items-end overflow-hidden mt-28">
-          <img
-            src={categoryStreet}
-            alt="Street"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute top-0 left-0 w-full h-2 bg-nn-lime" />
-
-          <div className="container relative z-10 pb-12">
+        <section className="mt-28">
+          <div className="relative h-[50vh] min-h-[350px] overflow-hidden">
+            <img
+              src={categoryStreet}
+              alt="Street"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute top-0 left-0 w-full h-2 bg-nn-lime" />
+          </div>
+          <div className="container py-10">
             <Link
               to="/home"
               className="inline-flex items-center gap-2 text-nn-lime font-display text-sm tracking-wider mb-6 hover:text-nn-yellow transition-colors"
