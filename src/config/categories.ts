@@ -1,5 +1,5 @@
 import categoryRunning from "@/assets/running-hero.png";
-import categoryStreet from "@/assets/category-street.jpg";
+import categoryStreet from "@/assets/street-hero.png";
 import categorySocial from "@/assets/category-social.jpg";
 import type { CategoryPageConfig } from "@/components/CategoryPage";
 
