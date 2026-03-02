@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import categoryRunning from "@/assets/category-running.jpg";
-import categoryStreet from "@/assets/category-street.jpg";
-import categorySocial from "@/assets/category-social.jpg";
+// Imagens das categorias (Icon NN) alinhadas à hero das páginas running e street
+// import categorySocial from "@/assets/category-social.jpg"; // Social comentado por enquanto
 
 const categories = [
   {
@@ -16,7 +15,7 @@ const categories = [
     hoverBorder: "hover:border-nn-orange",
     shadowClass: "shadow-neon-orange",
     textColor: "text-nn-orange",
-    image: categoryRunning,
+    image: "/icon-nn-run.png",
     organicStyle: { borderRadius: '10px 60px 10px 60px' },
     href: "/running",
   },
@@ -30,24 +29,25 @@ const categories = [
     hoverBorder: "hover:border-nn-lime",
     shadowClass: "shadow-neon-lime",
     textColor: "text-nn-lime",
-    image: categoryStreet,
+    image: "/icon-nn-street.png",
     organicStyle: { borderRadius: '60px 10px 60px 10px' },
     href: "/street",
   },
-  {
-    id: "social",
-    title: "Social",
-    subtitle: "Caos Coletivo",
-    description: "Porque a resenha pós-treino é tão importante quanto o treino.",
-    color: "nn-yellow",
-    borderColor: "border-nn-yellow",
-    hoverBorder: "hover:border-nn-yellow",
-    shadowClass: "shadow-neon-yellow",
-    textColor: "text-nn-yellow",
-    image: categorySocial,
-    organicStyle: { borderRadius: '40px 15px 50px 10px' },
-    href: "/social",
-  },
+  // Social comentado por enquanto — descomentar quando for utilizar
+  // {
+  //   id: "social",
+  //   title: "Social",
+  //   subtitle: "Caos Coletivo",
+  //   description: "Porque a resenha pós-treino é tão importante quanto o treino.",
+  //   color: "nn-yellow",
+  //   borderColor: "border-nn-yellow",
+  //   hoverBorder: "hover:border-nn-yellow",
+  //   shadowClass: "shadow-neon-yellow",
+  //   textColor: "text-nn-yellow",
+  //   image: categorySocial,
+  //   organicStyle: { borderRadius: '40px 15px 50px 10px' },
+  //   href: "/social",
+  // },
 ];
 
 export const CategorySection = () => {
@@ -83,7 +83,7 @@ export const CategorySection = () => {
         </motion.div>
 
         {/* Categories Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {categories.map((category, index) => (
             <motion.div
               key={category.id}

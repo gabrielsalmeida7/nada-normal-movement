@@ -8,7 +8,7 @@ const navItems = [
   { label: "Início", href: "/home" },
   { label: "Running", href: "/running" },
   { label: "Street", href: "/street" },
-  { label: "Social", href: "/social" },
+  // { label: "Social", href: "/social" }, // Social comentado por enquanto
   { label: "Manifesto", href: "#manifesto" },
   { label: "Comunidade", href: "#community" },
 ];

@@ -6,7 +6,7 @@ const footerLinks = {
   shop: [
     { label: "Running", href: "/running" },
     { label: "Street", href: "/street" },
-    { label: "Social", href: "/social" },
+    // { label: "Social", href: "/social" }, // Social comentado por enquanto
     { label: "Acessórios", href: "#" },
     { label: "Suplementação", href: "#" },
   ],

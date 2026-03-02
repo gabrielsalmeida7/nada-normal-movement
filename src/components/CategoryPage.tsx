@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
@@ -15,8 +13,6 @@ export interface CategoryPageConfig {
   heroImageAlt: string;
   /** Classe de glow do título (ex.: glow-text-orange) */
   titleGlowClass: string;
-  /** Classe de cor do link Voltar (ex.: text-nn-orange) */
-  linkColorClass: string;
   /** Classe da faixa superior do hero (ex.: bg-nn-orange) */
   barClass: string;
   /** Classe de cor do título (ex.: text-nn-orange) */
@@ -29,30 +25,23 @@ interface CategoryPageProps {
 }
 
 export const CategoryPage = ({ config, products }: CategoryPageProps) => {
-  const { title, subtitle, accentKey, heroImage, heroImageAlt, titleGlowClass, linkColorClass, barClass, titleColorClass } = config;
+  const { title, subtitle, accentKey, heroImage, heroImageAlt, titleGlowClass, barClass, titleColorClass } = config;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        {/* Hero Banner */}
+        {/* Hero Banner - object-cover ancorado no topo para não cortar textos em cima; corte só em baixo */}
         <section className="relative h-[60vh] min-h-[400px] flex items-end overflow-hidden mt-28">
           <img
             src={heroImage}
             alt={heroImageAlt}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-top"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className={`absolute top-0 left-0 w-full h-2 ${barClass}`} />
 
           <div className="container relative z-10 pb-12">
-            <Link
-              to="/home"
-              className={`inline-flex items-center gap-2 ${linkColorClass} font-display text-sm tracking-wider mb-6 hover:opacity-90 transition-opacity`}
-            >
-              <ArrowLeft size={16} />
-              Voltar
-            </Link>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -3,12 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ComingSoon from "./pages/ComingSoon";
 import CategoryRunning from "./pages/CategoryRunning";
 import CategoryStreet from "./pages/CategoryStreet";
-import CategorySocial from "./pages/CategorySocial";
+// import CategorySocial from "./pages/CategorySocial"; // Social comentado por enquanto
 
 const queryClient = new QueryClient();
 
@@ -18,12 +19,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<ComingSoon />} />
           <Route path="/home" element={<Index />} />
           <Route path="/running" element={<CategoryRunning />} />
           <Route path="/street" element={<CategoryStreet />} />
-          <Route path="/social" element={<CategorySocial />} />
+          {/* <Route path="/social" element={<CategorySocial />} /> Social comentado por enquanto */}
           <Route path="/coming-soon" element={<ComingSoon />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
