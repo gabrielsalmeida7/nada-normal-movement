@@ -70,12 +70,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const items: { title: string; quantity: number; unit_price: number }[] = [];
 
   for (const row of orderItems ?? []) {
-    const product = (row as { products?: { name: string } | null }).products;
-    const title = (product && !Array.isArray(product) ? product.name : null) ?? "Produto";
+    const r = row as unknown as {
+      products?: { name: string } | { name: string }[] | null;
+      quantity: number;
+      price_cents_at_purchase: number;
+    };
+    const product = r.products;
+    const productName = product
+      ? (Array.isArray(product) ? product[0]?.name : product.name)
+      : null;
+    const title = productName ?? "Produto";
     items.push({
       title: title.length > 127 ? title.slice(0, 124) + "..." : title,
-      quantity: row.quantity,
-      unit_price: row.price_cents_at_purchase / 100,
+      quantity: r.quantity,
+      unit_price: r.price_cents_at_purchase / 100,
     });
   }
 
