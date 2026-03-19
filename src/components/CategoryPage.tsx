@@ -22,9 +22,11 @@ export interface CategoryPageConfig {
 interface CategoryPageProps {
   config: CategoryPageConfig;
   products: Product[];
+  isLoading?: boolean;
+  isError?: boolean;
 }
 
-export const CategoryPage = ({ config, products }: CategoryPageProps) => {
+export const CategoryPage = ({ config, products, isLoading, isError }: CategoryPageProps) => {
   const { title, subtitle, accentKey, heroImage, heroImageAlt, titleGlowClass, barClass, titleColorClass } = config;
 
   return (
@@ -69,18 +71,26 @@ export const CategoryPage = ({ config, products }: CategoryPageProps) => {
               viewport={{ once: true }}
               className="text-muted-foreground mb-10 font-display text-sm tracking-widest"
             >
-              {products.length} PRODUTOS
+              {isLoading ? "Carregando…" : `${products.length} PRODUTOS`}
             </motion.p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  index={index}
-                  accentKey={accentKey}
-                />
-              ))}
-            </div>
+            {isError && (
+              <p className="text-destructive text-sm mb-6">Não foi possível carregar os produtos.</p>
+            )}
+            {!isLoading && !isError && products.length > 0 && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    accentKey={accentKey}
+                  />
+                ))}
+              </div>
+            )}
+            {!isLoading && !isError && products.length === 0 && (
+              <p className="text-muted-foreground">Nenhum produto nesta categoria.</p>
+            )}
           </div>
         </section>
       </main>

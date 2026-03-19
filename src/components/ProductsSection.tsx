@@ -1,56 +1,11 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
-import type { Product } from "@/types/product";
-import productTshirt from "@/assets/product-tshirt.jpg";
-import productSocks from "@/assets/product-socks.jpg";
-import productJacket from "@/assets/product-jacket.jpg";
-import productTank from "@/assets/product-tank.jpg";
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Camiseta Caos",
-    category: "Running",
-    price: 189.90,
-    image: productTshirt,
-    tag: "Novo",
-    tagColor: "bg-nn-lime",
-    categoryColor: "text-nn-lime",
-  },
-  {
-    id: 2,
-    name: "Meia Compressão NN",
-    category: "Running",
-    price: 89.90,
-    image: productSocks,
-    tag: "Bestseller",
-    tagColor: "bg-nn-orange",
-    categoryColor: "text-nn-orange",
-  },
-  {
-    id: 3,
-    name: "Jaqueta Obsessão",
-    category: "Street",
-    price: 449.90,
-    image: productJacket,
-    tag: null,
-    tagColor: null,
-    categoryColor: "text-nn-yellow",
-  },
-  {
-    id: 4,
-    name: "Regata Performance",
-    category: "Running",
-    price: 149.90,
-    image: productTank,
-    tag: "Limitado",
-    tagColor: "bg-nn-red",
-    categoryColor: "text-nn-red",
-  },
-];
+import { useFeaturedProducts } from "@/hooks/use-products";
 
 export const ProductsSection = () => {
+  const { products, isLoading, isError } = useFeaturedProducts();
+
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       {/* Floating brand image */}
@@ -87,17 +42,28 @@ export const ProductsSection = () => {
           </Button>
         </motion.div>
 
-        {/* Products Grid - reutiliza ProductCard com layout resumido (sem description/material/sizes/colors) */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product, index) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              index={index}
-              accentKey="nn-pink"
-            />
-          ))}
-        </div>
+        {/* Products Grid - dados do Supabase via useFeaturedProducts */}
+        {isLoading && (
+          <p className="text-muted-foreground font-display text-sm tracking-widest">Carregando…</p>
+        )}
+        {isError && (
+          <p className="text-destructive text-sm">Não foi possível carregar os produtos.</p>
+        )}
+        {!isLoading && !isError && products.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.map((product, index) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                index={index}
+                accentKey="nn-pink"
+              />
+            ))}
+          </div>
+        )}
+        {!isLoading && !isError && products.length === 0 && (
+          <p className="text-muted-foreground">Nenhum produto em destaque no momento.</p>
+        )}
       </div>
     </section>
   );

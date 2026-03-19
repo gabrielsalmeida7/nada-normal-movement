@@ -10,6 +10,7 @@
    - `migrations/20250301120000_initial_schema.sql`
    - `migrations/20250301120001_rls.sql`
    - `migrations/20250301120002_storage.sql`
+   - `migrations/20250302120000_seed_products.sql` (seed do catálogo: 12 produtos + imagens + variantes)
 
 ### Opção 2: Supabase CLI (projeto já linkado)
 

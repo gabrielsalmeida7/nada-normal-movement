@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ShoppingBag, Heart, Eye } from "lucide-react";
 import type { Product } from "@/types/product";
+import { useCartStore } from "@/stores/cart-store";
 
 const organicCardStyles = [
   { borderRadius: '10px 40px 10px 40px' },
@@ -33,6 +34,20 @@ const defaultAccent: keyof typeof ACCENT_CLASSES = 'nn-pink';
 
 export const ProductCard = ({ product, index, accentKey = defaultAccent }: ProductCardProps) => {
   const accent = ACCENT_CLASSES[accentKey] ?? ACCENT_CLASSES[defaultAccent];
+  const addItem = useCartStore((s) => s.addItem);
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: String(product.id),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      slug: product.slug ?? undefined,
+      size: product.sizes?.[0] ?? "Único",
+      colorName: product.colors?.[0]?.name ?? null,
+      colorHex: product.colors?.[0]?.hex ?? null,
+    });
+  };
 
   return (
     <motion.div
@@ -67,7 +82,9 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            onClick={handleAddToCart}
             className={`w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center ${blobClasses[0]}`}
+            title="Adicionar ao carrinho"
           >
             <ShoppingBag size={20} />
           </motion.button>
