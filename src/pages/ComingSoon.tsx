@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import nnLogoBadge from "@/assets/nn-logo-badge.png";
 
-const LAUNCH_DATE = new Date("2026-03-30T00:00:00");
+const LAUNCH_DATE = new Date("2026-04-30T00:00:00");
 const TYPEWRITER_TEXT = "Em Breve...";
 
 const useCountdown = () => {
