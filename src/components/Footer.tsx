@@ -10,6 +10,7 @@ const footerLinks = {
     { label: "Acessórios", href: "#" },
     { label: "Suplementação", href: "#" },
   ],
+  // Loja ainda não ativa: itens acima ficam desabilitados com selo "em breve"
   brand: [
     { label: "Manifesto", href: "#manifesto" },
     { label: "Nossa História", href: "#" },
