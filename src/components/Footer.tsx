@@ -10,6 +10,7 @@ const footerLinks = {
     { label: "Acessórios", href: "#" },
     { label: "Suplementação", href: "#" },
   ],
+  // Loja ainda não ativa: itens acima ficam desabilitados com selo "em breve"
   brand: [
     { label: "Manifesto", href: "#manifesto" },
     { label: "Nossa História", href: "#" },
@@ -110,23 +111,19 @@ export const Footer = () => {
           <div>
             <h4 className="font-display text-lg text-nn-pink mb-6">LOJA</h4>
             <ul className="space-y-3">
-              {footerLinks.shop.map((link) => {
-                const isRoute = link.href.startsWith("/");
-                const Comp = isRoute ? Link : "a";
-                const linkProps = isRoute ? { to: link.href } : { href: link.href };
-                return (
-                  <li key={link.label}>
-                    <Comp
-                      {...(linkProps as any)}
-                      className="text-muted-foreground hover:text-nn-pink transition-colors"
-                    >
-                      {link.label}
-                    </Comp>
-                  </li>
-                );
-              })}
+              {footerLinks.shop.map((link) => (
+                <li key={link.label} className="flex items-center gap-2">
+                  <span className="text-muted-foreground/50 cursor-not-allowed" aria-disabled="true">
+                    {link.label}
+                  </span>
+                  <span className="text-[10px] font-display tracking-widest bg-nn-pink text-nn-white px-1.5 py-0.5 -rotate-6">
+                    EM BREVE
+                  </span>
+                </li>
+              ))}
             </ul>
           </div>
+
 
           <div>
             <h4 className="font-display text-lg text-nn-purple-neon mb-6">MARCA</h4>

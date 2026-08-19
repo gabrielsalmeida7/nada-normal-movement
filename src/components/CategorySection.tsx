@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ComingSoonStamp } from "@/components/ComingSoonStamp";
 // Imagens das categorias (Icon NN) alinhadas à hero das páginas running e street
 // import categorySocial from "@/assets/category-social.jpg"; // Social comentado por enquanto
 
@@ -94,10 +93,10 @@ export const CategorySection = () => {
               whileHover={{ y: -10 }}
               className="group"
             >
-              <Link
-                to={category.href}
+              <div
                 style={category.organicStyle}
-                className={`block relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 cursor-pointer hover:${category.shadowClass}`}
+                className={`block relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 cursor-not-allowed`}
+                aria-disabled="true"
               >
                 {/* Image with organic mask */}
                 <div className="relative h-96 overflow-hidden" style={category.organicStyle}>
@@ -120,10 +119,6 @@ export const CategorySection = () => {
                   <p className="text-foreground/70 text-sm mb-4">
                     {category.description}
                   </p>
-                  <div className={`flex items-center gap-2 ${category.textColor} font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0`}>
-                    Explorar
-                    <ArrowRight size={18} />
-                  </div>
                 </div>
 
                 {/* Hover overlay line - organic */}
@@ -131,7 +126,10 @@ export const CategorySection = () => {
                   className={`absolute top-0 left-0 w-2 h-0 bg-${category.color} transition-all duration-300 group-hover:h-full`}
                   style={{ borderRadius: '0 10px 10px 0' }}
                 />
-              </Link>
+
+                {/* Carimbo de loja em breve */}
+                <ComingSoonStamp size="lg" />
+              </div>
             </motion.div>
           ))}
         </div>

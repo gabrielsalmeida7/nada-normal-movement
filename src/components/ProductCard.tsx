@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { ShoppingBag, Heart, Eye } from "lucide-react";
 import type { Product } from "@/types/product";
-import { useCartStore } from "@/stores/cart-store";
+import { ComingSoonStamp } from "@/components/ComingSoonStamp";
 
 const organicCardStyles = [
   { borderRadius: '10px 40px 10px 40px' },
@@ -34,21 +33,6 @@ const defaultAccent: keyof typeof ACCENT_CLASSES = 'nn-pink';
 
 export const ProductCard = ({ product, index, accentKey = defaultAccent }: ProductCardProps) => {
   const accent = ACCENT_CLASSES[accentKey] ?? ACCENT_CLASSES[defaultAccent];
-  const addItem = useCartStore((s) => s.addItem);
-
-  const handleAddToCart = () => {
-    addItem({
-      productId: String(product.id),
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      slug: product.slug ?? undefined,
-      size: product.sizes?.[0] ?? "Único",
-      colorName: product.colors?.[0]?.name ?? null,
-      colorHex: product.colors?.[0]?.hex ?? null,
-    });
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -77,32 +61,8 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
           </span>
         )}
 
-        {/* Hover Actions */}
-        <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleAddToCart}
-            className={`w-12 h-12 bg-nn-pink text-nn-black flex items-center justify-center ${blobClasses[0]}`}
-            title="Adicionar ao carrinho"
-          >
-            <ShoppingBag size={20} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 bg-foreground text-background flex items-center justify-center ${blobClasses[1]}`}
-          >
-            <Heart size={20} />
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 bg-nn-purple-neon text-nn-black flex items-center justify-center ${blobClasses[2]}`}
-          >
-            <Eye size={20} />
-          </motion.button>
-        </div>
+        {/* Carimbo de loja em breve */}
+        <ComingSoonStamp size="sm" />
       </div>
 
       {/* Product Info */}
@@ -132,7 +92,7 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
             {product.sizes.map((size) => (
               <span
                 key={size}
-                className="text-xs font-display px-2 py-1 border border-border text-muted-foreground hover:border-nn-pink hover:text-nn-pink transition-colors cursor-pointer"
+                className="text-xs font-display px-2 py-1 border border-border text-muted-foreground/60 cursor-not-allowed"
                 style={{ borderRadius: '8px 3px 8px 3px' }}
               >
                 {size}
@@ -145,10 +105,10 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
         {product.colors && product.colors.length > 0 && (
           <div className="flex gap-2 items-center">
             {product.colors.map((color) => (
-              <button
+              <span
                 key={color.name}
                 title={color.name}
-                className="w-5 h-5 border-2 border-border hover:border-foreground transition-colors cursor-pointer"
+                className="w-5 h-5 border-2 border-border inline-block opacity-70"
                 style={{ backgroundColor: color.hex, borderRadius: '50% 40% 50% 40%' }}
               />
             ))}
