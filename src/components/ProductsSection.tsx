@@ -37,8 +37,8 @@ export const ProductsSection = () => {
               Se todo mundo aprova, a gente descarta.
             </p>
           </div>
-          <Button variant="neonV2" className="mt-6 md:mt-0 btn-organic">
-            Ver Todos
+          <Button variant="neonV2" disabled className="mt-6 md:mt-0 btn-organic opacity-60 cursor-not-allowed">
+            Ver Todos — Em Breve
           </Button>
         </motion.div>
 
