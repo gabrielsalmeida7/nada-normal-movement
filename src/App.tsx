@@ -30,19 +30,16 @@ const App = () => (
           <AuthHashErrorHandler />
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={<ComingSoon />} />
-            <Route path="/home" element={<Index />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
             <Route path="/running" element={<CategoryRunning />} />
             <Route path="/street" element={<CategoryStreet />} />
-            <Route path="/carrinho" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/sucesso" element={<CheckoutSuccess />} />
-            <Route path="/checkout/erro" element={<CheckoutError />} />
-            <Route path="/checkout/pendente" element={<CheckoutPending />} />
-            {/* <Route path="/social" element={<CategorySocial />} /> Social comentado por enquanto */}
-            <Route path="/coming-soon" element={<ComingSoon />} />
+            {/* Loja em breve: carrinho, checkout e coming-soon sem rota ativa */}
+            <Route path="/carrinho" element={<Navigate to="/" replace />} />
+            <Route path="/checkout/*" element={<Navigate to="/" replace />} />
+            <Route path="/coming-soon" element={<Navigate to="/" replace />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
