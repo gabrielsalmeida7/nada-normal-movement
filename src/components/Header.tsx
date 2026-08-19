@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingBag, AlertTriangle, LogOut, User } from "lucide-react";
+import { Menu, X, AlertTriangle, LogOut, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,13 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCartStore } from "@/stores/cart-store";
 import { getFirstName } from "@/lib/welcome-messages";
 
 const navItems = [
-  { label: "Início", href: "/home" },
-  { label: "Running", href: "/running" },
-  { label: "Street", href: "/street" },
+  { label: "Início", href: "/" },
+  { label: "Running", href: "/running", soon: true },
+  { label: "Street", href: "/street", soon: true },
   // { label: "Social", href: "/social" }, // Social comentado por enquanto
   { label: "Manifesto", href: "#manifesto" },
   { label: "Comunidade", href: "#community" },
