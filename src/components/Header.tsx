@@ -153,16 +153,30 @@ export const Header = () => {
             <nav className="container py-6 flex flex-col gap-4">
               {navItems.map((item) => {
                 const isRoute = item.href.startsWith("/");
-                const Comp = isRoute ? Link : "a";
-                const linkProps = isRoute ? { to: item.href } : { href: item.href };
+                const Comp = item.soon ? "span" : isRoute ? Link : "a";
+                const linkProps = item.soon
+                  ? {}
+                  : isRoute
+                    ? { to: item.href }
+                    : { href: item.href };
                 return (
                   <Comp
                     key={item.label}
                     {...(linkProps as any)}
-                    onClick={() => setIsOpen(false)}
-                    className="font-display text-2xl uppercase tracking-wider text-foreground hover:text-nn-pink transition-colors py-2"
+                    aria-disabled={item.soon || undefined}
+                    onClick={item.soon ? undefined : () => setIsOpen(false)}
+                    className={
+                      item.soon
+                        ? "font-display text-2xl uppercase tracking-wider text-foreground/40 py-2 flex items-center gap-3 cursor-not-allowed"
+                        : "font-display text-2xl uppercase tracking-wider text-foreground hover:text-nn-pink transition-colors py-2"
+                    }
                   >
                     {item.label}
+                    {item.soon && (
+                      <span className="text-[10px] tracking-widest bg-nn-pink text-nn-white px-1.5 py-0.5 -rotate-6">
+                        EM BREVE
+                      </span>
+                    )}
                   </Comp>
                 );
               })}
