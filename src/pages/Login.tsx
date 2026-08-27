@@ -16,7 +16,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const fromConfirmEmail = searchParams.get("message") === "confirm_email";
   const redirectTo = searchParams.get("redirect") ?? "/home";
-  const { signInWithPassword, signInWithGoogle, loading: authLoading } = useAuth();
+  const { signInWithPassword, /* signInWithGoogle, */ loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
