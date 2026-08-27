@@ -110,6 +110,7 @@ const Login = () => {
                 {loading ? "Entrando…" : "Entrar"}
               </Button>
 
+              {/* para implementar
               <div className="relative my-4">
                 <span className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
@@ -128,6 +129,7 @@ const Login = () => {
               >
                 {googleLoading ? "Redirecionando…" : "Entrar com Google"}
               </Button>
+              */}
             </form>
 
             <p className="mt-6 text-center text-muted-foreground text-sm">
