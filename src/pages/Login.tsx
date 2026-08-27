@@ -16,11 +16,11 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const fromConfirmEmail = searchParams.get("message") === "confirm_email";
   const redirectTo = searchParams.get("redirect") ?? "/home";
-  const { signInWithPassword, signInWithGoogle, loading: authLoading } = useAuth();
+  const { signInWithPassword, /* signInWithGoogle, */ loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  // const [googleLoading, setGoogleLoading] = useState(false); // para implementar
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +37,7 @@ const Login = () => {
     navigate(redirectTo.startsWith("/") ? redirectTo : "/home", { replace: true });
   };
 
+  /* para implementar
   const handleGoogleSignIn = async () => {
     setError(null);
     setGoogleLoading(true);
@@ -44,6 +45,7 @@ const Login = () => {
     setGoogleLoading(false);
     if (err) setError(getAuthErrorMessage(err, "login"));
   };
+  */
 
   return (
     <div className="min-h-screen bg-background">
@@ -110,6 +112,7 @@ const Login = () => {
                 {loading ? "Entrando…" : "Entrar"}
               </Button>
 
+              {/* para implementar
               <div className="relative my-4">
                 <span className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
@@ -128,6 +131,7 @@ const Login = () => {
               >
                 {googleLoading ? "Redirecionando…" : "Entrar com Google"}
               </Button>
+              */}
             </form>
 
             <p className="mt-6 text-center text-muted-foreground text-sm">
