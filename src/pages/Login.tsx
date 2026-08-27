@@ -20,7 +20,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+  // const [googleLoading, setGoogleLoading] = useState(false); // para implementar
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,6 +37,7 @@ const Login = () => {
     navigate(redirectTo.startsWith("/") ? redirectTo : "/home", { replace: true });
   };
 
+  /* para implementar
   const handleGoogleSignIn = async () => {
     setError(null);
     setGoogleLoading(true);
@@ -44,6 +45,7 @@ const Login = () => {
     setGoogleLoading(false);
     if (err) setError(getAuthErrorMessage(err, "login"));
   };
+  */
 
   return (
     <div className="min-h-screen bg-background">
