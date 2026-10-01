@@ -4,13 +4,12 @@ import { Link } from "react-router-dom";
 
 const footerLinks = {
   shop: [
-    { label: "Running", href: "/running" },
-    { label: "Street", href: "/street" },
+    { label: "Running", href: "/running", available: false },
+    { label: "Street", href: "/street", available: true },
     // { label: "Social", href: "/social" }, // Social comentado por enquanto
-    { label: "Acessórios", href: "#" },
-    { label: "Suplementação", href: "#" },
+    { label: "Acessórios", href: "#", available: false },
+    { label: "Suplementação", href: "#", available: false },
   ],
-  // Loja ainda não ativa: itens acima ficam desabilitados com selo "em breve"
   brand: [
     { label: "Manifesto", href: "#manifesto" },
     { label: "Nossa História", href: "#" },
@@ -113,12 +112,23 @@ export const Footer = () => {
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
                 <li key={link.label} className="flex items-center gap-2">
-                  <span className="text-muted-foreground/50 cursor-not-allowed" aria-disabled="true">
-                    {link.label}
-                  </span>
-                  <span className="text-[10px] font-display tracking-widest bg-nn-pink text-nn-white px-1.5 py-0.5 -rotate-6">
-                    EM BREVE
-                  </span>
+                  {link.available ? (
+                    <Link
+                      to={link.href}
+                      className="text-muted-foreground transition-colors hover:text-nn-lime"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground/50 cursor-not-allowed" aria-disabled="true">
+                        {link.label}
+                      </span>
+                      <span className="text-[10px] font-display tracking-widest bg-nn-pink text-nn-white px-1.5 py-0.5 -rotate-6">
+                        EM BREVE
+                      </span>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>

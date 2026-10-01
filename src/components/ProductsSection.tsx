@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { useFeaturedProducts } from "@/hooks/use-products";
@@ -37,9 +38,11 @@ export const ProductsSection = () => {
               Se todo mundo aprova, a gente descarta.
             </p>
           </div>
-          <Button variant="neonV2" disabled className="mt-6 md:mt-0 btn-organic opacity-60 cursor-not-allowed">
-            Ver Todos — Em Breve
-          </Button>
+          <Link to="/street" className="mt-6 md:mt-0">
+            <Button variant="neonV2" className="btn-organic">
+              Ver produtos Street
+            </Button>
+          </Link>
         </motion.div>
 
         {/* Products Grid - dados do Supabase via useFeaturedProducts */}
@@ -57,6 +60,7 @@ export const ProductsSection = () => {
                 product={product}
                 index={index}
                 accentKey="nn-pink"
+                availableForPurchase={product.category === "Street"}
               />
             ))}
           </div>

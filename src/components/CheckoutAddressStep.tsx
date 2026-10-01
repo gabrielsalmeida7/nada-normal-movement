@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +41,14 @@ export function CheckoutAddressStep({
 }: CheckoutAddressStepProps) {
   const [useNewAddress, setUseNewAddress] = useState(addresses.length === 0);
   const [cepLoading, setCepLoading] = useState(false);
+
+  useEffect(() => {
+    if (selectedAddressId) {
+      setUseNewAddress(false);
+    } else if (addresses.length === 0) {
+      setUseNewAddress(true);
+    }
+  }, [addresses.length, selectedAddressId]);
 
   const currentForm = formAddress ?? emptyForm;
 

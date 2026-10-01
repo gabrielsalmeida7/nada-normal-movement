@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ComingSoonStamp } from "@/components/ComingSoonStamp";
 // Imagens das categorias (Icon NN) alinhadas à hero das páginas running e street
 // import categorySocial from "@/assets/category-social.jpg"; // Social comentado por enquanto
@@ -14,9 +15,12 @@ const categories = [
     hoverBorder: "hover:border-nn-orange",
     shadowClass: "shadow-neon-orange",
     textColor: "text-nn-orange",
+    hoverTextColor: "group-hover:text-nn-orange",
+    barColor: "bg-nn-orange",
     image: "/icon-nn-run.png",
     organicStyle: { borderRadius: '10px 60px 10px 60px' },
     href: "/running",
+    soon: true,
   },
   {
     id: "street",
@@ -28,9 +32,12 @@ const categories = [
     hoverBorder: "hover:border-nn-lime",
     shadowClass: "shadow-neon-lime",
     textColor: "text-nn-lime",
+    hoverTextColor: "group-hover:text-nn-lime",
+    barColor: "bg-nn-lime",
     image: "/icon-nn-street.png",
     organicStyle: { borderRadius: '60px 10px 60px 10px' },
     href: "/street",
+    soon: false,
   },
   // Social comentado por enquanto — descomentar quando for utilizar
   // {
@@ -48,6 +55,48 @@ const categories = [
   //   href: "/social",
   // },
 ];
+
+interface CategoryCardContentProps {
+  category: (typeof categories)[number];
+}
+
+function CategoryCardContent({ category }: CategoryCardContentProps) {
+  return (
+    <div
+      style={category.organicStyle}
+      className={`block relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 ${
+        category.soon ? "cursor-not-allowed" : "cursor-pointer"
+      }`}
+      aria-disabled={category.soon || undefined}
+    >
+      <div className="relative h-96 overflow-hidden" style={category.organicStyle}>
+        <img
+          src={category.image}
+          alt={category.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-nn-black via-nn-black/50 to-transparent" />
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <span className={`${category.textColor} font-display text-sm tracking-widest`}>
+          {category.subtitle}
+        </span>
+        <h3 className={`font-display text-4xl text-foreground mb-2 ${category.hoverTextColor} transition-colors`}>
+          {category.title}
+        </h3>
+        <p className="text-foreground/70 text-sm mb-4">{category.description}</p>
+      </div>
+
+      <div
+        className={`absolute top-0 left-0 w-2 h-0 ${category.barColor} transition-all duration-300 group-hover:h-full`}
+        style={{ borderRadius: "0 10px 10px 0" }}
+      />
+
+      {category.soon && <ComingSoonStamp size="lg" />}
+    </div>
+  );
+}
 
 export const CategorySection = () => {
   return (
@@ -93,43 +142,13 @@ export const CategorySection = () => {
               whileHover={{ y: -10 }}
               className="group"
             >
-              <div
-                style={category.organicStyle}
-                className={`block relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 cursor-not-allowed`}
-                aria-disabled="true"
-              >
-                {/* Image with organic mask */}
-                <div className="relative h-96 overflow-hidden" style={category.organicStyle}>
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-nn-black via-nn-black/50 to-transparent" />
-                </div>
-
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className={`${category.textColor} font-display text-sm tracking-widest`}>
-                    {category.subtitle}
-                  </span>
-                  <h3 className={`font-display text-4xl text-foreground mb-2 group-hover:${category.textColor} transition-colors`}>
-                    {category.title}
-                  </h3>
-                  <p className="text-foreground/70 text-sm mb-4">
-                    {category.description}
-                  </p>
-                </div>
-
-                {/* Hover overlay line - organic */}
-                <div 
-                  className={`absolute top-0 left-0 w-2 h-0 bg-${category.color} transition-all duration-300 group-hover:h-full`}
-                  style={{ borderRadius: '0 10px 10px 0' }}
-                />
-
-                {/* Carimbo de loja em breve */}
-                <ComingSoonStamp size="lg" />
-              </div>
+              {category.soon ? (
+                <CategoryCardContent category={category} />
+              ) : (
+                <Link to={category.href} aria-label={`Ver produtos ${category.title}`}>
+                  <CategoryCardContent category={category} />
+                </Link>
+              )}
             </motion.div>
           ))}
         </div>

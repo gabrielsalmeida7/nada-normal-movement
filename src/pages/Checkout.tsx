@@ -1,44 +1,86 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCartStore } from "@/stores/cart-store";
 import { useAddresses } from "@/hooks/use-addresses";
 import { useProfile } from "@/hooks/use-profile";
 import { CheckoutAddressStep } from "@/components/CheckoutAddressStep";
+import { CheckoutCustomerStep } from "@/components/CheckoutCustomerStep";
+import {
+  CheckoutPaymentPlaceholder,
+  type PaymentMethod,
+} from "@/components/CheckoutPaymentPlaceholder";
+import { CheckoutReviewStep } from "@/components/CheckoutReviewStep";
 import { CheckoutSummary } from "@/components/CheckoutSummary";
 import { getShippingCost } from "@/lib/shipping";
-import { createOrder } from "@/lib/orders";
+import { isValidCpf, isValidPhone, maskCpf, maskPhone, onlyDigits } from "@/lib/customer";
 import type { Address } from "@/types/address";
 import type { ShippingAddress } from "@/types/address";
 import { toast } from "sonner";
 
+type CheckoutStep = "customer" | "delivery" | "review" | "payment";
+
+interface CustomerErrors {
+  fullName?: string;
+  cpf?: string;
+  phone?: string;
+}
+
+const steps: Array<{ id: CheckoutStep; label: string }> = [
+  { id: "customer", label: "Identificação" },
+  { id: "delivery", label: "Entrega" },
+  { id: "review", label: "Revisão" },
+  { id: "payment", label: "Pagamento" },
+];
+
 export default function Checkout() {
   const navigate = useNavigate();
-  const { user, session } = useAuth();
+  const { user } = useAuth();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
-  const clearCart = useCartStore((s) => s.clearCart);
 
-  const { addresses, isLoading: loadingAddresses, insertAddress } = useAddresses(user?.id);
-  const { profile, isLoading: loadingProfile } = useProfile(user?.id);
+  const {
+    addresses,
+    isLoading: loadingAddresses,
+    insertAddress,
+    isInserting: isSavingAddress,
+  } = useAddresses(user?.id);
+  const {
+    profile,
+    isLoading: loadingProfile,
+    updateProfile,
+    isUpdating: isSavingProfile,
+  } = useProfile(user?.id);
 
+  const profileInitialized = useRef(false);
+  const [step, setStep] = useState<CheckoutStep>("customer");
+  const [fullName, setFullName] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [phone, setPhone] = useState("");
+  const [customerErrors, setCustomerErrors] = useState<CustomerErrors>({});
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [formAddress, setFormAddress] = useState<ShippingAddress | null>(null);
   const [saveForNext, setSaveForNext] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [phoneOverride, setPhoneOverride] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddress && !formAddress) {
       setSelectedAddress(addresses[0]);
     }
   }, [addresses, selectedAddress, formAddress]);
+
+  useEffect(() => {
+    if (!profile || profileInitialized.current) return;
+
+    setFullName(profile.full_name ?? "");
+    setCpf(maskCpf(profile.cpf ?? ""));
+    setPhone(maskPhone(profile.phone ?? ""));
+    profileInitialized.current = true;
+  }, [profile]);
 
   const useNewAddress = !selectedAddress && (addresses.length === 0 || formAddress !== null);
   const shippingAddress: ShippingAddress | null = selectedAddress
@@ -55,6 +97,8 @@ export default function Checkout() {
 
   const uf = shippingAddress?.state ?? "";
   const shippingCost = getShippingCost(uf, subtotal);
+  const currentStepIndex = steps.findIndex((item) => item.id === step);
+  const isBusy = isSavingProfile || isSavingAddress;
 
   useEffect(() => {
     if (!user) {
@@ -66,85 +110,174 @@ export default function Checkout() {
     }
   }, [user, items.length, navigate]);
 
-  const handleSubmit = async () => {
-    if (!user || !shippingAddress || items.length === 0) return;
+  const handleCustomerNext = async () => {
+    if (!user) return;
 
-    const shippingName = profile?.full_name ?? user.email ?? "Cliente";
-    const shippingPhone = (profile?.phone ?? phoneOverride).trim();
-    if (!shippingPhone) {
-      toast.error("Informe seu telefone para contato e entrega.");
+    const errors: CustomerErrors = {};
+    if (fullName.trim().length < 3) {
+      errors.fullName = "Informe seu nome completo.";
+    }
+    if (!isValidCpf(cpf)) {
+      errors.cpf = "Informe um CPF válido.";
+    }
+    if (!isValidPhone(phone)) {
+      errors.phone = "Informe um telefone com DDD.";
+    }
+
+    setCustomerErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    try {
+      await updateProfile({
+        full_name: fullName.trim(),
+        cpf: onlyDigits(cpf),
+        phone: onlyDigits(phone),
+      });
+      setStep("delivery");
+    } catch (error) {
+      console.error(error);
+      toast.error("Não foi possível salvar seus dados. Tente novamente.");
+    }
+  };
+
+  const handleDeliveryNext = async () => {
+    if (!user || !shippingAddress) {
+      toast.error("Selecione ou preencha um endereço de entrega.");
       return;
     }
 
-    if (!shippingAddress.street || !shippingAddress.number || !shippingAddress.city || !shippingAddress.state || !shippingAddress.zip_code) {
+    const requiredAddressFields = [
+      shippingAddress.street,
+      shippingAddress.number,
+      shippingAddress.city,
+      shippingAddress.state,
+      shippingAddress.zip_code,
+    ];
+    if (requiredAddressFields.some((field) => !field.trim())) {
       toast.error("Preencha todos os campos obrigatórios do endereço.");
       return;
     }
+    if (onlyDigits(shippingAddress.zip_code).length !== 8) {
+      toast.error("Informe um CEP válido.");
+      return;
+    }
+    if (shippingAddress.state.trim().length !== 2) {
+      toast.error("Informe a UF com duas letras.");
+      return;
+    }
 
-    setSubmitting(true);
-    try {
-      if (saveForNext && useNewAddress && formAddress) {
-        await insertAddress({
+    if (saveForNext && useNewAddress && formAddress) {
+      try {
+        const savedAddress = await insertAddress({
           user_id: user.id,
           label: null,
-          street: formAddress.street,
-          number: formAddress.number,
-          complement: formAddress.complement ?? null,
-          neighborhood: formAddress.neighborhood ?? null,
-          city: formAddress.city,
-          state: formAddress.state,
+          street: formAddress.street.trim(),
+          number: formAddress.number.trim(),
+          complement: formAddress.complement?.trim() || null,
+          neighborhood: formAddress.neighborhood?.trim() || null,
+          city: formAddress.city.trim(),
+          state: formAddress.state.trim().toUpperCase(),
           zip_code: formAddress.zip_code,
         });
-      }
-
-      const { orderId } = await createOrder({
-        userId: user.id,
-        items,
-        shippingAddress,
-        shippingName,
-        shippingPhone,
-        subtotalCents: Math.round(subtotal * 100),
-        shippingCents: Math.round(shippingCost * 100),
-      });
-
-      const token = session?.access_token;
-      if (!token) {
-        toast.error("Sessão expirada. Faça login novamente.");
+        setSelectedAddress(savedAddress);
+        setFormAddress(null);
+        setSaveForNext(false);
+      } catch (error) {
+        console.error(error);
+        toast.error("Não foi possível salvar o endereço. Tente novamente.");
         return;
       }
+    }
 
-      const apiBase = import.meta.env.VITE_API_URL ?? "";
-      const prefRes = await fetch(`${apiBase}/api/mercadopago/preference`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ orderId }),
-      });
+    setStep("review");
+  };
 
-      const prefData = await prefRes.json().catch(() => ({}));
-
-      if (!prefRes.ok) {
-        toast.error(prefData.error ?? "Erro ao iniciar pagamento. Tente novamente.");
+  const handleBack = () => {
+    switch (step) {
+      case "customer":
+        navigate("/carrinho");
         return;
-      }
-
-      if (prefData.init_point) {
-        clearCart();
-        toast.success("Redirecionando para o pagamento…");
-        window.location.href = prefData.init_point;
+      case "delivery":
+        setStep("customer");
         return;
+      case "review":
+        setStep("delivery");
+        return;
+      case "payment":
+        setStep("review");
+        return;
+      default: {
+        const exhaustiveCheck: never = step;
+        return exhaustiveCheck;
       }
+    }
+  };
 
-      clearCart();
-      toast.success("Pedido criado com sucesso!");
-      navigate(`/checkout/sucesso?order=${orderId}`, { replace: true });
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Erro ao criar pedido. Tente novamente.");
-    } finally {
-      setSubmitting(false);
+  const renderStep = () => {
+    switch (step) {
+      case "customer":
+        return (
+          <CheckoutCustomerStep
+            email={user?.email ?? ""}
+            fullName={fullName}
+            cpf={cpf}
+            phone={phone}
+            errors={customerErrors}
+            onFullNameChange={(value) => {
+              setFullName(value);
+              setCustomerErrors((current) => ({ ...current, fullName: undefined }));
+            }}
+            onCpfChange={(value) => {
+              setCpf(value);
+              setCustomerErrors((current) => ({ ...current, cpf: undefined }));
+            }}
+            onPhoneChange={(value) => {
+              setPhone(value);
+              setCustomerErrors((current) => ({ ...current, phone: undefined }));
+            }}
+          />
+        );
+      case "delivery":
+        return (
+          <CheckoutAddressStep
+            addresses={addresses}
+            selectedAddressId={selectedAddress?.id ?? null}
+            onSelectAddress={(address) => {
+              setSelectedAddress(address);
+              if (address) setFormAddress(null);
+            }}
+            formAddress={formAddress}
+            onFormAddressChange={(address) => {
+              setFormAddress(address);
+              setSelectedAddress(null);
+            }}
+            saveForNext={saveForNext}
+            onSaveForNextChange={setSaveForNext}
+            isLoadingAddresses={loadingAddresses}
+          />
+        );
+      case "review":
+        if (!shippingAddress) return null;
+        return (
+          <CheckoutReviewStep
+            fullName={fullName.trim()}
+            email={user?.email ?? ""}
+            cpf={cpf}
+            phone={phone}
+            shippingAddress={shippingAddress}
+          />
+        );
+      case "payment":
+        return (
+          <CheckoutPaymentPlaceholder
+            selectedMethod={paymentMethod}
+            onMethodChange={setPaymentMethod}
+          />
+        );
+      default: {
+        const exhaustiveCheck: never = step;
+        return exhaustiveCheck;
+      }
     }
   };
 
@@ -165,67 +298,98 @@ export default function Checkout() {
             <Link to="/carrinho" className="text-muted-foreground hover:text-foreground text-sm font-display">
               ← Voltar ao carrinho
             </Link>
-            <h1 className="font-display text-3xl text-foreground mt-2">Checkout</h1>
+            <h1 className="mt-2 font-display text-3xl text-foreground">Finalizar compra</h1>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-8">
-              <CheckoutAddressStep
-                addresses={addresses}
-                selectedAddressId={selectedAddress?.id ?? null}
-                onSelectAddress={(addr) => {
-                  setSelectedAddress(addr);
-                  if (addr) setFormAddress(null);
-                }}
-                formAddress={formAddress}
-                onFormAddressChange={(addr) => {
-                  setFormAddress(addr);
-                  setSelectedAddress(null);
-                }}
-                saveForNext={saveForNext}
-                onSaveForNextChange={setSaveForNext}
-                isLoadingAddresses={loadingAddresses}
-              />
-              {(!profile?.phone || profile.phone.trim() === "") && (
-                <div className="space-y-2">
-                  <h2 className="font-display text-xl text-foreground">Telefone para contato</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Necessário para entrega e comunicação sobre seu pedido.
-                  </p>
-                  <div className="max-w-xs">
-                    <Label htmlFor="phone" className="font-display uppercase tracking-wider">
-                      Telefone
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="(11) 99999-9999"
-                      value={phoneOverride}
-                      onChange={(e) => setPhoneOverride(e.target.value)}
-                      className="border-2 mt-1"
-                    />
+          <ol className="mb-8 grid grid-cols-4 gap-2" aria-label="Etapas do checkout">
+            {steps.map((item, index) => {
+              const completed = index < currentStepIndex;
+              const active = item.id === step;
+              return (
+                <li key={item.id} className="min-w-0">
+                  <div
+                    className={`mb-2 h-1 rounded-full ${
+                      completed || active ? "bg-nn-pink" : "bg-muted"
+                    }`}
+                  />
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        completed
+                          ? "bg-nn-pink text-white"
+                          : active
+                            ? "border-2 border-nn-pink text-nn-pink"
+                            : "border-2 border-border text-muted-foreground"
+                      }`}
+                    >
+                      {completed ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                    </span>
+                    <span
+                      className={`hidden truncate text-xs font-medium sm:block ${
+                        active ? "text-foreground" : "text-muted-foreground"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
                   </div>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="space-y-8 lg:col-span-2">
+              {loadingProfile ? (
+                <div className="flex min-h-48 items-center justify-center gap-3 text-muted-foreground">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Carregando seus dados…
                 </div>
+              ) : (
+                renderStep()
+              )}
+
+              {step !== "payment" && !loadingProfile && (
+                <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:justify-between">
+                  <Button variant="outline" onClick={handleBack} disabled={isBusy}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Voltar
+                  </Button>
+                  <Button
+                    onClick={
+                      step === "customer"
+                        ? handleCustomerNext
+                        : step === "delivery"
+                          ? handleDeliveryNext
+                          : () => setStep("payment")
+                    }
+                    disabled={isBusy}
+                    className="font-display tracking-wider"
+                  >
+                    {isBusy ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando…
+                      </>
+                    ) : (
+                      <>
+                        {step === "review" ? "Escolher pagamento" : "Continuar"}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+
+              {step === "payment" && (
+                <Button variant="outline" onClick={handleBack}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  Voltar para revisão
+                </Button>
               )}
             </div>
             <div className="lg:col-span-1">
-              <div className="space-y-2">
+              <div className="lg:sticky lg:top-36">
                 <CheckoutSummary shippingCost={shippingCost} />
-                <Button
-                  size="lg"
-                  className="w-full font-display tracking-wider"
-                  disabled={!shippingAddress || submitting || loadingProfile}
-                  onClick={handleSubmit}
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Criando pedido…
-                    </>
-                  ) : (
-                    "Ir para pagamento"
-                  )}
-                </Button>
               </div>
             </div>
           </div>

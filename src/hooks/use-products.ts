@@ -10,6 +10,7 @@ async function fetchProductsByCategory(category: CategorySlug): Promise<ProductR
   const { data, error } = await supabase
     .from("products")
     .select("*, product_images(*), product_variants(*)")
+    .eq("is_active", true)
     .eq("category", category)
     .order("created_at", { ascending: true });
   if (error) throw error;
@@ -21,6 +22,7 @@ async function fetchFeaturedProducts(): Promise<ProductRow[]> {
   const { data, error } = await supabase
     .from("products")
     .select("*, product_images(*), product_variants(*)")
+    .eq("is_active", true)
     .in("slug", ["camiseta-caos", "meia-compressao-nn", "jaqueta-obsessao", "regata-performance"])
     .order("created_at", { ascending: true });
   if (error) throw error;

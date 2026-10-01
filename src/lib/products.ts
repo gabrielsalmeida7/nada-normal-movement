@@ -51,7 +51,15 @@ export function mapProductRowToProduct(row: ProductRow): Product {
     material: row.material ?? undefined,
     sizes: sizes.length ? sizes : undefined,
     colors: colors.length ? colors : undefined,
+    variants: (row.product_variants ?? []).map((variant) => ({
+      id: variant.id,
+      size: variant.size,
+      colorName: variant.color_name,
+      colorHex: variant.color_hex,
+      stockQuantity: variant.stock_quantity,
+    })),
     category: CATEGORY_LABEL[row.category],
     categoryColor: CATEGORY_COLOR[row.category] ?? null,
+    isActive: row.is_active,
   };
 }

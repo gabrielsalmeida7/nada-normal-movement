@@ -11,6 +11,7 @@ const CategoryStreet = () => {
       products={products}
       isLoading={isLoading}
       isError={isError}
+      availableForPurchase
     />
   );
 };

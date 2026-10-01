@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { getAuthErrorMessage } from "@/lib/auth-messages";
 import { pickRandomWelcomeMessage } from "@/lib/welcome-messages";
+import { getPostLoginDestination } from "@/lib/admin-auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const Login = () => {
       return;
     }
     toast.success(pickRandomWelcomeMessage(user), { duration: 5000 });
-    navigate(redirectTo.startsWith("/") ? redirectTo : "/home", { replace: true });
+    navigate(getPostLoginDestination(user, redirectTo), { replace: true });
   };
 
   /* para implementar

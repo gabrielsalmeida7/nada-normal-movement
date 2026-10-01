@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CheckoutPending() {
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get("order") ?? searchParams.get("external_reference");
+  const orderId = searchParams.get("order");
 
   return (
     <div className="min-h-screen bg-background">
@@ -19,7 +19,7 @@ export default function CheckoutPending() {
           <h1 className="font-display text-3xl text-foreground mb-2">Pagamento pendente</h1>
           <p className="text-muted-foreground mb-6">
             {orderId ? (
-              <>Seu pedido <strong>#{orderId.slice(0, 8)}</strong> está aguardando confirmação do pagamento (PIX ou boleto). Você receberá uma notificação quando for aprovado.</>
+              <>Seu pedido <strong>#{orderId.slice(0, 8)}</strong> está aguardando a confirmação do pagamento. Você receberá uma notificação quando for aprovado.</>
             ) : (
               "Seu pagamento está pendente. Você receberá uma notificação quando for aprovado."
             )}

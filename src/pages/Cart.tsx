@@ -2,30 +2,36 @@ import { useCartStore } from "@/stores/cart-store";
 import { CartItemRow } from "@/components/CartItemRow";
 import { CartSummary } from "@/components/CartSummary";
 import { CartEmpty } from "@/components/CartEmpty";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 
 export default function Cart() {
   const items = useCartStore((s) => s.items);
 
   return (
-    <main className="min-h-screen pt-32 pb-16">
-      <div className="container mx-auto px-4">
-        <h1 className="font-display text-3xl sm:text-4xl text-foreground mb-8">Seu carrinho</h1>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="min-h-screen pt-32 pb-16">
+        <div className="container mx-auto px-4">
+          <h1 className="mb-8 font-display text-3xl text-foreground sm:text-4xl">Seu carrinho</h1>
 
-        {items.length === 0 ? (
-          <CartEmpty />
-        ) : (
-          <div className="grid gap-8 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <CartItemRow key={`${item.productId}-${item.size ?? ""}-${item.colorName ?? ""}`} item={item} />
-              ))}
+          {items.length === 0 ? (
+            <CartEmpty />
+          ) : (
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="space-y-4 lg:col-span-2">
+                {items.map((item) => (
+                  <CartItemRow key={`${item.productId}-${item.size ?? ""}-${item.colorName ?? ""}`} item={item} />
+                ))}
+              </div>
+              <div className="lg:col-span-1">
+                <CartSummary />
+              </div>
             </div>
-            <div className="lg:col-span-1">
-              <CartSummary />
-            </div>
-          </div>
-        )}
-      </div>
-    </main>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CheckoutError() {
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get("order") ?? searchParams.get("external_reference");
+  const orderId = searchParams.get("order");
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,7 +18,8 @@ export default function CheckoutError() {
           </div>
           <h1 className="font-display text-3xl text-foreground mb-2">Pagamento não realizado</h1>
           <p className="text-muted-foreground mb-6">
-            O pagamento foi recusado ou cancelado. Você pode tentar novamente acessando seu carrinho ou escolhendo outro método de pagamento.
+            {orderId && <>Não foi possível concluir o pedido <strong>#{orderId.slice(0, 8)}</strong>. </>}
+            Você pode voltar ao carrinho e tentar novamente quando o pagamento estiver disponível.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/carrinho">

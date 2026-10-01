@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import type { Product } from "@/types/product";
 import { ComingSoonStamp } from "@/components/ComingSoonStamp";
+import { useCartStore } from "@/stores/cart-store";
 
 const organicCardStyles = [
   { borderRadius: '10px 40px 10px 40px' },
@@ -27,12 +31,42 @@ interface ProductCardProps {
   index: number;
   /** Chave do mapa (ex.: 'nn-orange', 'nn-lime') para border/shadow/text */
   accentKey?: keyof typeof ACCENT_CLASSES;
+  availableForPurchase?: boolean;
 }
 
 const defaultAccent: keyof typeof ACCENT_CLASSES = 'nn-pink';
 
-export const ProductCard = ({ product, index, accentKey = defaultAccent }: ProductCardProps) => {
+export const ProductCard = ({
+  product,
+  index,
+  accentKey = defaultAccent,
+  availableForPurchase = false,
+}: ProductCardProps) => {
   const accent = ACCENT_CLASSES[accentKey] ?? ACCENT_CLASSES[defaultAccent];
+  const addItem = useCartStore((state) => state.addItem);
+  const availableVariants = product.variants?.filter((variant) => variant.stockQuantity > 0) ?? [];
+  const selectedVariant = availableVariants[0] ?? null;
+  const hasConfiguredVariants = Boolean(product.variants?.length);
+  const canAddToCart =
+    availableForPurchase && (!hasConfiguredVariants || selectedVariant !== null);
+
+  const handleAddToCart = () => {
+    if (!canAddToCart) return;
+
+    addItem({
+      productId: String(product.id),
+      productVariantId: selectedVariant?.id ?? null,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      slug: product.slug,
+      size: selectedVariant?.size ?? product.sizes?.[0] ?? "Único",
+      colorName: selectedVariant?.colorName ?? product.colors?.[0]?.name ?? null,
+      colorHex: selectedVariant?.colorHex ?? product.colors?.[0]?.hex ?? null,
+    });
+    toast.success(`${product.name} foi adicionado ao carrinho.`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -61,8 +95,7 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
           </span>
         )}
 
-        {/* Carimbo de loja em breve */}
-        <ComingSoonStamp size="sm" />
+        {!availableForPurchase && <ComingSoonStamp size="sm" />}
       </div>
 
       {/* Product Info */}
@@ -80,29 +113,7 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
             {product.description}
           </p>
         )}
-        {product.material != null && (
-          <p className="text-muted-foreground/70 text-xs italic">
-            {product.material}
-          </p>
-        )}
-
-        {/* Sizes */}
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap">
-            {product.sizes.map((size) => (
-              <span
-                key={size}
-                className="text-xs font-display px-2 py-1 border border-border text-muted-foreground/60 cursor-not-allowed"
-                style={{ borderRadius: '8px 3px 8px 3px' }}
-              >
-                {size}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Colors */}
-        {product.colors && product.colors.length > 0 && (
+        {!availableForPurchase && product.colors && product.colors.length > 0 && (
           <div className="flex gap-2 items-center">
             {product.colors.map((color) => (
               <span
@@ -119,6 +130,18 @@ export const ProductCard = ({ product, index, accentKey = defaultAccent }: Produ
         <p className={`font-bold text-lg font-display ${accent.text}`}>
           R$ {product.price.toFixed(2).replace('.', ',')}
         </p>
+
+        {availableForPurchase && (
+          <Button
+            type="button"
+            className="w-full rounded-[30px_8px_30px_8px] border-2 border-nn-orange bg-transparent font-display tracking-wider text-nn-orange hover:scale-100 hover:bg-nn-orange hover:text-nn-black hover:shadow-none"
+            disabled={!canAddToCart}
+            onClick={handleAddToCart}
+          >
+            <ShoppingBag className="mr-2 h-4 w-4" />
+            {canAddToCart ? "Adicionar ao carrinho" : "Produto esgotado"}
+          </Button>
+        )}
       </div>
     </motion.div>
   );

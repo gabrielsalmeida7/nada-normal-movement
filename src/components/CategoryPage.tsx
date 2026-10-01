@@ -24,9 +24,16 @@ interface CategoryPageProps {
   products: Product[];
   isLoading?: boolean;
   isError?: boolean;
+  availableForPurchase?: boolean;
 }
 
-export const CategoryPage = ({ config, products, isLoading, isError }: CategoryPageProps) => {
+export const CategoryPage = ({
+  config,
+  products,
+  isLoading,
+  isError,
+  availableForPurchase = false,
+}: CategoryPageProps) => {
   const { title, subtitle, accentKey, heroImage, heroImageAlt, titleGlowClass, barClass, titleColorClass } = config;
 
   return (
@@ -84,6 +91,7 @@ export const CategoryPage = ({ config, products, isLoading, isError }: CategoryP
                     product={product}
                     index={index}
                     accentKey={accentKey}
+                    availableForPurchase={availableForPurchase}
                   />
                 ))}
               </div>

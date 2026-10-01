@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CheckoutSuccess() {
   const [searchParams] = useSearchParams();
-  const orderId = searchParams.get("order") ?? searchParams.get("external_reference");
-  const status = searchParams.get("status") ?? searchParams.get("collection_status");
-  const paid = status === "approved";
+  const orderId = searchParams.get("order");
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,18 +16,12 @@ export default function CheckoutSuccess() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-nn-lime/20 text-nn-lime mb-6">
             <CheckCircle size={48} />
           </div>
-          <h1 className="font-display text-3xl text-foreground mb-2">
-            {paid ? "Pagamento aprovado!" : "Pedido criado!"}
-          </h1>
+          <h1 className="font-display text-3xl text-foreground mb-2">Pagamento aprovado!</h1>
           <p className="text-muted-foreground mb-6">
             {orderId ? (
-              paid ? (
-                <>Seu pedido <strong>#{orderId.slice(0, 8)}</strong> foi pago com sucesso. Em breve você receberá a confirmação.</>
-              ) : (
-                <>Seu pedido <strong>#{orderId.slice(0, 8)}</strong> foi registrado. Finalize o pagamento no Mercado Pago.</>
-              )
+              <>Seu pedido <strong>#{orderId.slice(0, 8)}</strong> foi pago com sucesso. Em breve você receberá a confirmação.</>
             ) : (
-              "Seu pedido foi registrado com sucesso."
+              "Seu pagamento foi confirmado com sucesso."
             )}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -10,11 +10,13 @@ import type { User, Session, AuthError } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { pickRandomWelcomeMessage } from "@/lib/welcome-messages";
+import { isAdminUser } from "@/lib/admin-auth";
 
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
   signInWithPassword: (email: string, password: string) => Promise<{ error: AuthError | null; user?: User }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: AuthError | null; needsEmailConfirmation?: boolean; user?: User }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
@@ -115,6 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     session,
     loading,
+    isAdmin: isAdminUser(user),
     signInWithPassword,
     signUp,
     signInWithGoogle,
