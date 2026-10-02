@@ -11,6 +11,8 @@
    - `migrations/20250301120001_rls.sql`
    - `migrations/20250301120002_storage.sql`
    - `migrations/20250302120000_seed_products.sql` (seed do catálogo: 12 produtos + imagens + variantes)
+   - `migrations/20260904195453_admin_panel_security.sql`
+   - `migrations/20261002194546_appmax_financial_foundation.sql`
 
 ### Opção 2: Supabase CLI (projeto já linkado)
 
@@ -33,9 +35,27 @@ URLs públicas das imagens: `https://<project>.supabase.co/storage/v1/object/pub
 | `addresses`        | Endereços de entrega do usuário. |
 | `orders`           | Pedidos (status, total, endereço em snapshot). |
 | `order_items`      | Itens do pedido (produto, variante, quantidade, preço no momento). |
+| `payment_attempts` | Tentativas de pagamento idempotentes e seus estados locais. |
+| `webhook_events`   | Inbox deduplicada para persistência e reprocessamento de webhooks. |
+| `outbox_jobs`      | Efeitos assíncronos idempotentes vinculados ao pedido. |
 
 ## RLS
 
-- **profiles, addresses, orders, order_items:** usuário só acessa os próprios dados.
-- **products, product_images, product_variants:** leitura pública; escrita apenas com **service_role** (backend/Dashboard).
-- **Storage bucket `products`:** leitura pública; upload/update/delete para usuários autenticados (para painel admin futuro).
+- **profiles e addresses:** usuário mantém os fluxos existentes sobre os próprios dados.
+- **orders e order_items:** usuário pode ler os próprios dados, mas não pode inserir, atualizar ou excluir diretamente; a criação autoritativa será server-side em um passo posterior.
+- **payment_attempts, webhook_events e outbox_jobs:** sem acesso para `anon`/`authenticated`; DML exclusivo de `service_role`.
+- **products, product_images e product_variants:** catálogo ativo é público; escrita exige administrador.
+- **Storage bucket `products`:** leitura pública; escrita exige administrador.
+
+## Migration financeira Appmax-ready
+
+`20261002194546_appmax_financial_foundation.sql` adiciona a separação entre estado financeiro e logístico do pedido, composição monetária em centavos, IDs externos, controle de versão, tentativas de pagamento, inbox de webhook e outbox. A migration não cria pedidos, não calcula valores, não chama a Appmax e não processa checkout.
+
+Antes do deploy, confirme que pedidos legados respeitam `total_cents >= shipping_cents`; a migration falha explicitamente se encontrar uma linha incompatível, evitando inventar um subtotal histórico.
+
+Após aplicar as migrations em um banco de teste, execute a verificação transacional (ela termina com `ROLLBACK`):
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f supabase/tests/appmax_financial_foundation.sql
+```
