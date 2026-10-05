@@ -62,6 +62,7 @@ const catalogVariantSchema = z.object({
   size: z.string().min(1),
   color_name: z.string().nullable(),
   stock_quantity: z.number().int().nonnegative(),
+  is_active: z.boolean(),
   products: z.union([catalogProductSchema, z.array(catalogProductSchema).length(1)]),
 });
 
@@ -144,7 +145,7 @@ export function buildAuthoritativeQuote(
         : variant.products
       : null;
 
-    if (!variant || !product?.is_active) {
+    if (!variant?.is_active || !product?.is_active) {
       throw new QuoteError(
         "VARIANT_UNAVAILABLE",
         422,

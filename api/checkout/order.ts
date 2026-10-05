@@ -1,42 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
-  buildAuthoritativeQuote,
-  parseQuotePayload,
-  QuoteError,
-} from "./quote-core";
-
-const MAX_BODY_BYTES = 8 * 1024;
+  CheckoutOrderError,
+  mapCheckoutDatabaseError,
+  parseCheckoutOrderPayload,
+  parseCheckoutOrderResult,
+  parseIdempotencyKey,
+  parseOrderRequestBody,
+} from "./order-core";
 
 function getBearerToken(header: string | string[] | undefined): string | null {
   const value = Array.isArray(header) ? header[0] : header;
   if (!value?.startsWith("Bearer ")) return null;
   return value.slice(7).trim() || null;
-}
-
-function parseRequestBody(body: unknown): unknown {
-  if (typeof body === "string") {
-    if (Buffer.byteLength(body, "utf8") > MAX_BODY_BYTES) {
-      throw new QuoteError("INVALID_PAYLOAD", 400, "Dados do orçamento inválidos.");
-    }
-
-    try {
-      return JSON.parse(body) as unknown;
-    } catch {
-      throw new QuoteError("INVALID_PAYLOAD", 400, "Dados do orçamento inválidos.");
-    }
-  }
-
-  let serialized: string;
-  try {
-    serialized = JSON.stringify(body);
-  } catch {
-    throw new QuoteError("INVALID_PAYLOAD", 400, "Dados do orçamento inválidos.");
-  }
-  if (!serialized || Buffer.byteLength(serialized, "utf8") > MAX_BODY_BYTES) {
-    throw new QuoteError("INVALID_PAYLOAD", 400, "Dados do orçamento inválidos.");
-  }
-  return body;
 }
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
@@ -63,7 +39,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   try {
-    const payload = parseQuotePayload(parseRequestBody(request.body));
+    const idempotencyKey = parseIdempotencyKey(request.headers["idempotency-key"]);
+    const payload = parseCheckoutOrderPayload(parseOrderRequestBody(request.body));
     const authClient = createClient(supabaseUrl, publishableKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
@@ -72,30 +49,27 @@ export default async function handler(request: VercelRequest, response: VercelRe
       return response.status(401).json({ error: "Sessão inválida ou expirada." });
     }
 
-    const catalogClient = createClient(supabaseUrl, secretKey, {
+    const checkoutClient = createClient(supabaseUrl, secretKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const variantIds = payload.items.map((item) => item.variantId);
-    const { data, error } = await catalogClient
-      .from("product_variants")
-      .select(
-        "id, product_id, size, color_name, stock_quantity, is_active, products!inner(id, name, price_cents, is_active)",
-      )
-      .in("id", variantIds);
+    const { data, error } = await checkoutClient.rpc("create_checkout_order", {
+      p_user_id: authData.user.id,
+      p_idempotency_key: idempotencyKey,
+      p_items: payload.items,
+      p_shipping_address_id: payload.shippingAddressId,
+      p_payment_method: payload.paymentMethod,
+    });
 
     if (error) {
-      return response.status(503).json({
-        code: "CATALOG_UNAVAILABLE",
-        error: "Não foi possível calcular o orçamento.",
-      });
+      throw mapCheckoutDatabaseError(error);
     }
 
-    return response.status(200).json(buildAuthoritativeQuote(payload, data));
+    return response.status(200).json(parseCheckoutOrderResult(data));
   } catch (error) {
-    if (error instanceof QuoteError) {
+    if (error instanceof CheckoutOrderError) {
       return response.status(error.status).json({ code: error.code, error: error.message });
     }
 
-    return response.status(500).json({ error: "Não foi possível calcular o orçamento." });
+    return response.status(500).json({ error: "Não foi possível criar o pedido." });
   }
 }
