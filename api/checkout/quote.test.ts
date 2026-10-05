@@ -93,6 +93,7 @@ describe("POST /api/checkout/quote", () => {
           size: "M",
           color_name: "Preto",
           stock_quantity: 3,
+          is_active: true,
           products: {
             id: PRODUCT_ID,
             name: "Produto real",
