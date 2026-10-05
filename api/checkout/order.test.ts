@@ -96,13 +96,14 @@ describe("POST /api/checkout/order", () => {
     );
     expect(noSession.status).toHaveBeenCalledWith(401);
 
+    mockAuthenticatedUser();
     const noKey = makeResponse();
     await handler(
       makeRequest({ headers: { authorization: "Bearer valid-token" } }),
       noKey.response,
     );
     expect(noKey.status).toHaveBeenCalledWith(400);
-    expect(mocks.createClient).not.toHaveBeenCalled();
+    expect(mocks.createClient).toHaveBeenCalledTimes(1);
   });
 
   it("usa o usuário autenticado e envia somente IDs e quantidades autoritativos", async () => {

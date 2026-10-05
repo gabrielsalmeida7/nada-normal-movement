@@ -39,8 +39,6 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   try {
-    const idempotencyKey = parseIdempotencyKey(request.headers["idempotency-key"]);
-    const payload = parseCheckoutOrderPayload(parseOrderRequestBody(request.body));
     const authClient = createClient(supabaseUrl, publishableKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
@@ -49,6 +47,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
       return response.status(401).json({ error: "Sessão inválida ou expirada." });
     }
 
+    const idempotencyKey = parseIdempotencyKey(request.headers["idempotency-key"]);
+    const payload = parseCheckoutOrderPayload(parseOrderRequestBody(request.body));
     const checkoutClient = createClient(supabaseUrl, secretKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });

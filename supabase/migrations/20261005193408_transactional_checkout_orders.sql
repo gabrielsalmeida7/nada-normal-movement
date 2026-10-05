@@ -162,7 +162,7 @@ BEGIN
         jsonb_build_object(
             'orderId', orders.id,
             'paymentAttemptId', payment_attempts.id,
-            'status', payment_attempts.status,
+            'status', 'created',
             'currency', payment_attempts.currency,
             'subtotalCents', orders.subtotal_cents,
             'shippingCents', orders.shipping_cents,

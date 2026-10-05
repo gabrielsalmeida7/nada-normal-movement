@@ -127,4 +127,55 @@ if [[ "$stock" != "0" || "$order_count" != "1" || "$attempt_count" != "1" ]]; th
   exit 1
 fi
 
-printf 'Concorrência validada: uma reserva, um pedido e uma tentativa.\n'
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 >/dev/null <<SQL
+DELETE FROM public.payment_attempts
+WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
+DELETE FROM public.orders WHERE user_id = '$USER_ID';
+UPDATE public.product_variants
+SET stock_quantity = 1
+WHERE id = '$VARIANT_ID';
+SQL
+
+set +e
+run_checkout "concurrent-idempotent-replay" "$LOG_DIR/replay-one.log" &
+first_pid=$!
+sleep 0.1
+run_checkout "concurrent-idempotent-replay" "$LOG_DIR/replay-two.log" &
+second_pid=$!
+wait "$first_pid"
+first_status=$?
+wait "$second_pid"
+second_status=$?
+set -e
+
+if [[ "$first_status" -ne 0 || "$second_status" -ne 0 ]]; then
+  printf 'Replay concorrente falhou; status: %s e %s\n' \
+    "$first_status" "$second_status" >&2
+  exit 1
+fi
+
+if ! cmp -s "$LOG_DIR/replay-one.log" "$LOG_DIR/replay-two.log"; then
+  printf 'Replay concorrente retornou resultados diferentes.\n' >&2
+  exit 1
+fi
+
+read -r stock order_count attempt_count < <(
+  psql "$DATABASE_URL" -At -F ' ' -v ON_ERROR_STOP=1 <<SQL
+SELECT
+    (SELECT stock_quantity FROM public.product_variants WHERE id = '$VARIANT_ID'),
+    (SELECT COUNT(*) FROM public.orders WHERE user_id = '$USER_ID'),
+    (
+        SELECT COUNT(*)
+        FROM public.payment_attempts
+        WHERE idempotency_key = 'concurrent-idempotent-replay'
+    );
+SQL
+)
+
+if [[ "$stock" != "0" || "$order_count" != "1" || "$attempt_count" != "1" ]]; then
+  printf 'Replay duplicou efeito: estoque=%s pedidos=%s tentativas=%s\n' \
+    "$stock" "$order_count" "$attempt_count" >&2
+  exit 1
+fi
+
+printf 'Concorrência validada para estoque e replay idempotente.\n'

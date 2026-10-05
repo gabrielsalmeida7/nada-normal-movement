@@ -121,6 +121,10 @@ BEGIN
         RAISE EXCEPTION 'Reserva inicial incorreta: estoque %', stock;
     END IF;
 
+    UPDATE public.payment_attempts
+    SET status = 'pending'
+    WHERE id = (first_result ->> 'paymentAttemptId')::UUID;
+
     SELECT public.create_checkout_order(
         test_user_id,
         'test-idempotency-authoritative',
