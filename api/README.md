@@ -48,6 +48,21 @@ O endpoint nunca aceita preço, total, estado de pagamento ou `user_id` do
 navegador. Ele não chama Appmax, não captura pagamento e não avança o fluxo de
 pagamento.
 
+## Passo 5 — consistência operacional antes da Appmax
+
+O próximo passo técnico permanece separado da integração com a Appmax e trata
+do ciclo de vida da reserva e da regra de frete:
+
+- registrar prazo da reserva e liberá-la de forma idempotente quando expirar ou
+  quando o pedido for cancelado antes da confirmação; o job de expiração deve
+  usar a outbox e nunca incrementar estoque duas vezes;
+- substituir a regra duplicada entre TypeScript e SQL por uma única função
+  versionada no banco, usada tanto pelo orçamento quanto pela criação do
+  pedido; o frontend continua exibindo apenas uma estimativa.
+
+Credenciais, chamadas ao gateway, tokenização e captura de pagamento continuam
+fora desse passo.
+
 Variáveis server-side: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e
 `SUPABASE_SECRET_KEY`. As variáveis legadas `SUPABASE_ANON_KEY` e
 `SUPABASE_SERVICE_ROLE_KEY` continuam aceitas como fallback.
