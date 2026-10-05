@@ -4,19 +4,14 @@
  * Frete grátis acima de R$ 300.
  */
 
-const SUL_SUDESTE_UF = ["SP", "RJ", "MG", "ES", "PR", "SC", "RS"];
-const FRETE_SUL_SUDESTE = 20;
-const FRETE_DEMAIS = 30;
-const SUBTOTAL_FRETE_GRATIS = 300;
+import { getShippingCostCents } from "@/lib/shipping-rules";
 
 /**
  * Retorna o valor do frete em reais com base no CEP (UF) e subtotal.
  * Frete grátis se subtotal >= R$ 300.
  */
 export function getShippingCost(uf: string, subtotalReais: number): number {
-  if (subtotalReais >= SUBTOTAL_FRETE_GRATIS) return 0;
-  const ufUpper = uf?.toUpperCase().trim() ?? "";
-  return SUL_SUDESTE_UF.includes(ufUpper) ? FRETE_SUL_SUDESTE : FRETE_DEMAIS;
+  return getShippingCostCents(uf ?? "", Math.round(subtotalReais * 100)) / 100;
 }
 
 /**
