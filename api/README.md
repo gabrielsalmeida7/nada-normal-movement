@@ -48,20 +48,27 @@ O endpoint nunca aceita preço, total, estado de pagamento ou `user_id` do
 navegador. Ele não chama Appmax, não captura pagamento e não avança o fluxo de
 pagamento.
 
-## Passo 5 — consistência operacional antes da Appmax
+## Reserva e frete
 
-O próximo passo técnico permanece separado da integração com a Appmax e trata
-do ciclo de vida da reserva e da regra de frete:
+`public.compute_shipping_cents` é a única regra usada pelo orçamento e pela
+criação do pedido. O frontend continua exibindo apenas uma estimativa.
 
-- registrar prazo da reserva e liberá-la de forma idempotente quando expirar ou
-  quando o pedido for cancelado antes da confirmação; o job de expiração deve
-  usar a outbox e nunca incrementar estoque duas vezes;
-- substituir a regra duplicada entre TypeScript e SQL por uma única função
-  versionada no banco, usada tanto pelo orçamento quanto pela criação do
-  pedido; o frontend continua exibindo apenas uma estimativa.
+Cada pedido novo reserva estoque por 30 minutos e grava uma trilha em
+`inventory_reservation_events`, junto de um job `release_expired_reservation`
+na outbox. A liberação acontece uma única vez, seja pela expiração ou pelo
+cancelamento anterior ao pagamento.
+
+`POST /api/checkout/cancel` exige a sessão do dono e cancela somente pedido
+pendente cuja tentativa ainda está `created`. Repetir o cancelamento devolve o
+mesmo estado sem somar estoque outra vez.
+
+`POST /api/checkout/expire-reservations` processa a outbox vencida. Exige o
+header `x-reservation-processor-secret`, comparado com
+`RESERVATION_PROCESSOR_SECRET`. O worker usa `SKIP LOCKED` e não devolve
+estoque de reserva já liberada nem de pedido pago ou com pagamento submetido.
 
 Credenciais, chamadas ao gateway, tokenização e captura de pagamento continuam
-fora desse passo.
+fora deste passo.
 
 Variáveis server-side: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e
 `SUPABASE_SECRET_KEY`. As variáveis legadas `SUPABASE_ANON_KEY` e

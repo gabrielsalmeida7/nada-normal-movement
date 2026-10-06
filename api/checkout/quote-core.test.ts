@@ -44,7 +44,7 @@ describe("orçamento autoritativo", () => {
       total: 2,
     });
 
-    const quote = buildAuthoritativeQuote(payload, [catalogVariant()]);
+    const quote = buildAuthoritativeQuote(payload, [catalogVariant()], 0);
 
     expect(payload).toEqual({
       items: [{ variantId: VARIANT_ID, quantity: 2 }],
@@ -84,7 +84,7 @@ describe("orçamento autoritativo", () => {
       shippingState: "SP",
     });
 
-    expect(() => buildAuthoritativeQuote(payload, rows)).toThrowError(
+    expect(() => buildAuthoritativeQuote(payload, rows, 2_000)).toThrowError(
       expect.objectContaining<Partial<QuoteError>>({
         code: "VARIANT_UNAVAILABLE",
         status: 422,
@@ -99,7 +99,7 @@ describe("orçamento autoritativo", () => {
     });
 
     expect(() =>
-      buildAuthoritativeQuote(payload, [catalogVariant({ stock_quantity: 2 })]),
+      buildAuthoritativeQuote(payload, [catalogVariant({ stock_quantity: 2 })], 2_000),
     ).toThrowError(
       expect.objectContaining<Partial<QuoteError>>({
         code: "INSUFFICIENT_STOCK",
@@ -134,26 +134,67 @@ describe("orçamento autoritativo", () => {
   });
 
   it.each([
-    ["Sul/Sudeste", "SP", 10_000, 2_000],
-    ["demais estados", "BA", 10_000, 3_000],
-    ["grátis a partir de R$ 300", "BA", 30_000, 0],
-  ])("calcula frete para %s", (_case, shippingState, priceCents, shippingCents) => {
+    ["abaixo do limiar", "BA", 10_000, 3_000],
+    ["no limiar de R$ 300", "BA", 30_000, 0],
+    ["acima do limiar", "SP", 30_001, 0],
+  ])("aplica o frete informado para %s", (_case, shippingState, priceCents, shippingCents) => {
     const payload = parseQuotePayload({
       items: [{ variantId: VARIANT_ID, quantity: 1 }],
       shippingState,
     });
-    const quote = buildAuthoritativeQuote(payload, [
-      catalogVariant({
-        products: {
-          id: PRODUCT_ID,
-          name: "Produto",
-          price_cents: priceCents,
-          is_active: true,
-        },
-      }),
-    ]);
+    const quote = buildAuthoritativeQuote(
+      payload,
+      [
+        catalogVariant({
+          products: {
+            id: PRODUCT_ID,
+            name: "Produto",
+            price_cents: priceCents,
+            is_active: true,
+          },
+        }),
+      ],
+      shippingCents,
+    );
 
     expect(quote.shippingCents).toBe(shippingCents);
     expect(quote.totalCents).toBe(priceCents + shippingCents);
+  });
+
+  it("não recalcula o frete pela UF quando a fonte única discorda", () => {
+    const payload = parseQuotePayload({
+      items: [{ variantId: VARIANT_ID, quantity: 1 }],
+      shippingState: "SP",
+    });
+    const quote = buildAuthoritativeQuote(
+      payload,
+      [
+        catalogVariant({
+          products: {
+            id: PRODUCT_ID,
+            name: "Produto",
+            price_cents: 10_000,
+            is_active: true,
+          },
+        }),
+      ],
+      0,
+    );
+
+    expect(quote).toMatchObject({ subtotalCents: 10_000, shippingCents: 0, totalCents: 10_000 });
+  });
+
+  it("rejeita frete que não veio como inteiro não negativo", () => {
+    const payload = parseQuotePayload({
+      items: [{ variantId: VARIANT_ID, quantity: 1 }],
+      shippingState: "SP",
+    });
+
+    expect(() => buildAuthoritativeQuote(payload, [catalogVariant()], -1)).toThrowError(
+      expect.objectContaining<Partial<QuoteError>>({
+        code: "SHIPPING_UNAVAILABLE",
+        status: 422,
+      }),
+    );
   });
 });

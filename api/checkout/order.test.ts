@@ -24,6 +24,8 @@ const orderResult = {
   subtotalCents: 18_990,
   shippingCents: 2_000,
   totalCents: 20_990,
+  reservationExpiresAt: "2026-10-06T16:30:00.000Z",
+  shippingRuleVersion: 1,
 };
 
 function makeResponse() {
