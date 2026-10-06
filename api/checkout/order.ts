@@ -7,7 +7,7 @@ import {
   parseCheckoutOrderResult,
   parseIdempotencyKey,
   parseOrderRequestBody,
-} from "./order-core";
+} from "../../server/checkout/order-core";
 
 function getBearerToken(header: string | string[] | undefined): string | null {
   const value = Array.isArray(header) ? header[0] : header;

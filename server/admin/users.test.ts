@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import handler from "./users";
+import handler from "../../api/admin/users";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),

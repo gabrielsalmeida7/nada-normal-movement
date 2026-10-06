@@ -4,7 +4,7 @@ import {
   buildAuthoritativeQuote,
   parseQuotePayload,
   QuoteError,
-} from "./quote-core";
+} from "../../server/checkout/quote-core";
 
 const MAX_BODY_BYTES = 8 * 1024;
 

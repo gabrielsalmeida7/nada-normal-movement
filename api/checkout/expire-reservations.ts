@@ -8,7 +8,7 @@ import {
   parseExpireResult,
   processorSecretMatches,
   readProcessorSecret,
-} from "./expire-reservations-core";
+} from "../../server/checkout/expire-reservations-core";
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   response.setHeader("Cache-Control", "private, no-store");

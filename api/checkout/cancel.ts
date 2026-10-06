@@ -5,7 +5,7 @@ import {
   mapCancelDatabaseError,
   parseCancelPayload,
   parseCancelResult,
-} from "./cancel-core";
+} from "../../server/checkout/cancel-core";
 
 function getBearerToken(header: string | string[] | undefined): string | null {
   const value = Array.isArray(header) ? header[0] : header;

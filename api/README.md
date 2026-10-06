@@ -1,5 +1,9 @@
 # API
 
+Somente os handlers HTTP ficam nesta pasta. Cada arquivo aqui vira uma
+Serverless Function no deploy, e o plano Hobby aceita no máximo 12. Núcleos,
+testes e utilitários ficam em `server/`.
+
 Os endpoints antigos do Mercado Pago foram removidos.
 
 A integração Appmax será implementada aqui somente após a liberação das

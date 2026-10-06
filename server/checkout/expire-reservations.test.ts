@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import handler from "./expire-reservations";
+import handler from "../../api/checkout/expire-reservations";
 import { RESERVATION_PROCESSOR_WORKER_ID } from "./expire-reservations-core";
 
 const mocks = vi.hoisted(() => ({
