@@ -16,6 +16,7 @@ function catalogVariant(overrides: Record<string, unknown> = {}) {
     size: "M",
     color_name: "Preto",
     stock_quantity: 5,
+    is_active: true,
     products: {
       id: PRODUCT_ID,
       name: "Camiseta autoritativa",
@@ -63,8 +64,9 @@ describe("orçamento autoritativo", () => {
 
   it.each([
     ["inexistente", []],
+    ["desativada", [catalogVariant({ is_active: false })]],
     [
-      "inativa",
+      "com produto inativo",
       [
         catalogVariant({
           products: {
