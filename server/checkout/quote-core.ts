@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { getShippingCostCents } from "../../src/lib/shipping-rules";
 
 export const MAX_QUOTE_ITEMS = 20;
 export const MAX_QUANTITY_PER_VARIANT = 10;
@@ -92,6 +91,7 @@ export class QuoteError extends Error {
       | "INVALID_PAYLOAD"
       | "VARIANT_UNAVAILABLE"
       | "INSUFFICIENT_STOCK"
+      | "SHIPPING_UNAVAILABLE"
       | "CATALOG_UNAVAILABLE",
     public readonly status: number,
     message: string,
@@ -130,6 +130,7 @@ export function parseQuotePayload(input: unknown): QuotePayload {
 export function buildAuthoritativeQuote(
   payload: QuotePayload,
   catalogRows: unknown,
+  shippingCents: number,
 ): AuthoritativeQuote {
   const parsedRows = z.array(catalogVariantSchema).safeParse(catalogRows);
   if (!parsedRows.success) {
@@ -173,7 +174,13 @@ export function buildAuthoritativeQuote(
   });
 
   const subtotalCents = items.reduce((total, item) => total + item.lineTotalCents, 0);
-  const shippingCents = getShippingCostCents(payload.shippingState, subtotalCents);
+  if (
+    !Number.isSafeInteger(shippingCents) ||
+    shippingCents < 0 ||
+    subtotalCents > 2_147_483_647 - shippingCents
+  ) {
+    throw new QuoteError("SHIPPING_UNAVAILABLE", 422, "Não foi possível calcular o frete.");
+  }
 
   return {
     currency: "BRL",

@@ -24,6 +24,8 @@ const orderResultSchema = z.object({
   subtotalCents: z.number().int().positive(),
   shippingCents: z.number().int().nonnegative(),
   totalCents: z.number().int().positive(),
+  reservationExpiresAt: z.string().datetime({ offset: true }),
+  shippingRuleVersion: z.number().int().positive(),
 });
 
 export type CheckoutOrderPayload = z.infer<typeof orderPayloadSchema>;

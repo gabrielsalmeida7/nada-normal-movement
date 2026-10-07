@@ -106,8 +106,10 @@ describe("contrato de criação do pedido", () => {
         subtotalCents: 18_990,
         shippingCents: 2_000,
         totalCents: 20_990,
+        reservationExpiresAt: "2026-10-06T16:30:00.000Z",
+        shippingRuleVersion: 1,
       }),
-    ).toMatchObject({ totalCents: 20_990 });
+    ).toMatchObject({ totalCents: 20_990, shippingRuleVersion: 1 });
 
     expect(() =>
       parseCheckoutOrderResult({
@@ -118,6 +120,8 @@ describe("contrato de criação do pedido", () => {
         subtotalCents: 18_990,
         shippingCents: 2_000,
         totalCents: 1,
+        reservationExpiresAt: "2026-10-06T16:30:00.000Z",
+        shippingRuleVersion: 1,
       }),
     ).toThrowError(
       expect.objectContaining<Partial<CheckoutOrderError>>({

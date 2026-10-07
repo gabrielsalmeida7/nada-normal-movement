@@ -13,6 +13,8 @@
    - `migrations/20250302120000_seed_products.sql` (seed do catálogo: 12 produtos + imagens + variantes)
    - `migrations/20260904195453_admin_panel_security.sql`
    - `migrations/20261002194546_appmax_financial_foundation.sql`
+   - `migrations/20261005193408_transactional_checkout_orders.sql`
+   - `migrations/20261006140000_reservation_release_and_shipping.sql`
 
 ### Opção 2: Supabase CLI (projeto já linkado)
 
@@ -38,12 +40,13 @@ URLs públicas das imagens: `https://<project>.supabase.co/storage/v1/object/pub
 | `payment_attempts` | Tentativas de pagamento idempotentes e seus estados locais. |
 | `webhook_events`   | Inbox deduplicada para persistência e reprocessamento de webhooks. |
 | `outbox_jobs`      | Efeitos assíncronos idempotentes vinculados ao pedido. |
+| `inventory_reservation_events` | Trilha das reservas de estoque e da liberação única. |
 
 ## RLS
 
 - **profiles e addresses:** usuário mantém os fluxos existentes sobre os próprios dados.
 - **orders e order_items:** usuário pode ler os próprios dados, mas não pode inserir, atualizar ou excluir diretamente; a criação autoritativa será server-side em um passo posterior.
-- **payment_attempts, webhook_events e outbox_jobs:** sem acesso para `anon`/`authenticated`; DML exclusivo de `service_role`.
+- **payment_attempts, webhook_events, outbox_jobs e inventory_reservation_events:** sem acesso para `anon`/`authenticated`; DML exclusivo de `service_role`.
 - **products, product_images e product_variants:** catálogo ativo é público; escrita exige administrador.
 - **Storage bucket `products`:** leitura pública; escrita exige administrador.
 
@@ -58,4 +61,10 @@ Após aplicar as migrations em um banco de teste, execute a verificação transa
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
   -f supabase/tests/appmax_financial_foundation.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f supabase/tests/transactional_checkout_orders.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+  -f supabase/tests/reservation_release.sql
+bash supabase/tests/transactional_checkout_concurrency.sh
+bash supabase/tests/reservation_release_concurrency.sh
 ```

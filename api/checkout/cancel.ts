@@ -1,13 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
-  CheckoutOrderError,
-  mapCheckoutDatabaseError,
-  parseCheckoutOrderPayload,
-  parseCheckoutOrderResult,
-  parseIdempotencyKey,
-  parseOrderRequestBody,
-} from "../../server/checkout/order-core";
+  CancelCheckoutError,
+  mapCancelDatabaseError,
+  parseCancelPayload,
+  parseCancelResult,
+} from "../../server/checkout/cancel-core";
 
 function getBearerToken(header: string | string[] | undefined): string | null {
   const value = Array.isArray(header) ? header[0] : header;
@@ -39,6 +37,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
   }
 
   try {
+    const payload = parseCancelPayload(request.body);
     const authClient = createClient(supabaseUrl, publishableKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
@@ -47,29 +46,23 @@ export default async function handler(request: VercelRequest, response: VercelRe
       return response.status(401).json({ error: "Sessão inválida ou expirada." });
     }
 
-    const idempotencyKey = parseIdempotencyKey(request.headers["idempotency-key"]);
-    const payload = parseCheckoutOrderPayload(parseOrderRequestBody(request.body));
     const checkoutClient = createClient(supabaseUrl, secretKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data, error } = await checkoutClient.rpc("create_checkout_order", {
+    const { data, error } = await checkoutClient.rpc("cancel_checkout_order", {
       p_user_id: authData.user.id,
-      p_idempotency_key: idempotencyKey,
-      p_items: payload.items,
-      p_shipping_address_id: payload.shippingAddressId,
-      p_payment_method: payload.paymentMethod,
+      p_order_id: payload.orderId,
     });
-
     if (error) {
-      throw mapCheckoutDatabaseError(error);
+      throw mapCancelDatabaseError(error);
     }
 
-    return response.status(200).json(parseCheckoutOrderResult(data));
+    return response.status(200).json(parseCancelResult(data));
   } catch (error) {
-    if (error instanceof CheckoutOrderError) {
+    if (error instanceof CancelCheckoutError) {
       return response.status(error.status).json({ code: error.code, error: error.message });
     }
 
-    return response.status(500).json({ error: "Não foi possível criar o pedido." });
+    return response.status(500).json({ error: "Não foi possível cancelar o pedido." });
   }
 }

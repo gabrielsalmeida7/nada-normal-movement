@@ -1,3 +1,5 @@
+// Estimativa visual da regra SQL `compute_shipping_cents` versão 1.
+// Quote e criação de pedido não usam este módulo; a cobrança vem só do Postgres.
 const SUL_SUDESTE_UF = new Set(["SP", "RJ", "MG", "ES", "PR", "SC", "RS"]);
 
 export const SHIPPING_SOUTH_SOUTHEAST_CENTS = 2_000;

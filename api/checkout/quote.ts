@@ -4,7 +4,7 @@ import {
   buildAuthoritativeQuote,
   parseQuotePayload,
   QuoteError,
-} from "./quote-core";
+} from "../../server/checkout/quote-core";
 
 const MAX_BODY_BYTES = 8 * 1024;
 
@@ -90,7 +90,19 @@ export default async function handler(request: VercelRequest, response: VercelRe
       });
     }
 
-    return response.status(200).json(buildAuthoritativeQuote(payload, data));
+    const priced = buildAuthoritativeQuote(payload, data, 0);
+    const { data: shippingCents, error: shippingError } = await catalogClient.rpc(
+      "compute_shipping_cents",
+      {
+        p_state: payload.shippingState,
+        p_subtotal_cents: priced.subtotalCents,
+      },
+    );
+    if (shippingError || !Number.isInteger(shippingCents)) {
+      throw new QuoteError("SHIPPING_UNAVAILABLE", 422, "Não foi possível calcular o frete.");
+    }
+
+    return response.status(200).json(buildAuthoritativeQuote(payload, data, shippingCents));
   } catch (error) {
     if (error instanceof QuoteError) {
       return response.status(error.status).json({ code: error.code, error: error.message });

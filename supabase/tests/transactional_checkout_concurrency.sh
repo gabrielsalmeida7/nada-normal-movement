@@ -13,6 +13,10 @@ cleanup() {
   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 >/dev/null <<SQL
 DROP TRIGGER IF EXISTS test_hold_concurrent_order ON public.orders;
 DROP FUNCTION IF EXISTS public.test_hold_concurrent_order();
+DELETE FROM public.inventory_reservation_events
+WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
+DELETE FROM public.outbox_jobs
+WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
 DELETE FROM public.payment_attempts
 WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
 DELETE FROM public.orders WHERE user_id = '$USER_ID';
@@ -128,6 +132,10 @@ if [[ "$stock" != "0" || "$order_count" != "1" || "$attempt_count" != "1" ]]; th
 fi
 
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 >/dev/null <<SQL
+DELETE FROM public.inventory_reservation_events
+WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
+DELETE FROM public.outbox_jobs
+WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
 DELETE FROM public.payment_attempts
 WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = '$USER_ID');
 DELETE FROM public.orders WHERE user_id = '$USER_ID';

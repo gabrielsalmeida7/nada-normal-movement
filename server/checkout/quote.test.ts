@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import handler from "./quote";
+import handler from "../../api/checkout/quote";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -49,12 +49,16 @@ function mockAuthenticatedUser() {
   });
 }
 
-function mockCatalogResult(result: { data: unknown; error: unknown }) {
+function mockCatalogResult(
+  result: { data: unknown; error: unknown },
+  shipping: { data: unknown; error: unknown } = { data: 2_000, error: null },
+) {
   const inVariants = vi.fn().mockResolvedValue(result);
   const select = vi.fn(() => ({ in: inVariants }));
   const from = vi.fn(() => ({ select }));
-  mocks.createClient.mockReturnValueOnce({ from });
-  return { from, select, inVariants };
+  const rpc = vi.fn().mockResolvedValue(shipping);
+  mocks.createClient.mockReturnValueOnce({ from, rpc });
+  return { from, select, inVariants, rpc };
 }
 
 describe("POST /api/checkout/quote", () => {
@@ -119,12 +123,62 @@ describe("POST /api/checkout/quote", () => {
 
     expect(catalog.from).toHaveBeenCalledWith("product_variants");
     expect(catalog.inVariants).toHaveBeenCalledWith("id", [VARIANT_ID]);
+    expect(catalog.rpc).toHaveBeenCalledWith("compute_shipping_cents", {
+      p_state: "SP",
+      p_subtotal_cents: 20_000,
+    });
     expect(result.status).toHaveBeenCalledWith(200);
     expect(result.json).toHaveBeenCalledWith(
       expect.objectContaining({
         subtotalCents: 20_000,
         shippingCents: 2_000,
         totalCents: 22_000,
+      }),
+    );
+  });
+
+  it("usa o frete devolvido pela função SQL no limiar, sem regra local", async () => {
+    mockAuthenticatedUser();
+    mockCatalogResult(
+      {
+        data: [
+          {
+            id: VARIANT_ID,
+            product_id: PRODUCT_ID,
+            size: "M",
+            color_name: null,
+            stock_quantity: 3,
+            is_active: true,
+            products: {
+              id: PRODUCT_ID,
+              name: "Produto real",
+              price_cents: 30_000,
+              is_active: true,
+            },
+          },
+        ],
+        error: null,
+      },
+      { data: 0, error: null },
+    );
+    const result = makeResponse();
+
+    await handler(
+      makeRequest({
+        body: {
+          items: [{ variantId: VARIANT_ID, quantity: 1 }],
+          shippingState: "BA",
+        },
+      }),
+      result.response,
+    );
+
+    expect(result.status).toHaveBeenCalledWith(200);
+    expect(result.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subtotalCents: 30_000,
+        shippingCents: 0,
+        totalCents: 30_000,
       }),
     );
   });
