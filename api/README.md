@@ -71,8 +71,29 @@ header `x-reservation-processor-secret`, comparado com
 `RESERVATION_PROCESSOR_SECRET`. O worker usa `SKIP LOCKED` e não devolve
 estoque de reserva já liberada nem de pedido pago ou com pagamento submetido.
 
-Credenciais, chamadas ao gateway, tokenização e captura de pagamento continuam
-fora deste passo.
+## Gateway simulado
+
+O contrato `PaymentGateway`, os tipos de pedido, pagamento e resultado, e o
+adaptador determinístico ficam em `server/payments`. Nenhum arquivo novo entra
+em `api/`, então este passo não consome o limite de 12 Serverless Functions.
+
+O adaptador não abre conexão de rede. Para uma tentativa explícita, ele devolve
+um destes resultados:
+
+- aprovação: tentativa `paid`
+- autorização em análise: tentativa `authorized` e `paid: false`
+- recusa: tentativa `failed`
+- timeout: tentativa `unknown`, sem identificador externo e sem retry cego
+
+A mesma chave de idempotência com o mesmo payload devolve o resultado já
+gravado na memória do processo. Repetir um timeout não transforma a tentativa
+em aprovação. Outro payload com a mesma chave é rejeitado. Uma chave nova pode
+representar outra tentativa.
+
+O adaptador não chama a Appmax, não carrega Appmax JS, não liga o botão de
+checkout, não captura pagamento e não grava pedido nem tentativa no banco.
+Token opaco de cartão entra somente na validação da tentativa e não volta no
+resultado. PAN e CVV são rejeitados.
 
 Variáveis server-side: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e
 `SUPABASE_SECRET_KEY`. As variáveis legadas `SUPABASE_ANON_KEY` e
