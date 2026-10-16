@@ -2,7 +2,7 @@
 
 > Última consolidação: 16 de outubro de 2026  
 > Branch de referência: `home-v2-contraste`  
-> Estado: **a Fase 0 ainda não foi iniciada e aguarda autorização explícita**.
+> Estado: **Fase 0 autorizada e em implementação; validação de staging pendente**.
 
 Este documento é a fonte de verdade legível para o estado, as decisões e a
 sequência de entrega do e-commerce Nada Normal. Em caso de conflito com planos
@@ -32,7 +32,7 @@ Hoje a aplicação **não** oferece:
 - cobrança real;
 - Payment Brick conectado ao checkout;
 - adaptador Mercado Pago em produção;
-- Cloudflare Worker de pagamentos;
+- Cloudflare Worker publicado processando pagamentos (há scaffold local da Fase 0);
 - webhook Mercado Pago;
 - reconciliação financeira em execução.
 
@@ -44,10 +44,11 @@ conclui compras.
 
 A base deste documento é `home-v2-contraste` no merge commit
 [`29b122c`](https://github.com/gabrielsalmeida7/nada-normal-movement/commit/29b122c01c6f09c56c700e85d5c130cad56b28a4).
-Nesse ponto, os Passos 1, 2, 3, 4 e 4.1 estão mesclados. O gateway simulado do
-Passo 5 está no PR
+Nesse ponto, os Passos 1, 2, 3, 4 e 4.1 estão mesclados. Posteriormente, o gateway simulado do
+Passo 5 foi incorporado pelo PR
 [#6](https://github.com/gabrielsalmeida7/nada-normal-movement/pull/6),
-que permanece **draft, aberto e não mesclado**.
+no commit `81ca0b7`. O PR #7 incorporou este roadmap no commit `a19eea0`.
+Esses merges não conectam o gateway ao checkout nem habilitam cobrança real.
 
 ## 2. Histórico do que foi entregue
 
@@ -110,24 +111,25 @@ que permanece **draft, aberto e não mesclado**.
 - Validações registradas: testes afetados, SQL com rollback, concorrência de
   checkout/liberação, TypeScript e deploys Vercel posteriormente verdes.
 
-### Passo 5 — gateway simulado, ainda não incorporado
+### Passo 5 — gateway simulado incorporado, sem cobrança
 
 - PR [#6 — gateway de pagamento simulado](https://github.com/gabrielsalmeida7/nada-normal-movement/pull/6),
   commit principal de documentação
   [`a9ab19e`](https://github.com/gabrielsalmeida7/nada-normal-movement/commit/a9ab19e77e371fe2ca166180869c974f660a6e36).
-- Estado: **draft, aberto e não mesclado**.
+- Estado: **mesclado em `home-v2-contraste` pelo commit `81ca0b7`**.
 - Define contrato `PaymentGateway` e adaptador determinístico para aprovação,
   autorização em análise, recusa, timeout desconhecido e replay idempotente.
 - Não chama provedor, não persiste resultados, não liga o checkout e não
   substitui idempotência durável no banco.
 - Validações registradas no PR: 80 testes em 15 arquivos, TypeScript estrito,
   lint, build e cinco handlers em `api/`.
-- Decisão: reaproveitar seletivamente contrato, invariantes e testes; não
-  mesclar automaticamente o PR como implementação final do gateway.
+- Decisão: reaproveitar seletivamente contrato, invariantes e testes; o
+  adaptador em memória não é a implementação final do gateway.
 
 Todos os PRs #1–#6 possuem checks de deploy Vercel aprovados no estado
 consultado. As contagens acima são os resultados registrados em cada PR, e não
-uma afirmação de que a branch base atual contenha os testes do PR #6.
+uma validação atual de produção. Na base `81ca0b7`, os 80 testes em 15 arquivos,
+TypeScript e build passaram; lint teve zero erros e 8 avisos existentes.
 
 ## 3. Histórico Appmax e decisão encerrada
 
@@ -263,20 +265,22 @@ apagadas ou reescritas.
 
 ## 6. Fase atual e próximo passo
 
-**Fase atual: planejamento concluído.**
+**Fase atual: Fase 0 autorizada pelo usuário em 16/10/2026 e em implementação.**
 
-**Próximo passo obrigatório: Fase 0 — ainda não iniciada e aguardando
-autorização.**
+O scaffold local, contratos e testes ficam em `workers/payments` e
+[ADR 001](docs/adr/001-payments-worker.md). A cobrança permanece desabilitada.
+Não há port de checkout, migration ou chamada de provedor nesta entrega.
 
-Nenhum scaffold de Worker, conta, secret, webhook ou recurso de produção deve
-ser criado antes dessa autorização. Também não se deve mesclar o PR #6 como
-atalho.
+**Próximo passo: confirmar conta/domínio/origens e Supabase de staging, cadastrar
+bindings por canais seguros e validar deploy/health de staging.** Recursos e
+deploy de produção continuam fora do escopo; não confundir testes locais com
+validação remota ou integração real do Mercado Pago.
 
 ## 7. Roadmap completo
 
 ### Fase 0 — contrato, ambientes e kill switch
 
-Status: **não iniciada; aguardando autorização**.
+Status: **autorizada; scaffold e contratos implementados, staging pendente**.
 
 Entregas de código:
 
@@ -287,9 +291,15 @@ Entregas de código:
 - `PAYMENTS_ENABLED=false` por padrão;
 - testes de health, CORS, redaction e secrets obrigatórios.
 
+Evidência local da entrega: 57 testes novos do Worker e 80 testes existentes
+passaram; TypeScript do app/Worker e ambos os builds passaram. Lint sem erros,
+com 8 avisos existentes. Smoke em workerd confirmou health `200`, preflight
+`204`, origem recusada `403` e pagamento/webhook bloqueados (`503`). O guard
+recusou o staging não configurado. Deploy e smoke remotos permanecem pendentes.
+
 Responsabilidades do usuário:
 
-- autorizar formalmente o início;
+- início autorizado em 16/10/2026;
 - criar ou selecionar a aplicação Mercado Pago;
 - disponibilizar Public Key e Access Token de teste pelos secret managers;
 - criar/configurar conta, Worker e domínio de staging na Cloudflare;
@@ -438,14 +448,15 @@ Critérios de aceite:
 
 ## 8. Ações imediatas
 
-1. Obter autorização explícita para iniciar a Fase 0.
-2. Após autorização, confirmar aplicação Mercado Pago, ambientes e domínios.
+1. Concluir validação local da Fase 0 e revisar ADR/contratos.
+2. Confirmar aplicação Mercado Pago, ambientes e domínios de staging.
 3. Definir se haverá Supabase separado para staging.
 4. Fechar regra de reserva Pix, parcelamento e retenção de dados.
-5. Criar ADR e scaffold do Worker com cobrança desabilitada.
-6. Só então decidir como extrair contrato/testes do PR #6.
+5. Cadastrar bindings com segurança, publicar staging autorizado e executar smoke.
+6. Após aceite da Fase 0, iniciar Fase 1 e portar seletivamente contrato/testes do gateway simulado.
 
-Não há ação imediata de produção, merge do PR #6 ou cadastro de secrets.
+Não há ação de produção nem ativação de pagamentos nesta fase. O cadastro de
+secrets de teste depende da confirmação dos ambientes; nunca enviar valores no chat.
 
 ## 9. Segurança e invariantes
 
@@ -539,7 +550,7 @@ Sandbox verde é necessário, mas não suficiente para produção.
 | migration incompatível | mudanças aditivas, staging e correção forward |
 | divergência de ambientes | credenciais, domínios e allowlists separados |
 | dependência do provedor | adaptador, ledger local e reconciliação |
-| PR #6 confundido com produção | manter draft até decisão de port seletivo |
+| gateway simulado confundido com produção | manter desconectado e portar seletivamente contrato/testes |
 
 ## 12. Rollback
 

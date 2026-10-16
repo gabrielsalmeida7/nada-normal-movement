@@ -1,0 +1,42 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "nada-normal-payments-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-16",
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "vars": {
+    "APP_ENV": "local",
+    "PAYMENTS_ENABLED": "false",
+    "ALLOWED_ORIGINS": "http://localhost:8080,http://127.0.0.1:8080"
+  },
+  "env": {
+    "staging": {
+      "name": "nada-normal-payments-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] },
+      "vars": {
+        "APP_ENV": "staging",
+        "PAYMENTS_ENABLED": "false",
+        "ALLOWED_ORIGINS": "",
+        "SUPABASE_URL": "",
+        "SUPABASE_PUBLISHABLE_KEY": ""
+      }
+    },
+    "production": {
+      "name": "nada-normal-payments-production",
+      "workers_dev": false,
+      "preview_urls": false,
+      "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] },
+      "vars": {
+        "APP_ENV": "production",
+        "PAYMENTS_ENABLED": "false",
+        "ALLOWED_ORIGINS": "",
+        "SUPABASE_URL": "",
+        "SUPABASE_PUBLISHABLE_KEY": ""
+      }
+    }
+  }
+}

@@ -33,7 +33,7 @@ Este projeto foi construído com as seguintes tecnologias:
 
 ### Pré-requisitos
 
-- Node.js (versão 18 ou superior) - [Instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js 22.18+ ou 24+ (ambiente validado com 24.19.0) - [Instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 - npm ou gerenciador de pacotes compatível
 
 ### Instalação
@@ -86,6 +86,11 @@ npm run lint
 ```
 
 ## Estrutura do Projeto
+
+A base atual de desenvolvimento é `home-v2-contraste`. O plano da migração de
+pagamentos está em [roadmap.md](roadmap.md). Para o Worker da Fase 0, consulte
+[workers/payments/README.md](workers/payments/README.md); ele roda separado do
+frontend e mantém cobrança desabilitada.
 
 ```
 nada-normal-movement/
