@@ -20,7 +20,7 @@
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "false",
-        "ALLOWED_ORIGINS": "",
+        "ALLOWED_ORIGINS": "https://nada-normal-movement-2sr4ux7cw.vercel.app,https://www.nadanormalclub.com.br",
         "SUPABASE_URL": "",
         "SUPABASE_PUBLISHABLE_KEY": ""
       }

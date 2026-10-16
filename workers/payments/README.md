@@ -70,6 +70,16 @@ não é usada pelo Worker da Fase 0. Não usar chaves de produção em staging.
 
 ## Preparação de staging (pendente de dados externos)
 
+Origens de staging informadas pelo usuário e registradas na configuração:
+`https://nada-normal-movement-2sr4ux7cw.vercel.app` e
+`https://www.nadanormalclub.com.br`. A URL Vercel pode identificar um deploy
+específico; se mudar, atualizar a allowlist explicitamente. Domínio proposto
+do Worker: `pagamentos-staging.nadanormalclub.com.br`, ainda sujeito à
+confirmação de associação no Cloudflare. O usuário autorizou usar o projeto
+Supabase atual, pois a loja ainda não abriu. Testes futuros nesse banco devem
+ter registros identificáveis e limpeza direcionada; migrations exigem backup
+antes da aplicação. A Fase 0 não acessa o banco.
+
 1. Confirmar a origem Vercel de staging, a de produção e se haverá Supabase
    separado. Não usar wildcard para previews nem incluir todas as origens
    Vercel. Cada origem precisa de autorização explícita.
