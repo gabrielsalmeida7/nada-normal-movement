@@ -16,13 +16,18 @@
       "name": "nada-normal-payments-staging",
       "workers_dev": false,
       "preview_urls": false,
+      "routes": [{ "pattern": "pagamentos-staging.nadanormalclub.com.br", "custom_domain": true }],
       "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] },
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "false",
         "ALLOWED_ORIGINS": "https://nada-normal-movement-2sr4ux7cw.vercel.app,https://www.nadanormalclub.com.br",
         "SUPABASE_URL": "",
-        "SUPABASE_PUBLISHABLE_KEY": ""
+        "SUPABASE_PUBLISHABLE_KEY": "",
+        "CHECKOUT_PRO_MODE": "",
+        "CHECKOUT_RETURN_ORIGIN": "https://nada-normal-movement-2sr4ux7cw.vercel.app",
+        "CHECKOUT_WEBHOOK_URL": "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago",
+        "MP_COLLECTOR_ID": ""
       }
     },
     "production": {

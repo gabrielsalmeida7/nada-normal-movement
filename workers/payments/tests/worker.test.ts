@@ -23,7 +23,7 @@ describe("health and configuration", () => {
     const res = await request("/health", undefined, env);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ status: "ok", service: "nada-normal-payments",
-      version: "0.1.0", environment: env.APP_ENV, paymentsEnabled: false });
+      version: "0.2.0", environment: env.APP_ENV, paymentsEnabled: false });
     expect(res.headers.get("Cache-Control")).toBe("no-store");
     expect(res.headers.get("X-Request-Id")).toMatch(/^[\da-f-]{36}$/);
     expect(fetchSpy).not.toHaveBeenCalled();

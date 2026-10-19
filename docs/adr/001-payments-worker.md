@@ -1,5 +1,8 @@
 # ADR 001 — Fronteira de pagamentos e contrato v1
 
+> A escolha de Payment Brick e os contratos de submissão descritos abaixo são
+> históricos. A adaptação para Checkout Pro está no [ADR 002](002-checkout-pro.md).
+
 Data: 16/10/2026. Estado: aceito para implementação da Fase 0; staging pendente.
 Base: `home-v2-contraste`. Fonte do plano: [roadmap](../../roadmap.md).
 

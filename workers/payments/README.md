@@ -1,4 +1,9 @@
-# API de pagamentos — Fase 0
+# API de pagamentos — Checkout Pro sandbox
+
+> Atualização de 19/10/2026: o Worker agora contém a adaptação para Checkout Pro
+> sandbox, desativada por padrão. Fluxo, limites e preparação de staging estão no
+> [ADR 002](../../docs/adr/002-checkout-pro.md), que prevalece sobre as referências
+> à Fase 0 e ao Payment Brick no histórico abaixo. Nenhum deploy foi feito.
 
 Worker TypeScript ES Modules isolado do SPA e dos handlers Vercel. A única
 funcionalidade ativa é health/CORS. Nenhuma rota cria pedido, cobra, autentica

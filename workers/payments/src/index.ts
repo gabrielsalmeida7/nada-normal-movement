@@ -1,12 +1,14 @@
 import { readConfig, type Bindings, type Config } from "./config";
+import { handleCheckoutPro } from "./checkout-pro-handler";
+import { HttpError } from "./http";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const ALLOWED_HEADERS = ["authorization", "content-type", "idempotency-key"];
 
 function routeMethod(path: string): string | undefined {
   if (path === "/health") return "GET";
   if (["/v1/checkout/quote", "/v1/checkout/orders", "/v1/checkout/payments",
-    "/webhooks/mercadopago"].includes(path)) return "POST";
+    "/v1/checkout/preferences", "/webhooks/mercadopago"].includes(path)) return "POST";
   if (/^\/v1\/checkout\/orders\/[0-9a-f-]{36}\/status$/i.test(path)) return "GET";
 }
 
@@ -14,7 +16,7 @@ function json(value: unknown, status = 200): Response {
   return Response.json(value, { status });
 }
 
-function dispatch(request: Request, config: Config): Response {
+async function dispatch(request: Request, config: Config, env: Bindings): Promise<Response> {
   const path = new URL(request.url).pathname;
   const method = routeMethod(path);
   if (!method) return json({ error: { code: "NOT_FOUND" } }, 404);
@@ -42,11 +44,12 @@ function dispatch(request: Request, config: Config): Response {
   }
   if (path === "/health") {
     return json({ status: "ok", service: "nada-normal-payments", version: VERSION,
-      environment: config.environment, paymentsEnabled: false });
+      environment: config.environment, paymentsEnabled: config.paymentsEnabled });
   }
-  // No body parsing, authentication, DB writes, network calls or webhook ACKs in Phase 0.
-  // Keep webhook/status independent of the charging flag when implemented in later phases.
-  const code = path === "/v1/checkout/payments" ? "PAYMENTS_DISABLED" : "NOT_IMPLEMENTED";
+  if (config.checkoutPro && (path === "/v1/checkout/preferences" || path === "/webhooks/mercadopago" || path.endsWith("/status"))) {
+    return handleCheckoutPro(request, env, config);
+  }
+  const code = ["/v1/checkout/payments", "/v1/checkout/preferences"].includes(path) ? "PAYMENTS_DISABLED" : "NOT_IMPLEMENTED";
   return json({ error: { code } }, 503);
 }
 
@@ -60,9 +63,10 @@ export default {
       const origin = request.headers.get("Origin");
       response = origin !== null && !config.origins.includes(origin)
         ? json({ error: { code: "CORS_DENIED" } }, 403)
-        : dispatch(request, config);
-    } catch {
-      response = json({ error: { code: "CONFIGURATION_INVALID" } }, 503);
+        : await dispatch(request, config, env);
+    } catch (error) {
+      response = error instanceof HttpError ? json({ error: { code: error.code } }, error.status)
+        : json({ error: { code: config ? "CHECKOUT_UNAVAILABLE" : "CONFIGURATION_INVALID" } }, 503);
     }
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("X-Content-Type-Options", "nosniff");

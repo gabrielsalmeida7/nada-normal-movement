@@ -6,6 +6,10 @@ export type PaymentMethod = "pix" | "credit_card";
 interface CheckoutPaymentPlaceholderProps {
   selectedMethod: PaymentMethod;
   onMethodChange: (method: PaymentMethod) => void;
+  enabled?: boolean;
+  busy?: boolean;
+  totalCents?: number;
+  onPay?: () => void;
 }
 
 const methods: Array<{
@@ -31,6 +35,10 @@ const methods: Array<{
 export function CheckoutPaymentPlaceholder({
   selectedMethod,
   onMethodChange,
+  enabled = false,
+  busy = false,
+  totalCents,
+  onPay,
 }: CheckoutPaymentPlaceholderProps) {
   return (
     <section className="space-y-6" aria-labelledby="payment-step-title">
@@ -39,7 +47,8 @@ export function CheckoutPaymentPlaceholder({
           Forma de pagamento
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Escolha como deseja pagar. Nenhum dado de pagamento será solicitado nesta etapa.
+          {enabled ? "Você será direcionado ao Mercado Pago para concluir o pagamento com segurança."
+            : "Escolha como deseja pagar. Nenhum dado de pagamento será solicitado nesta etapa."}
         </p>
       </div>
 
@@ -55,6 +64,7 @@ export function CheckoutPaymentPlaceholder({
               role="radio"
               aria-checked={selected}
               onClick={() => onMethodChange(method.id)}
+              disabled={busy || totalCents !== undefined}
               className={`flex min-h-32 items-start gap-4 rounded-lg border-2 p-5 text-left transition-colors ${
                 selected
                   ? "border-nn-pink bg-nn-pink/5"
@@ -79,7 +89,7 @@ export function CheckoutPaymentPlaceholder({
         })}
       </div>
 
-      <div className="rounded-lg border-2 border-dashed border-nn-yellow/60 bg-nn-yellow/10 p-5">
+      {!enabled && <div className="rounded-lg border-2 border-dashed border-nn-yellow/60 bg-nn-yellow/10 p-5">
         <div className="flex items-start gap-3">
           <LockKeyhole className="mt-0.5 h-5 w-5 shrink-0 text-nn-yellow" />
           <div>
@@ -92,10 +102,15 @@ export function CheckoutPaymentPlaceholder({
             </p>
           </div>
         </div>
-      </div>
+      </div>}
 
-      <Button size="lg" className="w-full font-display tracking-wider" disabled>
-        Finalizar compra em breve
+      {enabled && totalCents !== undefined && <p role="status" className="text-sm text-muted-foreground">
+        Total confirmado para este pedido: <strong>{(totalCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</strong>.
+        Confira esse valor antes de continuar.
+      </p>}
+      <Button size="lg" className="w-full font-display tracking-wider" disabled={!enabled || busy} onClick={onPay}>
+        {!enabled ? "Finalizar compra em breve" : busy ? "Preparando pagamento…" : totalCents === undefined
+          ? "Conferir total do pedido" : "Continuar no Mercado Pago"}
       </Button>
     </section>
   );

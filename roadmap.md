@@ -1,8 +1,14 @@
 # Nada Normal — roadmap e fonte de verdade
 
-> Última consolidação: 16 de outubro de 2026  
+> Decisão atualizada em 19/10/2026: seguir com **Checkout Pro**, por escolha do
+> usuário. Adaptação local de preferências, webhook, status e frontend concluída;
+> validação online pendente, cobrança desativada por padrão. O [ADR 002](docs/adr/002-checkout-pro.md)
+> substitui as referências a Payment Brick e os contratos incompatíveis do plano
+> histórico abaixo. Produção requer reconciliação e validação adicional.
+
+> Última consolidação: 19 de outubro de 2026
 > Branch de referência: `home-v2-contraste`  
-> Estado: **Fase 0 autorizada e em implementação; validação de staging pendente**.
+> Estado: **Checkout Pro sandbox adaptado localmente; migration remota e validação de staging pendentes**.
 
 Este documento é a fonte de verdade legível para o estado, as decisões e a
 sequência de entrega do e-commerce Nada Normal. Em caso de conflito com planos
