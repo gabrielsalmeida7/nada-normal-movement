@@ -8,7 +8,7 @@
 
 > Última consolidação: 19 de outubro de 2026
 > Branch de referência: `home-v2-contraste`  
-> Estado: **Checkout Pro sandbox adaptado localmente; migration remota e validação de staging pendentes**.
+> Estado: **Checkout Pro sandbox publicado no GitHub e três migrations aplicadas ao Supabase; deploy e validação de staging pendentes**.
 
 Este documento é a fonte de verdade legível para o estado, as decisões e a
 sequência de entrega do e-commerce Nada Normal. Em caso de conflito com planos

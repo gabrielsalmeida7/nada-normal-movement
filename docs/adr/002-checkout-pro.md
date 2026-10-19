@@ -2,6 +2,12 @@
 
 Data: 19/10/2026. Substitui a decisão de Payment Brick do ADR 001.
 
+Estado em 19/10/2026: código publicado no commit `9924e4a`; migrations de pedidos,
+reservas/frete e Checkout Pro aplicadas ao projeto NadaNormal após autorização
+do usuário para preservar dados e dispensar backup. Mapeamento das versões e
+verificações em [supabase/README.md](../../supabase/README.md). Deploy do Worker
+e testes online continuam pendentes; não repetir as migrations da preparação.
+
 O usuário escolheu Checkout Pro. O SPA continua na Vercel, pedidos e reservas
 continuam no Supabase e o Worker passa a criar preferências e verificar webhooks.
 Nenhum formulário coleta cartão e nenhuma rota envia tokens de cartão.
@@ -37,7 +43,8 @@ de service_role, com RLS e revogação de privilégios de anon/authenticated.
 
 - Ativação permitida somente em `staging` com `CHECKOUT_PRO_MODE=sandbox`.
   Produção continua bloqueada no parser, mesmo mudando a flag.
-- Não houve deploy, migration remota, gravação de credenciais nem transação no MP.
+- Não houve deploy, gravação de credenciais nem transação no MP. As migrations
+  remotas foram aplicadas na etapa posterior registrada acima.
 - Claims interrompidas exigem reconciliação operacional antes de liberar reserva.
   Não há cron de reconciliação automática nesta entrega. O processador legado
   não pode liberar tentativas submetidas/pendentes, mesmo depois do vencimento.
