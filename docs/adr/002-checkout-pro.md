@@ -61,25 +61,15 @@ de service_role, com RLS e revogação de privilégios de anon/authenticated.
 
 ## Preparação para o primeiro teste online
 
-1. Revisar/publicar o código na branch, gerar backup e conferir migrations já
-   aplicadas ao projeto compartilhado. Aplicar a migration nova só após backup.
-2. Preencher SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY no wrangler de staging,
-   preservando os três secrets cadastrados remotamente. Valores vazios no arquivo
-   bloqueiam deploy; não usar deploy direto para substituir o guard.
-3. Confirmar origem estável de preview. Configurar no Worker:
-   `CHECKOUT_PRO_MODE=sandbox`, `CHECKOUT_RETURN_ORIGIN` igual à origem permitida,
-   `CHECKOUT_WEBHOOK_URL=https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago`,
-   `MP_COLLECTOR_ID` igual ao ID retornado por `/users/me` com o token de teste.
-   Não inferir o recebedor ou a aplicação pelos números contidos no token.
-4. Publicar primeiro com `PAYMENTS_ENABLED=false`. Verificar health, CORS e
-   consulta de status. Configurar notificações `payment` em Modo de teste apenas
-   quando o endpoint implementado estiver publicado. Confirmar que o segredo
-   pertence à aplicação/conta de teste correspondente ao token.
-5. Em um preview Vercel, configurar `VITE_CHECKOUT_PRO_ENABLED=true` e
-   `VITE_PAYMENTS_API_URL=https://pagamentos-staging.nadanormalclub.com.br`.
-   `VITE_*` contém somente configuração pública; nunca os secrets MP/Supabase.
-6. Após checagens, ativar `PAYMENTS_ENABLED=true` apenas no staging e testar cartão
-   aprovado/recusado/pendente, Pix, webhook repetido e volta ao site sem webhook.
+O roteiro operacional vigente está em [ROTEIRO_DE_TESTES.md](../ROTEIRO_DE_TESTES.md),
+seção 2. O código foi integrado à home-v2-contraste; as migrations já foram
+aplicadas sem backup após dispensa e autorização explícitas do usuário. Não
+reaplicar arquivos nem reconstruir o banco compartilhado como preparação de teste.
+
+Faltam completar a configuração pública do wrangler, confirmar recebedor/credenciais,
+publicar primeiro com `PAYMENTS_ENABLED=false`, validar health/CORS e preparar
+webhook e preview. Só depois ativar submissões no staging sandbox. A `main`
+aguarda a conclusão do projeto; desenvolvimento segue na home-v2-contraste.
 
 O botão atual continua desativado sem a flag explícita de frontend. Public Key
 Mercado Pago não é necessária nesta variante, que usa redirecionamento direto.

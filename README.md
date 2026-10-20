@@ -87,10 +87,13 @@ npm run lint
 
 ## Estrutura do Projeto
 
-A base atual de desenvolvimento é `home-v2-contraste`. O plano da migração de
-pagamentos está em [roadmap.md](roadmap.md). Para o Worker da Fase 0, consulte
-[workers/payments/README.md](workers/payments/README.md); ele roda separado do
-frontend e mantém cobrança desabilitada.
+A branch oficial de desenvolvimento é `home-v2-contraste`; a `main` aguarda a
+validação final da loja. O planejamento vigente está em [roadmap.md](roadmap.md).
+O [passo a passo de testes](docs/ROTEIRO_DE_TESTES.md) separa o que pode ser
+conferido agora do que depende do deploy do Checkout Pro em staging.
+Para configuração e comandos do Worker, consulte
+[workers/payments/README.md](workers/payments/README.md). As migrations já foram
+aplicadas ao Supabase; pagamentos reais permanecem bloqueados.
 
 ```
 nada-normal-movement/
