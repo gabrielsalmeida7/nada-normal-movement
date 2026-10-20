@@ -10,7 +10,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "admin:promote": "node scripts/promote-admin.mjs",
+    "worker:dev": "node workers/payments/scripts/run.mjs dev",
+    "worker:build": "node workers/payments/scripts/run.mjs build",
+    "worker:typecheck": "tsc --noEmit -p workers/payments/tsconfig.json",
+    "worker:test": "vitest run --config workers/payments/vitest.config.ts",
+    "worker:deploy": "node --experimental-strip-types workers/payments/scripts/deploy.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -41,6 +47,7 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@supabase/supabase-js": "^2.98.0",
     "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -56,15 +63,17 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.61.1",
     "react-resizable-panels": "^2.1.9",
-    "react-router-dom": "^6.30.1",
+    "react-router-dom": "^6.30.6",
     "recharts": "^2.15.4",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261016.1",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
@@ -72,6 +81,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
+    "@vercel/node": "^5.10.2",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
@@ -80,11 +90,18 @@
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
     "lovable-tagger": "^1.1.13",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "vite": "^5.4.19",
-    "vitest": "^3.2.4"
+    "vite": "^7.3.6",
+    "vitest": "^3.2.7",
+    "wrangler": "4.151.1"
+  },
+  "overrides": {
+    "@vercel/node": {
+      "path-to-regexp": "6.3.0",
+      "undici": "6.28.1"
+    }
   }
 }

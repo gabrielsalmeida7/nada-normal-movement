@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -57,6 +58,10 @@ export default {
           yellow: "hsl(var(--nn-yellow))",
           black: "hsl(var(--nn-black))",
           white: "hsl(var(--nn-white))",
+          // V2 High Contrast Colors
+          orange: "hsl(var(--nn-orange))",
+          lime: "hsl(var(--nn-lime))",
+          red: "hsl(var(--nn-red))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -70,7 +75,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Bebas Neue", "sans-serif"],
+        display: ["Inter", "sans-serif"],
         body: ["Inter", "sans-serif"],
       },
       borderRadius: {
@@ -114,5 +119,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;

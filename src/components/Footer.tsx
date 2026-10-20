@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const footerLinks = {
   shop: [
-    { label: "Running", href: "#running" },
-    { label: "Street", href: "#street" },
-    { label: "Social", href: "#social" },
-    { label: "Acessórios", href: "#" },
-    { label: "Suplementação", href: "#" },
+    { label: "Running", href: "/running", available: false },
+    { label: "Street", href: "/street", available: true },
+    // { label: "Social", href: "/social" }, // Social comentado por enquanto
+    { label: "Acessórios", href: "#", available: false },
+    { label: "Suplementação", href: "#", available: false },
   ],
   brand: [
     { label: "Manifesto", href: "#manifesto" },
@@ -33,7 +34,7 @@ const socialLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-nn-black border-t-4 border-nn-purple-neon relative overflow-hidden">
+    <footer className="bg-card border-t-4 border-nn-purple-neon relative overflow-hidden">
       {/* Background brand image */}
       <div className="absolute top-10 right-10 opacity-10">
         <img
@@ -45,14 +46,14 @@ export const Footer = () => {
 
       {/* Newsletter Section */}
       <div className="container py-16 relative z-10">
-        <div className="bg-card border-4 border-nn-purple-neon/50 p-8 md:p-12 shadow-neon-purple">
+        <div className="bg-gradient-to-r from-nn-purple-neon via-nn-pink to-nn-orange border-4 border-nn-black p-8 md:p-12 shadow-brutal">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="font-display text-3xl md:text-4xl text-foreground mb-4">
+              <h3 className="font-display text-3xl md:text-4xl text-nn-black mb-4">
                 FIQUE POR DENTRO DO{" "}
-                <span className="text-nn-purple-neon glow-text">CAOS</span>
+                <span className="text-nn-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">CAOS</span>
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-nn-black/80 font-medium">
                 Receba novidades, lançamentos exclusivos e convites para eventos.
               </p>
             </div>
@@ -60,12 +61,12 @@ export const Footer = () => {
               <input
                 type="email"
                 placeholder="Seu melhor e-mail"
-                className="flex-1 bg-background border-4 border-border px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-nn-purple-neon focus:outline-none transition-colors font-body"
+                className="flex-1 bg-nn-black border-4 border-nn-black px-4 py-3 text-nn-white placeholder:text-nn-white/50 focus:border-nn-pink focus:outline-none transition-colors font-body"
               />
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-nn-purple-neon text-nn-black font-display px-6 py-3 uppercase tracking-wider shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300"
+                className="bg-nn-black text-nn-pink font-display px-6 py-3 uppercase tracking-wider shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-300 border-4 border-nn-black"
               >
                 Enviar
               </motion.button>
@@ -96,7 +97,7 @@ export const Footer = () => {
                   href={social.href}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="w-12 h-12 bg-card border-2 border-border hover:border-nn-purple-neon hover:bg-nn-purple-neon hover:text-nn-black flex items-center justify-center transition-all duration-300 hover:shadow-neon-purple"
+                  className="w-12 h-12 bg-card border-2 border-nn-purple-neon/50 hover:border-nn-pink hover:bg-nn-pink hover:text-nn-black flex items-center justify-center transition-all duration-300 hover:shadow-neon-pink text-foreground"
                   aria-label={social.label}
                 >
                   <social.icon size={20} />
@@ -107,29 +108,41 @@ export const Footer = () => {
 
           {/* Links Columns */}
           <div>
-            <h4 className="font-display text-lg text-nn-blue-neon mb-6">LOJA</h4>
+            <h4 className="font-display text-lg text-nn-pink mb-6">LOJA</h4>
             <ul className="space-y-3">
               {footerLinks.shop.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-muted-foreground hover:text-nn-purple-neon transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                <li key={link.label} className="flex items-center gap-2">
+                  {link.available ? (
+                    <Link
+                      to={link.href}
+                      className="text-muted-foreground transition-colors hover:text-nn-lime"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <>
+                      <span className="text-muted-foreground/50 cursor-not-allowed" aria-disabled="true">
+                        {link.label}
+                      </span>
+                      <span className="text-[10px] font-display tracking-widest bg-nn-pink text-nn-white px-1.5 py-0.5 -rotate-6">
+                        EM BREVE
+                      </span>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
 
+
           <div>
-            <h4 className="font-display text-lg text-nn-green-neon mb-6">MARCA</h4>
+            <h4 className="font-display text-lg text-nn-purple-neon mb-6">MARCA</h4>
             <ul className="space-y-3">
               {footerLinks.brand.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-muted-foreground hover:text-nn-purple-neon transition-colors"
+                    className="text-muted-foreground hover:text-nn-pink transition-colors"
                   >
                     {link.label}
                   </a>
@@ -139,13 +152,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display text-lg text-nn-purple-neon mb-6">SUPORTE</h4>
+            <h4 className="font-display text-lg text-nn-lime mb-6">SUPORTE</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-muted-foreground hover:text-nn-purple-neon transition-colors"
+                    className="text-muted-foreground hover:text-nn-pink transition-colors"
                   >
                     {link.label}
                   </a>
@@ -163,13 +176,13 @@ export const Footer = () => {
             © 2024 Nada Normal. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-nn-purple-neon transition-colors">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Privacidade
             </a>
-            <a href="#" className="hover:text-nn-purple-neon transition-colors">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Cookies
             </a>
-            <a href="#" className="hover:text-nn-purple-neon transition-colors">
+            <a href="#" className="hover:text-nn-pink transition-colors">
               Termos
             </a>
           </div>

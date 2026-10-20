@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import categoryRunning from "@/assets/category-running.jpg";
-import categoryStreet from "@/assets/category-street.jpg";
-import categorySocial from "@/assets/category-social.jpg";
+import { Link } from "react-router-dom";
+import { ComingSoonStamp } from "@/components/ComingSoonStamp";
+// Imagens das categorias (Icon NN) alinhadas à hero das páginas running e street
+// import categorySocial from "@/assets/category-social.jpg"; // Social comentado por enquanto
 
 const categories = [
   {
@@ -10,26 +10,93 @@ const categories = [
     title: "Running",
     subtitle: "Obsessão em Movimento",
     description: "Para quem acorda às 4h da manhã e chama isso de privilégio.",
-    color: "nn-purple-neon",
-    image: categoryRunning,
+    color: "nn-orange",
+    borderColor: "border-nn-orange",
+    hoverBorder: "hover:border-nn-orange",
+    shadowClass: "shadow-neon-orange",
+    textColor: "text-nn-orange",
+    hoverTextColor: "group-hover:text-nn-orange",
+    barColor: "bg-nn-orange",
+    image: "/icon-nn-run.png",
+    organicStyle: { borderRadius: '10px 60px 10px 60px' },
+    href: "/running",
+    soon: true,
   },
   {
     id: "street",
     title: "Street",
     subtitle: "Autenticidade Urbana",
     description: "Leve o caos para as ruas. Vista sua anormalidade.",
-    color: "nn-blue-neon",
-    image: categoryStreet,
+    color: "nn-lime",
+    borderColor: "border-nn-lime",
+    hoverBorder: "hover:border-nn-lime",
+    shadowClass: "shadow-neon-lime",
+    textColor: "text-nn-lime",
+    hoverTextColor: "group-hover:text-nn-lime",
+    barColor: "bg-nn-lime",
+    image: "/icon-nn-street.png",
+    organicStyle: { borderRadius: '60px 10px 60px 10px' },
+    href: "/street",
+    soon: false,
   },
-  {
-    id: "social",
-    title: "Social",
-    subtitle: "Caos Coletivo",
-    description: "Porque a resenha pós-treino é tão importante quanto o treino.",
-    color: "nn-green-neon",
-    image: categorySocial,
-  },
+  // Social comentado por enquanto — descomentar quando for utilizar
+  // {
+  //   id: "social",
+  //   title: "Social",
+  //   subtitle: "Caos Coletivo",
+  //   description: "Porque a resenha pós-treino é tão importante quanto o treino.",
+  //   color: "nn-yellow",
+  //   borderColor: "border-nn-yellow",
+  //   hoverBorder: "hover:border-nn-yellow",
+  //   shadowClass: "shadow-neon-yellow",
+  //   textColor: "text-nn-yellow",
+  //   image: categorySocial,
+  //   organicStyle: { borderRadius: '40px 15px 50px 10px' },
+  //   href: "/social",
+  // },
 ];
+
+interface CategoryCardContentProps {
+  category: (typeof categories)[number];
+}
+
+function CategoryCardContent({ category }: CategoryCardContentProps) {
+  return (
+    <div
+      style={category.organicStyle}
+      className={`block relative overflow-hidden bg-card border-4 border-border ${category.hoverBorder} transition-all duration-300 ${
+        category.soon ? "cursor-not-allowed" : "cursor-pointer"
+      }`}
+      aria-disabled={category.soon || undefined}
+    >
+      <div className="relative h-96 overflow-hidden" style={category.organicStyle}>
+        <img
+          src={category.image}
+          alt={category.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-nn-black via-nn-black/50 to-transparent" />
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <span className={`${category.textColor} font-display text-sm tracking-widest`}>
+          {category.subtitle}
+        </span>
+        <h3 className={`font-display text-4xl text-foreground mb-2 ${category.hoverTextColor} transition-colors`}>
+          {category.title}
+        </h3>
+        <p className="text-foreground/70 text-sm mb-4">{category.description}</p>
+      </div>
+
+      <div
+        className={`absolute top-0 left-0 w-2 h-0 ${category.barColor} transition-all duration-300 group-hover:h-full`}
+        style={{ borderRadius: "0 10px 10px 0" }}
+      />
+
+      {category.soon && <ComingSoonStamp size="lg" />}
+    </div>
+  );
+}
 
 export const CategorySection = () => {
   return (
@@ -44,6 +111,9 @@ export const CategorySection = () => {
         viewport={{ once: true }}
       />
 
+      {/* Diagonal accent stripe */}
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-tropical" />
+
       <div className="container relative z-10">
         {/* Section Header */}
         <motion.div
@@ -53,56 +123,33 @@ export const CategorySection = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-5xl md:text-7xl mb-4">
-            <span className="text-nn-blue-neon glow-text-blue">CATEGORIAS</span>
+            <span className="text-nn-pink glow-text">CATEGORIAS</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Cada peça é uma declaração. Cada categoria, um manifesto.
+            Aqui não vestimos o que agrada, vestimos o que incomoda quem vive no automático.
           </p>
         </motion.div>
 
         {/* Categories Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {categories.map((category, index) => (
-            <motion.a
+            <motion.div
               key={category.id}
-              href={`#${category.id}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
               whileHover={{ y: -10 }}
-              className="group relative overflow-hidden bg-card border-4 border-border hover:border-nn-purple-neon transition-all duration-300 cursor-pointer hover:shadow-neon-purple"
+              className="group"
             >
-              {/* Image */}
-              <div className="relative h-96 overflow-hidden">
-                <img
-                  src={category.image}
-                  alt={category.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-nn-black via-nn-black/50 to-transparent" />
-              </div>
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <span className={`text-${category.color} font-display text-sm tracking-widest`}>
-                  {category.subtitle}
-                </span>
-                <h3 className="font-display text-4xl text-foreground mb-2 group-hover:text-nn-purple-neon transition-colors">
-                  {category.title}
-                </h3>
-                <p className="text-foreground/70 text-sm mb-4">
-                  {category.description}
-                </p>
-                <div className="flex items-center gap-2 text-nn-purple-neon font-display text-sm uppercase tracking-wider opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
-                  Explorar
-                  <ArrowRight size={18} />
-                </div>
-              </div>
-
-              {/* Hover overlay line */}
-              <div className={`absolute top-0 left-0 w-1 h-0 bg-${category.color} transition-all duration-300 group-hover:h-full`} />
-            </motion.a>
+              {category.soon ? (
+                <CategoryCardContent category={category} />
+              ) : (
+                <Link to={category.href} aria-label={`Ver produtos ${category.title}`}>
+                  <CategoryCardContent category={category} />
+                </Link>
+              )}
+            </motion.div>
           ))}
         </div>
       </div>

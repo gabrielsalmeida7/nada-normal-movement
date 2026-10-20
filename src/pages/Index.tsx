@@ -5,10 +5,12 @@ import { PillarsSection } from "@/components/PillarsSection";
 import { ProductsSection } from "@/components/ProductsSection";
 import { CommunitySection } from "@/components/CommunitySection";
 import { Footer } from "@/components/Footer";
+import { RunningMascot } from "@/components/RunningMascot";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <RunningMascot />
       <Header />
       <main>
         <HeroSection />
