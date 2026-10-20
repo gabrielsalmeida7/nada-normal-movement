@@ -1,5 +1,32 @@
 # Supabase – Nada Normal Movement
 
+## Estado remoto confirmado — 19/10/2026
+
+No projeto `NadaNormal` (`bcemyxasbcwcrbinfguu`), estas três migrations foram
+aplicadas pelo MCP, em ordem e sem backup, por autorização explícita do usuário:
+
+| Arquivo do repositório | Versão registrada pelo MCP |
+| --- | --- |
+| `20261005193408_transactional_checkout_orders.sql` | `20261019195917` |
+| `20261006140000_reservation_release_and_shipping.sql` | `20261019195930` |
+| `20261019192940_checkout_pro_sandbox.sql` | `20261019195942` |
+
+O MCP gerou novas versões para os arquivos existentes. O histórico remoto estava
+vazio, embora o schema inicial e a fundação financeira já estivessem presentes.
+Não reaplicar esses arquivos nem executar `supabase db push` neste projeto sem
+antes reconciliar o baseline e o mapeamento das versões. Não foi alterado nem
+inventado histórico das migrations antigas.
+
+Verificação antes/depois: 20 pedidos, 21 itens, 12 produtos, 118 variantes e zero
+tentativas de pagamento. Hashes dos dados legados dos pedidos, itens e estoques
+permaneceram idênticos. As novas tabelas têm RLS e acesso financeiro exclusivo
+de `service_role`; as RPCs usam SECURITY INVOKER e search_path fixo. A consulta
+de frete e a consulta de status sem dono válido também foram verificadas.
+
+Os avisos de segurança anteriores do projeto permanecem para revisão separada;
+as novas tabelas financeiras sem policies públicas são intencionalmente restritas
+ao backend. Nenhum Worker foi publicado nem pagamento habilitado nesta aplicação.
+
 ## Aplicar migrações
 
 ### Opção 1: Supabase Dashboard (novo projeto)
@@ -15,6 +42,7 @@
    - `migrations/20261002194546_appmax_financial_foundation.sql`
    - `migrations/20261005193408_transactional_checkout_orders.sql`
    - `migrations/20261006140000_reservation_release_and_shipping.sql`
+   - `migrations/20261019192940_checkout_pro_sandbox.sql`
 
 ### Opção 2: Supabase CLI (projeto já linkado)
 

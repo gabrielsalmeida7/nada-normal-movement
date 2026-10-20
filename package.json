@@ -11,7 +11,12 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "admin:promote": "node scripts/promote-admin.mjs"
+    "admin:promote": "node scripts/promote-admin.mjs",
+    "worker:dev": "node workers/payments/scripts/run.mjs dev",
+    "worker:build": "node workers/payments/scripts/run.mjs build",
+    "worker:typecheck": "tsc --noEmit -p workers/payments/tsconfig.json",
+    "worker:test": "vitest run --config workers/payments/vitest.config.ts",
+    "worker:deploy": "node --experimental-strip-types workers/payments/scripts/deploy.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -68,6 +73,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261016.1",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
@@ -89,7 +95,8 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
     "vite": "^7.3.6",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "wrangler": "4.151.1"
   },
   "overrides": {
     "@vercel/node": {

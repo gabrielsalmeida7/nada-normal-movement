@@ -21,6 +21,7 @@ import { isValidCpf, isValidPhone, maskCpf, maskPhone, onlyDigits } from "@/lib/
 import type { Address } from "@/types/address";
 import type { ShippingAddress } from "@/types/address";
 import { toast } from "sonner";
+import { checkoutProEnabled, openCheckout, prepareCheckout, type PreparedCheckout } from "@/lib/checkout-pro";
 
 type CheckoutStep = "customer" | "delivery" | "review" | "payment";
 
@@ -66,6 +67,11 @@ export default function Checkout() {
   const [formAddress, setFormAddress] = useState<ShippingAddress | null>(null);
   const [saveForNext, setSaveForNext] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
+  const [prepared, setPrepared] = useState<PreparedCheckout | null>(null);
+  const [paying, setPaying] = useState(false);
+  const paymentLock = useRef(false);
+
+  useEffect(() => { setPrepared(null); }, [items, selectedAddress?.id, paymentMethod]);
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddress && !formAddress) {
@@ -98,7 +104,25 @@ export default function Checkout() {
   const uf = shippingAddress?.state ?? "";
   const shippingCost = getShippingCost(uf, subtotal);
   const currentStepIndex = steps.findIndex((item) => item.id === step);
-  const isBusy = isSavingProfile || isSavingAddress;
+  const isBusy = isSavingProfile || isSavingAddress || paying;
+
+  const handlePayment = async () => {
+    if (!user || !selectedAddress || paymentLock.current) return;
+    paymentLock.current = true;
+    setPaying(true);
+    try {
+      if (!prepared) {
+        setPrepared(await prepareCheckout(user.id, items, selectedAddress.id, paymentMethod));
+      } else {
+        window.location.assign(await openCheckout(prepared.orderId));
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível continuar o pagamento.");
+    } finally {
+      paymentLock.current = false;
+      setPaying(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -166,7 +190,7 @@ export default function Checkout() {
       return;
     }
 
-    if (saveForNext && useNewAddress && formAddress) {
+    if ((saveForNext || checkoutProEnabled) && useNewAddress && formAddress) {
       try {
         const savedAddress = await insertAddress({
           user_id: user.id,
@@ -239,6 +263,7 @@ export default function Checkout() {
         );
       case "delivery":
         return (
+          <>
           <CheckoutAddressStep
             addresses={addresses}
             selectedAddressId={selectedAddress?.id ?? null}
@@ -255,6 +280,10 @@ export default function Checkout() {
             onSaveForNextChange={setSaveForNext}
             isLoadingAddresses={loadingAddresses}
           />
+          {checkoutProEnabled && useNewAddress && <p className="text-sm text-muted-foreground">
+            O endereço será salvo na sua conta para vincular a entrega a este pedido.
+          </p>}
+          </>
         );
       case "review":
         if (!shippingAddress) return null;
@@ -272,6 +301,10 @@ export default function Checkout() {
           <CheckoutPaymentPlaceholder
             selectedMethod={paymentMethod}
             onMethodChange={setPaymentMethod}
+            enabled={checkoutProEnabled}
+            busy={paying}
+            totalCents={prepared?.totalCents}
+            onPay={handlePayment}
           />
         );
       default: {
@@ -381,7 +414,7 @@ export default function Checkout() {
               )}
 
               {step === "payment" && (
-                <Button variant="outline" onClick={handleBack}>
+                <Button variant="outline" onClick={handleBack} disabled={paying}>
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   Voltar para revisão
                 </Button>

@@ -16,9 +16,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
-import CheckoutError from "./pages/CheckoutError";
-import CheckoutPending from "./pages/CheckoutPending";
+import { CheckoutResult } from "./components/CheckoutResult";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductEditor from "./pages/admin/AdminProductEditor";
@@ -47,9 +45,9 @@ const App = () => (
             <Route path="/street" element={<CategoryStreet />} />
             <Route path="/carrinho" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/checkout/sucesso" element={<CheckoutSuccess />} />
-            <Route path="/checkout/erro" element={<CheckoutError />} />
-            <Route path="/checkout/pendente" element={<CheckoutPending />} />
+            <Route path="/checkout/sucesso" element={<CheckoutResult />} />
+            <Route path="/checkout/erro" element={<CheckoutResult />} />
+            <Route path="/checkout/pendente" element={<CheckoutResult />} />
             <Route element={<AdminRoute />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />

@@ -6,8 +6,10 @@ testes e utilitários ficam em `server/`.
 
 Os endpoints antigos do Mercado Pago foram removidos.
 
-A integração Appmax será implementada aqui somente após a liberação das
-credenciais e a validação do contrato oficial da conta. Até lá, o checkout pode
+A integração Appmax foi descartada. A nova fronteira Mercado Pago será o
+Cloudflare Worker em `workers/payments`, conforme `roadmap.md` e
+`docs/adr/001-payments-worker.md`. Estes handlers permanecem durante o port.
+Até a integração validada, o checkout pode
 criar o pedido local e a tentativa `created`, mas não coleta dados de pagamento,
 chama gateway ou captura valores.
 
