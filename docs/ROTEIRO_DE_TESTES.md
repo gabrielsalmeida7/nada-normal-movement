@@ -27,6 +27,13 @@ Como comprador, preencher identificação, entrega, revisão e chegar ao pagamen
 bloqueado, sem cobrança. Isso valida Auth/fluxo visual e, na listagem, uma API
 autenticada; não valida criação de pedido, orçamento remoto, idempotência ou
 cancelamento. Essas operações exigem ensaio autenticado específico posterior.
+
+Atualização de 21/10: usuário confirmou login/listagem admin/checkout visual e
+Codex concluiu o ensaio autenticado de orçamento, pedido, replay e cancelamento
+pelas APIs publicadas. [Resultados e registros QA](TESTE_PEDIDOS_STAGING_2026-10-21.md).
+O pedido QA ficou cancelado e o estoque foi restaurado, sem cobrança. Não repetir
+esse ensaio manualmente pelo botão bloqueado; próxima preparação é o sandbox
+de pagamentos descrito na seção 2. Confirmação/recuperação Auth seguem pendentes.
 Antes da seção 2, concluir a Etapa 0 do
 [roadmap](../roadmap.md) e o [checklist de migração](MIGRACAO_CLOUDFLARE.md).
 

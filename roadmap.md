@@ -108,8 +108,12 @@ celular. APIs da loja publicadas exclusivamente em staging no commit `83e4316`,
 build `7d821664-bb4d-468f-8b39-adbe620e07e2`, acionada automaticamente por push.
 Health confirmou `apiEnabled=true`; sessão ausente/inválida retorna 401,
 origem diferente retorna 403 e API desconhecida retorna JSON/404, sem cache.
-215 testes e CI passaram. Pagamentos e cron continuam desligados. Auth e E2E autenticado das
-APIs ainda pendentes; não marcar a migração completa como aceita.
+215 testes e CI passaram. O usuário validou login, listagem admin e checkout até
+o pagamento bloqueado. O ensaio autenticado online confirmou orçamento, criação,
+replay sem duplicidade, rejeição de chave conflitante, cancelamento e reposição
+idempotente do estoque. [Evidências](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
+Pagamentos e cron continuam desligados; não marcar a migração completa como
+aceita: retornos Auth, expiração, concorrência e demais critérios seguem pendentes.
 Comandos e limites em [Worker da loja](workers/storefront/README.md).
 
 - Implementar o Worker da loja com Static Assets do build Vite e `/api/*` na
