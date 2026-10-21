@@ -86,10 +86,14 @@ Variables and Secrets**. Nomes são sensíveis a maiúsculas/minúsculas.
 Esses cadastros já foram confirmados na sessão anterior. Conferir presença e
 ambiente, sem recriar ou redefinir secrets apenas para seguir este roteiro.
 
-A aplicação **TesteNN**, ID **6344920694868580**, foi listada pelo MCP. O número
-760330644412079 apareceu nas credenciais informadas anteriormente. Ainda é
-necessário validar a associação e o recebedor com uma chamada autenticada;
-os números contidos no token não são prova suficiente de correspondência.
+O MCP confirmou a aplicação **TesteNN**, ID **6344920694868580**, e identificou
+explicitamente suas credenciais sandbox como pertencentes à aplicação vendedora
+de teste **760330644412079**, vendedor **3272217989**. A diferença de IDs tem
+explicação confirmada pelo provedor, não inferida a partir do token.
+Ainda falta validar o recebedor por chamada autenticada usando a credencial
+efetivamente instalada no Worker: a consulta direta `/users/me` com o token
+sandbox obtido pelo MCP retornou HTTP 403 neste ambiente. Não substituir secrets
+nem habilitar pagamentos com base apenas nesses metadados. [Evidências](VALIDACAO_MERCADO_PAGO_2026-10-21.md).
 
 ### 2.2 Completar a configuração de staging no código
 

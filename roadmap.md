@@ -27,38 +27,45 @@ histórico; não orienta novas implementações de Payment Brick.
   não presumir custo fixo menor nem operação ilimitada gratuita.
 - O Supabase atual é compartilhado com os testes por decisão do usuário.
   Identificar os pedidos criados em cada sessão e preservar os dados existentes.
+- Operação planejada: dropshipping. As 50 unidades por variante da Camisa Sem
+  Tempo NN são disponibilidade cadastrada para testes, não confirmação de estoque
+  do fornecedor. Integração/sincronização com fornecedor ainda não existe.
 
 ## 2. Estado confirmado
 
 | Área | Entregue | Ainda falta |
 | --- | --- | --- |
-| Hospedagem | Worker da loja com Static Assets, cinco APIs portadas e CI de verificação; testes locais em workerd | Configurar secrets, domínio, pipeline de deploy e validar staging remoto; remover legado após aceite |
-| Loja | Catálogo, variantes, carrinho, login, perfil, endereços e checkout em etapas | Validação completa no preview, principalmente no celular |
-| Pedidos | Cálculo autoritativo, criação transacional, idempotência e reserva | Recuperação de compras expiradas/repetidas e teste online de concorrência |
-| Checkout Pro | Código de preferência persistida, redirecionamento sandbox e retorno autenticado | Publicar/configurar o Worker e testar com o Mercado Pago |
+| Hospedagem | Loja publicada em workers.dev, APIs habilitadas só no staging, secrets separados e deploy automático da home-v2-contraste confirmado | URLs Auth, custos/limites, aceite de expiração e retirada do legado; domínio principal só no rollout |
+| Loja | Camisa Sem Tempo NN ativa com duas fotos e seis variantes; usuário validou carrinho no celular, persistência, totais, remoção, variantes, login, admin e checkout até pagamento bloqueado | Cadastro/recuperação de senha, catálogo completo, acessibilidade e operação dropshipping |
+| Pedidos | Ensaio autenticado online de orçamento, criação, replay, conflito de chave e cancelamento idempotente aprovado; estoque restaurado | Recuperação de compras expiradas/repetidas e teste online de concorrência |
+| Checkout Pro | Preferência persistida, redirecionamento sandbox e retorno autenticado implementados; MCP confirmou TesteNN e aplicação vendedora de teste associada | Confirmar credencial usada pelo Worker, configurar/publicar pagamentos desligados e depois validar sandbox |
 | Confirmação | Código de HMAC, consulta da API e gravação financeira deduplicada | Validar webhook real de teste e automatizar reconciliação |
 | Supabase | Três migrations aplicadas em 19/10/2026, com RLS e acesso financeiro do backend | Revisão dos alertas anteriores e reconciliação do histórico antes de usar db push |
 | GitHub | Código e documentação integrados na home-v2-contraste | Manter a main aguardando o aceite final |
 | Produção | Cobrança desativada por padrão e bloqueada fora de staging no código atual | Implementar ambiente produtivo e validar compra real controlada |
 
-Evidências registradas na entrega de 19/10: 86 testes do app e 78 do Worker,
-TypeScript, builds e testes SQL passaram. Lint sem erros, com oito avisos
-preexistentes. Isso não substitui um teste online ponta a ponta.
+Evidências atuais: 215 testes automatizados passaram (86 app/server, 79 pagamentos,
+50 storefront/guard), com TypeScript/builds e CI aprovados na ativação das APIs.
+Lint sem erros, com oito avisos preexistentes. O ensaio autenticado online de
+pedidos também passou; [relatório](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
+Isso não comprova pagamento, webhook, expiração ou concorrência online.
 
 As migrations preservaram 20 pedidos, 21 itens e os estoques existentes. Esses
 números são o retrato da verificação, não uma lista de registros a apagar.
 Mapeamento dos arquivos e versões remotas em [supabase/README.md](supabase/README.md).
 Não reaplicar migrations, seeds ou bootstrap no projeto compartilhado.
 
-Último estado confirmado do ambiente remoto: secrets cadastrados e domínio do
-Worker associado; publicação do código novo e compras de teste ainda não foram
-validadas nesta entrega. Deploys Vercel anteriores são legado, não o ambiente
-de aceite. A atualização deste plano não migra código nem altera DNS ou serviços.
+Estado remoto: loja/APIs publicadas na Cloudflare; 20 pedidos anteriores
+preservados e 1 pedido QA adicional cancelado, com tentativa local cancelada e
+estoque restituído. Nenhuma sessão Checkout Pro foi criada para esse teste.
+Worker de pagamentos ainda aguarda configuração/publicação do código novo;
+não confundir sua criação e presença de secrets com integração funcional.
+Vercel é legado, não ambiente de aceite. Produção/main/DNS principal inalterados.
 
 ## 3. Fluxo de destino e responsabilidades
 
-Destino aprovado, ainda não integralmente implementado. O inventário abaixo
-separa código existente de port pendente; publicar apenas o SPA não basta.
+Destino aprovado, ainda não integralmente validado. O inventário abaixo separa
+o que foi verificado remotamente do que existe apenas como código.
 
 1. O comprador entra na loja e seleciona itens e endereço.
 2. O frontend usa a API de pedido na Cloudflare, na mesma origem `/api/`;
@@ -74,11 +81,11 @@ separa código existente de port pendente; publicar apenas o SPA não basta.
 
 | Endpoint | Destino | Estado atual |
 | --- | --- | --- |
-| POST /api/checkout/quote | Worker da loja | Port local testado; aceite remoto pendente |
-| POST /api/checkout/order | Worker da loja | Port local testado, preservando RPC e chave idempotente; aceite remoto pendente |
-| POST /api/checkout/cancel | Worker da loja | Port local testado; aceite remoto pendente |
-| POST /api/checkout/expire-reservations | Worker da loja / agendamento interno | Rota protegida e handler scheduled preparados; nenhum Cron Trigger ativo |
-| GET /api/admin/users | Worker da loja | Port local testado com autorização admin e CPF mascarado; aceite remoto pendente |
+| POST /api/checkout/quote | Worker da loja | Testado online autenticado: R$99 + R$20 de frete SP = R$119 |
+| POST /api/checkout/order | Worker da loja | Testado online: criação, reserva, replay sem duplicidade e conflito de chave |
+| POST /api/checkout/cancel | Worker da loja | Testado online: cancelamento e repetição sem crédito duplicado de estoque |
+| POST /api/checkout/expire-reservations | Worker da loja / agendamento interno | Recusa sem secret testada online; processamento remoto pendente; nenhum cron ativo |
+| GET /api/admin/users | Worker da loja | Usuário confirmou listagem como admin; comprador QA recusado com 403 |
 | GET /health | Worker | Verifica configuração local, sem testar credenciais externas |
 | POST /v1/checkout/preferences | Worker | Implementado, depende de configuração e ativação do staging |
 | GET /v1/checkout/orders/:id/status | Worker | Implementado, autenticado e restrito ao dono |
@@ -94,7 +101,8 @@ Os três secrets ficam no Worker, nunca no frontend. Detalhes no
 
 ### Etapa 0 — migrar site e APIs para Cloudflare
 
-**Estado: site publicado em staging; ativação/aceite remoto das APIs ainda pendentes.**
+**Estado: site/APIs publicados e fluxo de pedidos autenticado aprovado no staging;
+aceite integral da migração ainda pendente nos itens abaixo.**
 
 Passo 1: GitHub verificado; MCP Cloudflare reconectado e domínio confirmado ativo.
 Passo 2: preparação em `workers/storefront`, CI verde no commit c9ead94.
@@ -136,7 +144,40 @@ pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDF
 
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: depende da Etapa 0; publicação pendente.**
+**Estado: parte 1 iniciada; vínculo de aplicações confirmado pelo MCP;
+consulta direta de identidade bloqueada com HTTP 403; publicação pendente.**
+
+#### Parte 1 — identificar aplicação, credenciais e recebedor
+
+- [x] MCP Mercado Pago conectado e listagem da aplicação funcionando.
+- [x] Aplicação principal: `TesteNN`, ID `6344920694868580`.
+- [x] MCP de credenciais identificou aplicação vendedora sandbox automática
+  `760330644412079`, com usuário vendedor `3272217989`. A diferença entre os
+  dois IDs é explicada pela relação principal → vendedor de teste; não é,
+  por si só, prova de configuração errada.
+- [x] Cloudflare confirmou presença de `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET`
+  como secrets no Worker de pagamentos. Valores não foram lidos/comparados,
+  substituídos, renovados ou expostos.
+- [ ] Confirmar identidade efetiva via `GET /users/me` e o token instalado no
+  Worker. A credencial sandbox obtida do MCP foi usada apenas em GET de validação,
+  via header e memória/entrada sem eco; a resposta foi HTTP 403, sem JSON.
+  O 403 não comprova token inválido nem usuário correto. Causa não estabelecida.
+- [ ] Validar a partir do runtime de destino, de modo controlado e com pagamentos
+  desligados; requer preparar essa verificação antes de seguir com a publicação.
+
+Não gravar `MP_COLLECTOR_ID` como validado apenas por extrair números de token ou
+por metadados do MCP. `3272217989` é o vendedor esperado para a confirmação.
+Nenhuma preferência/cobrança, nova aplicação ou novo usuário Mercado Pago foi
+criado; webhook e credenciais existentes não foram alterados.
+Detalhes: [verificação Mercado Pago](docs/VALIDACAO_MERCADO_PAGO_2026-10-21.md).
+
+#### Partes seguintes — ainda não executadas
+
+2. Preencher configuração de staging, origens Cloudflare, retorno e webhook,
+   preservando secrets. Configurar ambiente sandbox e recebedor confirmado.
+3. Publicar primeiro com `PAYMENTS_ENABLED=false` e conferir health/CORS/status.
+4. Após os critérios anteriores, habilitar exclusivamente sandbox/frontend
+   para a compra de teste da Etapa 2. Não ativar produção.
 
 Responsável técnico/Codex:
 
@@ -238,11 +279,15 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** concluir a configuração e publicação de staging
-(passo 3), pois o port local já está preparado. Comprovar o E2E remoto das APIs
-antes de publicar o sandbox de pagamentos. **Próxima ação do usuário:** aguardar
-a URL Cloudflare e o commit confirmados para executar o roteiro; não configurar
-novos deploys, variáveis ou planos na Vercel. Não é necessário reenviar secrets.
+**Próxima ação técnica:** concluir a parte 1 da Etapa 1: preparar validação
+controlada do recebedor no runtime Cloudflare, pois a consulta direta `/users/me`
+retornou 403 neste ambiente. Só depois completar configuração/publicação do
+Worker de pagamentos com submissões desligadas. APIs de pedidos já foram
+testadas online; não repetir como pendência nem reexecutar migrations.
+
+**Próxima ação do usuário:** decidir sobre essa verificação controlada; não
+reenviar tokens, alterar webhook, renovar credenciais ou tentar pagar pelo botão
+bloqueado. Tudo segue na home-v2-contraste; main e produção aguardam aceite.
 
 Consultar também:
 
