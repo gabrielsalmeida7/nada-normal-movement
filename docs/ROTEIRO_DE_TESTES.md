@@ -256,7 +256,10 @@ npm run shop:test
 Os comandos abaixo cobrem apenas o Worker de pagamentos, **não** a publicação
 do site e das cinco APIs. Comandos locais e configurações do Worker da loja
 estão em [workers/storefront/README.md](../workers/storefront/README.md).
-`shop:build` é dry-run; `shop:deploy` continua bloqueado até a preparação do passo 3.
+`shop:build` é dry-run. Build de publicação: `npm run shop:prepare`; deploy:
+`npm run shop:deploy`, somente em Workers Builds na home-v2-contraste.
+`npm run shop:deploy -- --check` valida offline, sem publicar. Primeiro publicar
+com APIs/pagamentos desligados; conferir health antes de ativar as APIs.
 
 Após a Etapa 0, completar a configuração e ter autorização para o deploy de staging:
 

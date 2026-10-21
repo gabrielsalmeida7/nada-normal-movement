@@ -96,10 +96,12 @@ Os três secrets ficam no Worker, nunca no frontend. Detalhes no
 
 **Estado: port e CI de verificação implementados; configuração/deploy e aceite remoto pendentes.**
 
-Passo 1: GitHub verificado; painel Cloudflare conferido manualmente pelo usuário.
-MCP Cloudflare ainda retorna erro interno; não foi possível confirmar o estado
-remoto independentemente nem inspecionar a aba do navegador nesta sessão.
-Passo 2: preparação em `workers/storefront`, sem publicação remota do site.
+Passo 1: GitHub verificado; MCP Cloudflare reconectado e domínio confirmado ativo.
+Passo 2: preparação em `workers/storefront`, CI verde no commit c9ead94.
+Passo 3: Hello World criado, Git conectado à branch oficial com builds desativadas,
+variáveis Supabase conferidas e secret de reservas gerado com segurança. Guard
+de publicação, build sem pagamentos e URL workers.dev preparados; publicação
+da loja e validação remota ainda pendentes.
 Comandos e limites em [Worker da loja](workers/storefront/README.md).
 
 - Implementar o Worker da loja com Static Assets do build Vite e `/api/*` na

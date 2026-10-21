@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { prepareStaging } from "./staging.mjs";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const command = process.argv[2];
@@ -8,10 +9,9 @@ const commands = {
   build: ["deploy", "--env", "staging", "--dry-run", "--outdir", ".wrangler/build"],
   types: ["types", "workers/storefront/src/env.d.ts", "--env", "staging", "--env-interface", "StorefrontBindings", "--strict-vars=false", "--include-runtime=false"],
 };
-if (command === "deploy") {
-  // Public routing/secrets and approval belong to Step 3, not this code preparation.
-  console.error("Deploy da loja bloqueado nesta etapa. Concluir a preparação de staging do passo 3.");
-  process.exitCode = 1;
+if (command === "prepare") {
+  try { await prepareStaging(); }
+  catch { console.error("Build de staging bloqueado: revisar configuração pública e dependências."); process.exitCode = 1; }
 } else if (!commands[command]) {
   console.error("Use dev, build ou types.");
   process.exitCode = 1;

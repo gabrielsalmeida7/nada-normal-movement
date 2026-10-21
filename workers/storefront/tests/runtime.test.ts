@@ -196,12 +196,12 @@ describe("Storefront em workerd, sem serviços reais", () => {
     expect(adminCall?.path).toContain("per_page=50");
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
-  it("configuração versionada deixa APIs/agendamento e acesso público desligados", () => {
+  it("configuração mantém APIs/agendamento desligados e publica só staging em workers.dev", () => {
     const config = JSON.parse(readFileSync("workers/storefront/wrangler.jsonc", "utf8"));
     for (const environment of [config, config.env.staging, config.env.production]) {
       expect(environment.vars.SHOP_API_ENABLED).toBe("false");
       expect(environment.vars.RESERVATION_PROCESSOR_ENABLED).toBe("false");
-      expect(environment.workers_dev).toBe(false);
+      expect(environment.workers_dev).toBe(environment === config.env.staging);
       expect(environment.preview_urls).toBe(false);
       expect(environment.triggers?.crons ?? []).toHaveLength(0);
     }

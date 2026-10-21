@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "nada-normal-storefront-local",
+  "account_id": "8f6b63890cf677004b89b130cba0dbf6",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-19",
   "compatibility_flags": ["nodejs_compat"],
@@ -24,7 +25,7 @@
   "env": {
     "staging": {
       "name": "nada-normal-storefront-staging",
-      "workers_dev": false,
+      "workers_dev": true,
       "preview_urls": false,
       "assets": {
         "directory": "../../dist", "binding": "ASSETS",
@@ -36,8 +37,8 @@
         "APP_ENV": "staging",
         "SHOP_API_ENABLED": "false",
         "RESERVATION_PROCESSOR_ENABLED": "false",
-        "SUPABASE_URL": "",
-        "SUPABASE_PUBLISHABLE_KEY": ""
+        "SUPABASE_URL": "https://bcemyxasbcwcrbinfguu.supabase.co",
+        "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_HWo2KFFmedy4nsd5eTp9_g_RJUwOPr5"
       }
     },
     "production": {

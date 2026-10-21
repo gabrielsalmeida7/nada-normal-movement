@@ -25,6 +25,7 @@ export default {
     const safe = new Response(response.body, response);
     safe.headers.set("X-Request-Id", id);
     safe.headers.set("X-Content-Type-Options", "nosniff");
+    if (env.APP_ENV === "staging") safe.headers.set("X-Robots-Tag", "noindex, nofollow");
     return safe;
   },
   async scheduled(_event: ScheduledController, env: StorefrontEnv): Promise<void> {

@@ -48,9 +48,11 @@ gerados de `wrangler.jsonc`, não editar `src/env.d.ts` manualmente.
 
 ## Configuração pendente do passo 3
 
-Nome proposto: `nada-normal-storefront-staging`, **ainda não criado remotamente**.
-Não há domínio/route cadastrado no arquivo; escolher e validar URL estável de
-staging antes de publicar. Não publicar no domínio principal nem usar Vercel.
+Worker `nada-normal-storefront-staging` criado pelo usuário, inicialmente Hello World.
+URL: `https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev`.
+Git conectado à home-v2-contraste, builds desativadas. MCP reconectado e variáveis
+Supabase conferidas. `RESERVATION_PROCESSOR_SECRET` foi gerado com Web Crypto e
+cadastrado somente nesse Worker, sem exibir seu valor. Nenhum cron foi habilitado.
 
 | Binding | Uso |
 | --- | --- |
@@ -66,10 +68,21 @@ O admin usa os mesmos bindings canônicos de Supabase das APIs de pedido, sem
 exigir nomes legados diferentes. O secret de expiração não é `MP_WEBHOOK_SECRET`.
 Não copiar token Mercado Pago para este Worker: só pagamentos precisa dele.
 
-`shop:deploy` está bloqueado nesta entrega preparatória. O passo 3 deve fornecer
-um guard real de staging, rota, verificação de secrets, build com pagamentos
-desligados e configuração das URLs/CORS/Auth. Não contornar com deploy direto.
+`shop:prepare` gera build com dados públicos do wrangler, Checkout Pro desligado,
+robots/noindex de staging e manifesto fora dos assets. Não requer secrets.
+`shop:deploy` exige Workers Builds, WORKERS_CI_BRANCH=home-v2-contraste e
+WORKERS_CI_COMMIT_SHA igual ao HEAD. Confere configuração, manifesto/fingerprint
+dos assets, presença dos dois secrets e testes antes de publicar com --env staging.
+`--check` é somente validação offline; não publica nem verifica credenciais.
+Não contornar o guard com deploy direto. Secrets existentes são preservados.
 `SHOP_API_ENABLED=true` não habilita APIs em APP_ENV=production nesta entrega.
+
+Em Compilações: build `npm run shop:prepare`, deploy `npm run shop:deploy`,
+raiz `/`, sem previews. A primeira versão mantém SHOP_API_ENABLED=false e
+RESERVATION_PROCESSOR_ENABLED=false. Depois do primeiro deploy, validar assets,
+health, cache e noindex antes de ativar APIs e testar URLs de Auth. Site/health
+abrindo não significa checkout online validado. As builds devem continuar
+desativadas até confirmar comandos e commit no painel.
 
 ## Cuidados e limites
 

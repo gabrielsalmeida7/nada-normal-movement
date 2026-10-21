@@ -27,9 +27,8 @@ jobs:
       - run: npm run worker:typecheck
       - run: npm run shop:typecheck
       - run: npm run lint
-      - run: npm run build
-        env:
-          VITE_CHECKOUT_PRO_ENABLED: 'false'
+      - run: npm run shop:deploy -- --check
+      - run: npm run shop:prepare
       - run: npm run worker:build
       - run: npm run shop:build
       - run: npm run shop:test

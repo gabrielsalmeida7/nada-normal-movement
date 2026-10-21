@@ -21,7 +21,8 @@
     "shop:build": "node workers/storefront/scripts/run.mjs build",
     "shop:typecheck": "tsc --noEmit -p workers/storefront/tsconfig.json",
     "shop:test": "vitest run --config workers/storefront/vitest.config.ts",
-    "shop:deploy": "node workers/storefront/scripts/run.mjs deploy",
+    "shop:prepare": "node workers/storefront/scripts/run.mjs prepare",
+    "shop:deploy": "node workers/storefront/scripts/deploy.mjs",
     "shop:types": "node workers/storefront/scripts/run.mjs types"
   },
   "dependencies": {
