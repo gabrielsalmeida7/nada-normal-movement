@@ -144,8 +144,9 @@ pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDF
 
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: parte 1 iniciada; vínculo de aplicações confirmado pelo MCP;
-consulta direta de identidade bloqueada com HTTP 403; publicação pendente.**
+**Estado: parte 1 concluída. MCP confirmou o vínculo de aplicações e a consulta
+protegida na Cloudflare confirmou o token instalado e o vendedor de teste.
+Configuração/publicação do Worker de pagamentos ainda pendentes.**
 
 #### Parte 1 — identificar aplicação, credenciais e recebedor
 
@@ -158,15 +159,20 @@ consulta direta de identidade bloqueada com HTTP 403; publicação pendente.**
 - [x] Cloudflare confirmou presença de `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET`
   como secrets no Worker de pagamentos. Valores não foram lidos/comparados,
   substituídos, renovados ou expostos.
-- [ ] Confirmar identidade efetiva via `GET /users/me` e o token instalado no
-  Worker. A credencial sandbox obtida do MCP foi usada apenas em GET de validação,
-  via header e memória/entrada sem eco; a resposta foi HTTP 403, sem JSON.
-  O 403 não comprova token inválido nem usuário correto. Causa não estabelecida.
-- [ ] Validar a partir do runtime de destino, de modo controlado e com pagamentos
-  desligados; requer preparar essa verificação antes de seguir com a publicação.
+- [x] Confirmar identidade efetiva via `GET /users/me` com o token instalado no
+  Worker. Na Cloudflare, a API retornou 200, vendedor esperado `3272217989`,
+  país MLB e conta de teste. O diagnóstico expôs somente booleanos.
+- [x] Verificação temporária protegida por desafio aleatório, hash SHA-256 e
+  prazo máximo de dez minutos, sem preferências/cobranças. Acesso sem desafio
+  recebeu 401; a consulta protegida retornou verified=true/paymentsEnabled=false.
+- [x] Restaurar a versão anterior `ed97243c-3c59-4e23-bf7f-75b38a277513` com
+  100% do tráfego. HTTP confirmou o Hello World anterior e diagnóstico inativo.
+  Nenhum secret foi substituído ou renovado.
 
-Não gravar `MP_COLLECTOR_ID` como validado apenas por extrair números de token ou
-por metadados do MCP. `3272217989` é o vendedor esperado para a confirmação.
+`MP_COLLECTOR_ID=3272217989` está confirmado para a configuração da próxima parte;
+não foi inferido de números do token. O 403 da consulta direta fica registrado
+como histórico: a validação no runtime de destino resolveu a pendência sem
+comprovar a causa daquele 403.
 Nenhuma preferência/cobrança, nova aplicação ou novo usuário Mercado Pago foi
 criado; webhook e credenciais existentes não foram alterados.
 Detalhes: [verificação Mercado Pago](docs/VALIDACAO_MERCADO_PAGO_2026-10-21.md).
@@ -279,15 +285,18 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** concluir a parte 1 da Etapa 1: preparar validação
-controlada do recebedor no runtime Cloudflare, pois a consulta direta `/users/me`
-retornou 403 neste ambiente. Só depois completar configuração/publicação do
-Worker de pagamentos com submissões desligadas. APIs de pedidos já foram
-testadas online; não repetir como pendência nem reexecutar migrations.
+**Próxima ação técnica:** parte 2 da Etapa 1: completar a configuração de staging
+do Worker de pagamentos com origens Cloudflare, Supabase, sandbox, retorno,
+webhook e recebedor confirmado `3272217989`. Depois publicar pelo fluxo protegido
+com `PAYMENTS_ENABLED=false` e validar health/CORS/status antes de habilitar
+sandbox. O Worker voltou ao Hello World anterior após o diagnóstico; não confundir
+confirmação do token com publicação da integração completa.
+APIs de pedidos já foram testadas online; não reexecutar migrations.
 
-**Próxima ação do usuário:** decidir sobre essa verificação controlada; não
-reenviar tokens, alterar webhook, renovar credenciais ou tentar pagar pelo botão
-bloqueado. Tudo segue na home-v2-contraste; main e produção aguardam aceite.
+**Próxima ação do usuário:** seguir para a configuração da parte 2; não reenviar
+tokens, renovar credenciais ou tentar pagar pelo botão bloqueado. Webhook será
+conferido na etapa própria, sem redefinir sua assinatura. Tudo segue na
+home-v2-contraste; main e produção aguardam aceite.
 
 Consultar também:
 

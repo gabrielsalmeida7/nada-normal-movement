@@ -1,7 +1,8 @@
 # Etapa 1, parte 1 — Mercado Pago
 
-Verificação de 21/10/2026. Somente leitura/diagnóstico: sem preferência,
-pagamento, deploy, redefinição de secret ou alteração de webhook.
+Verificação de 21/10/2026 concluída. Sem preferência, pagamento, redefinição de
+secret ou alteração de webhook. Houve ativação temporária de versão diagnóstica
+no Worker de staging, seguida da restauração imediata da versão anterior.
 
 ## Confirmado pelo MCP
 
@@ -33,8 +34,8 @@ Não contornar proxy/políticas de rede nem concluir que o token está incorreto
 
 Além disso, secrets da Cloudflare não são recuperáveis em texto claro por essa
 checagem. A presença de `MP_ACCESS_TOKEN` no Worker não prova igualdade ao token
-retornado pelo MCP. É necessário validar a credencial efetivamente instalada a
-partir do runtime de destino, mantendo submissões de pagamentos desligadas.
+retornado pelo MCP. Essa pendência foi resolvida pela consulta no runtime de
+destino descrita abaixo, mantendo submissões de pagamentos desligadas.
 
 ## Cloudflare
 
@@ -44,22 +45,78 @@ GET settings de `nada-normal-payments-staging` confirmou presença de:
 - SUPABASE_SECRET_KEY como secret_text.
 - SUPABASE_URL e SUPABASE_PUBLISHABLE_KEY como plain_text.
 
-Não havia APP_ENV, PAYMENTS_ENABLED, MP_COLLECTOR_ID ou CHECKOUT_PRO_MODE entre
+Antes do diagnóstico, não havia APP_ENV, PAYMENTS_ENABLED, MP_COLLECTOR_ID ou CHECKOUT_PRO_MODE entre
 os bindings retornados. O novo código/configuração de pagamentos segue pendente
 de publicação; não tratar presença de secrets como aceite de integração.
 Nenhum secret remoto foi lido em texto claro, substituído ou rotacionado.
 
-## Critério para concluir a parte 1
+## Double check na Cloudflare — aprovado
 
-Confirmar por uma consulta autenticada efetiva o vendedor de teste esperado
-`3272217989`, país Brasil/MLB e identificação de conta de teste, usando o token
-instalado no Worker. Caso o retorno não corresponda, interromper antes de criar
-preferências ou substituir qualquer credencial e revisar a aplicação no painel.
+Com autorização do usuário, foi preparada uma versão operacional temporária
+usando o token já instalado no Worker, sem copiá-lo/baixá-lo ou substituí-lo.
+Os cinco bindings originais foram herdados pela API de versões, com APP_ENV=staging
+e PAYMENTS_ENABLED=false na versão temporária. Não é publicação da integração
+Checkout Pro nem substitui o deploy protegido do código normal de pagamentos.
 
-A preparação de verificação controlada no Worker é o próximo passo proposto,
-não uma ação já executada. Não publicar endpoint público de diagnóstico com
-tokens, dados pessoais ou capacidade de pagamento. A assinatura de webhook
-será verificada na configuração/teste posteriores; não foi validada nesta parte.
+Controles: host fixo, rota POST única, sem CORS/navegação, desafio de 256 bits
+com comparação de hash em tempo constante, validade de oito minutos (limite
+máximo de dez), timeout de dez segundos, corpo upstream limitado a 64 KiB,
+redirecionamentos recusados e ausência de logs da aplicação. Nenhuma chamada
+ao Supabase, criação de preferência ou submissão de pagamento faz parte do código.
+Só existe GET fixo `https://api.mercadopago.com/users/me` após autenticação.
+
+Resultado observado:
+
+```json
+{
+  "anonymousStatus": 401,
+  "probeStatus": 200,
+  "cache": "private, no-store",
+  "result": {
+    "verified": true,
+    "collectorMatches": true,
+    "countryMatches": true,
+    "testUser": true,
+    "upstreamStatus": 200,
+    "paymentsEnabled": false
+  }
+}
+```
+
+Os booleanos verificam, respectivamente, usuário **3272217989**, site **MLB** e
+tag/tipo **test_user** da resposta do provedor. Nome, e-mail, token e JSON
+upstream não foram retornados ou gravados no repositório. Portanto o valor
+`MP_COLLECTOR_ID=3272217989` está confirmado para a próxima configuração de staging.
+A causa do 403 neste executor não foi estabelecida; não implica token inválido.
+
+Trilha operacional:
+
+- Versão anterior: `ed97243c-3c59-4e23-bf7f-75b38a277513` (Hello World).
+- Versão diagnóstica: `26b0b315-ca7f-4144-b7b1-ed7ff0d45e14`.
+- Deployment temporário: `4ddbd2fe-9703-4037-afe3-04718f847140`.
+- Deployment de restauração: `9ee317ec-ae8e-4405-985a-a45e8a45cf70`.
+- GET deployments confirmou versão anterior servindo 100% do tráfego.
+- GET `/health` e POST `/__ops/verify-collector` retornaram novamente o Hello World
+  anterior, sem handler de diagnóstico ativo. Isso é restauração do exemplo,
+  não health funcional do Checkout Pro.
+
+A versão temporária permanece no histórico, mas não está no tráfego e seu
+desafio expira. GET settings pode refletir o upload mais recente em vez da versão
+implantada: APP_ENV/PAYMENTS_ENABLED e data da versão temporária podem aparecer
+ali. Conferir sempre o deployment ativo, não apenas settings/último upload.
+Não reutilizar/implantar a versão diagnóstica como backend de pagamentos.
+
+Código operacional isolado em
+[collector-probe.mjs](../workers/payments/diagnostics/collector-probe.mjs), não
+importado pelo entrypoint e não executado pelo CI. Dezesseis testes em workerd
+cobrem autorização, bloqueio de produção/submissões, destino fixo, redirecionamentos,
+respostas sanitizadas e recusa de recebedor/país/conta incorretos. Os outros 79
+testes de pagamentos também passaram, além de typecheck e lint sem erros
+(oito avisos preexistentes). Nenhum secret foi alterado ou recuperado em texto claro.
+
+Parte 1 concluída. Próxima: preencher configuração do Worker de pagamentos e
+publicar o código normal com PAYMENTS_ENABLED=false, preservando os secrets.
+A assinatura de webhook será conferida/testada depois; não foi validada aqui.
 
 ## Referências
 
