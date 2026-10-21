@@ -34,7 +34,7 @@ Este projeto foi construído com as seguintes tecnologias:
 ### Pré-requisitos
 
 - Node.js 22.18+ ou 24+ (ambiente validado com 24.19.0) - [Instalar com nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-- npm ou gerenciador de pacotes compatível
+- npm, usando o lockfile oficial `package-lock.json`
 
 ### Instalação
 

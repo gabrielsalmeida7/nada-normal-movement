@@ -84,6 +84,11 @@ health, cache e noindex antes de ativar APIs e testar URLs de Auth. Site/health
 abrindo não significa checkout online validado. As builds devem continuar
 desativadas até confirmar comandos e commit no painel.
 
+Dependências: usar somente npm e `package-lock.json`. A primeira build remota
+falhou antes da compilação porque o antigo `bun.lockb` fazia a Cloudflare escolher
+`bun install --frozen-lockfile`. O lockfile Bun legado foi removido (recuperável
+no Git); não recriar um segundo lockfile. A nova tentativa deve instalar com npm.
+
 ## Cuidados e limites
 
 Verificação desta preparação: 29 testes da loja em workerd, 86 do app/server e
