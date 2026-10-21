@@ -94,14 +94,16 @@ Os três secrets ficam no Worker, nunca no frontend. Detalhes no
 
 ### Etapa 0 — migrar site e APIs para Cloudflare
 
-**Estado: port e CI de verificação implementados; configuração/deploy e aceite remoto pendentes.**
+**Estado: site publicado em staging; ativação/aceite remoto das APIs ainda pendentes.**
 
 Passo 1: GitHub verificado; MCP Cloudflare reconectado e domínio confirmado ativo.
 Passo 2: preparação em `workers/storefront`, CI verde no commit c9ead94.
-Passo 3: Hello World criado, Git conectado à branch oficial com builds desativadas,
-variáveis Supabase conferidas e secret de reservas gerado com segurança. Guard
-de publicação, build sem pagamentos e URL workers.dev preparados; publicação
-da loja e validação remota ainda pendentes.
+Passo 3: builds habilitadas pelo usuário, variáveis Supabase e secret de reservas
+conferidos. Primeira loja publicada em 21/10/2026 pelo Workers Builds, commit
+`28402b6`, em https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev.
+HTTP/health, rotas SPA, assets, cache e noindex conferidos. APIs de pedidos,
+pagamentos e cron continuam desligados. Aceite visual, Auth, ativação das APIs
+e E2E autenticado ainda pendentes; não marcar a migração completa como aceita.
 Comandos e limites em [Worker da loja](workers/storefront/README.md).
 
 - Implementar o Worker da loja com Static Assets do build Vite e `/api/*` na

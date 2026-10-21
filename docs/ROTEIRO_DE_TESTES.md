@@ -7,11 +7,13 @@ o projeto ficar pronto. Preparar o roteiro não publica o Worker nem habilita pa
 
 ## 1. O que fazer após a migração, antes do pagamento
 
-O port local do site e das cinco APIs está preparado em `workers/storefront`, com
-testes no workerd; ainda não há aceite remoto. O staging Cloudflare completo
-ainda não foi publicado. **Agora, aguarde a URL
-e o commit confirmados pelo responsável técnico.** Não configurar Vercel nem
-usar seus deploys antigos para o aceite. Antes da seção 2, concluir a Etapa 0 do
+O site foi publicado em staging no commit `28402b6` e verificado por HTTP em
+21/10/2026: https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev.
+**Agora, testar catálogo, imagens, variantes e carrinho nessa URL.** As APIs de
+pedidos e pagamentos continuam desligadas; não testar compra ainda. Cadastro,
+recuperação de senha e retornos Auth exigem conferir as URLs permitidas antes
+do aceite. Não configurar Vercel nem usar seus deploys antigos para o aceite.
+Antes da seção 2, concluir a Etapa 0 do
 [roadmap](../roadmap.md) e o [checklist de migração](MIGRACAO_CLOUDFLARE.md).
 
 1. Abra a URL estável de staging **Cloudflare** informada pelo responsável técnico,

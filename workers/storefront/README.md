@@ -50,7 +50,7 @@ gerados de `wrangler.jsonc`, não editar `src/env.d.ts` manualmente.
 
 Worker `nada-normal-storefront-staging` criado pelo usuário, inicialmente Hello World.
 URL: `https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev`.
-Git conectado à home-v2-contraste, builds desativadas. MCP reconectado e variáveis
+Git conectado à home-v2-contraste, builds habilitadas pelo usuário. MCP reconectado e variáveis
 Supabase conferidas. `RESERVATION_PROCESSOR_SECRET` foi gerado com Web Crypto e
 cadastrado somente nesse Worker, sem exibir seu valor. Nenhum cron foi habilitado.
 
@@ -81,13 +81,23 @@ Em Compilações: build `npm run shop:prepare`, deploy `npm run shop:deploy`,
 raiz `/`, sem previews. A primeira versão mantém SHOP_API_ENABLED=false e
 RESERVATION_PROCESSOR_ENABLED=false. Depois do primeiro deploy, validar assets,
 health, cache e noindex antes de ativar APIs e testar URLs de Auth. Site/health
-abrindo não significa checkout online validado. As builds devem continuar
-desativadas até confirmar comandos e commit no painel.
+abrindo não significa checkout online validado. Comandos/branch foram confirmados
+pelo MCP e pelo usuário; previews permanecem desativados.
 
 Dependências: usar somente npm e `package-lock.json`. A primeira build remota
 falhou antes da compilação porque o antigo `bun.lockb` fazia a Cloudflare escolher
 `bun install --frozen-lockfile`. O lockfile Bun legado foi removido (recuperável
-no Git); não recriar um segundo lockfile. A nova tentativa deve instalar com npm.
+no Git); não recriar um segundo lockfile. A nova tentativa com npm concluiu.
+
+Primeiro deploy da loja: commit `28402b6`, build
+`ccbf8ac1-49fa-4ffc-b847-964ba9805259`, concluída em 21/10/2026. Site e rotas SPA
+retornaram HTML 200, health informou staging/configured=true/apiEnabled=false,
+API inexistente retornou JSON/404 e criação de pedido SHOP_API_DISABLED.
+Robots/noindex e cache de HTML/assets conferidos; o bundle referencia o Supabase
+correto, sem padrão de chave secreta identificado na inspeção. Isso não substitui
+auditoria de segurança nem teste visual/autenticado. Banco, DNS principal e
+Worker de pagamentos não foram alterados nesta publicação. Builds manuais pelo
+MCP funcionaram; disparo automático em push ainda deve ser comprovado.
 
 ## Cuidados e limites
 
