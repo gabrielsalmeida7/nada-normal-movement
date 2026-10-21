@@ -104,8 +104,11 @@ conferidos. Primeira loja publicada em 21/10/2026 pelo Workers Builds, commit
 HTTP/health, rotas SPA, assets, cache e noindex conferidos. APIs de pedidos,
 pagamentos e cron estavam desligados na primeira publicação. O usuário validou
 persistência de quantidade, totais, remoção, variantes separadas e carrinho no
-celular. Próxima publicação preparada com APIs da loja habilitadas exclusivamente
-em staging; pagamentos e cron continuam desligados. Auth e E2E autenticado das
+celular. APIs da loja publicadas exclusivamente em staging no commit `83e4316`,
+build `7d821664-bb4d-468f-8b39-adbe620e07e2`, acionada automaticamente por push.
+Health confirmou `apiEnabled=true`; sessão ausente/inválida retorna 401,
+origem diferente retorna 403 e API desconhecida retorna JSON/404, sem cache.
+215 testes e CI passaram. Pagamentos e cron continuam desligados. Auth e E2E autenticado das
 APIs ainda pendentes; não marcar a migração completa como aceita.
 Comandos e limites em [Worker da loja](workers/storefront/README.md).
 

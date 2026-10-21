@@ -115,6 +115,15 @@ Expiração automática e Worker de pagamentos permanecem inalterados/desligados
 Rollback: versionar `SHOP_API_ENABLED=false` e republicar pela mesma pipeline;
 não apagar pedidos, produtos ou migrations.
 
+Publicado no commit `83e4316`, build automática por push
+`7d821664-bb4d-468f-8b39-adbe620e07e2` concluída com sucesso. CI GitHub
+`39642258864` aprovado. 215 testes passaram: 86 app/server, 79 pagamentos e
+50 storefront/guard. Verificação remota: health staging/configured=true/
+apiEnabled=true, APIs sem sessão e sessão inválida 401, origem externa 403,
+API desconhecida JSON/404; respostas `private, no-store`. Consulta somente
+leitura confirmou RPCs e permissões do backend no Supabase. Nenhum pedido ou
+cobrança criado neste ensaio. Criação de pedido autenticada ainda não validada.
+
 Verificação desta preparação: 29 testes da loja em workerd, 86 do app/server e
 79 de pagamentos passaram (194 no total), além de typechecks, builds/dry-runs
 e lint sem erros (oito avisos preexistentes). Smoke local via Wrangler confirmou

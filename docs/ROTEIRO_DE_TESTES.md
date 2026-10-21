@@ -12,12 +12,21 @@ O site foi publicado em staging no commit `28402b6` e verificado por HTTP em
 O usuário concluiu os testes de quantidade persistida, totais, remoção, variantes
 separadas e carrinho no celular. **Próximo: APIs da loja em staging e checkout até
 a etapa de pagamento bloqueado.** A configuração preparada habilita somente as
-APIs da loja; confirmar `apiEnabled=true` no `/health` após o novo deploy. Isso
+APIs da loja, publicadas no commit `83e4316`; `/health` já confirmou
+`apiEnabled=true`. Recusas sem sessão, sessão inválida e origem externa foram
+verificadas remotamente. Isso
 não valida as credenciais externas nem substitui o ensaio autenticado das RPCs.
 O frontend mantém Checkout Pro desligado e ainda não cria pedidos pela tela;
 não testar cobrança nem afirmar E2E de pedido concluído. Cadastro,
 recuperação de senha e retornos Auth exigem conferir as URLs permitidas antes
 do aceite. Não configurar Vercel nem usar seus deploys antigos para o aceite.
+
+Próximo teste manual: entrar na conta de teste, abrir `/admin/usuarios` com conta
+admin e confirmar listagem sem erro (e-mails disponíveis e CPF mascarado).
+Como comprador, preencher identificação, entrega, revisão e chegar ao pagamento
+bloqueado, sem cobrança. Isso valida Auth/fluxo visual e, na listagem, uma API
+autenticada; não valida criação de pedido, orçamento remoto, idempotência ou
+cancelamento. Essas operações exigem ensaio autenticado específico posterior.
 Antes da seção 2, concluir a Etapa 0 do
 [roadmap](../roadmap.md) e o [checklist de migração](MIGRACAO_CLOUDFLARE.md).
 
