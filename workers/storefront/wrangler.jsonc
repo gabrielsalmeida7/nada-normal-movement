@@ -35,7 +35,7 @@
       "secrets": { "required": ["SUPABASE_SECRET_KEY", "RESERVATION_PROCESSOR_SECRET"] },
       "vars": {
         "APP_ENV": "staging",
-        "SHOP_API_ENABLED": "false",
+        "SHOP_API_ENABLED": "true",
         "RESERVATION_PROCESSOR_ENABLED": "false",
         "SUPABASE_URL": "https://bcemyxasbcwcrbinfguu.supabase.co",
         "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_HWo2KFFmedy4nsd5eTp9_g_RJUwOPr5"

@@ -196,10 +196,10 @@ describe("Storefront em workerd, sem serviços reais", () => {
     expect(adminCall?.path).toContain("per_page=50");
     expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
-  it("configuração mantém APIs/agendamento desligados e publica só staging em workers.dev", () => {
+  it("configuração habilita APIs só no staging, sem agendamento nem domínio principal", () => {
     const config = JSON.parse(readFileSync("workers/storefront/wrangler.jsonc", "utf8"));
     for (const environment of [config, config.env.staging, config.env.production]) {
-      expect(environment.vars.SHOP_API_ENABLED).toBe("false");
+      expect(environment.vars.SHOP_API_ENABLED).toBe(environment === config.env.staging ? "true" : "false");
       expect(environment.vars.RESERVATION_PROCESSOR_ENABLED).toBe("false");
       expect(environment.workers_dev).toBe(environment === config.env.staging);
       expect(environment.preview_urls).toBe(false);

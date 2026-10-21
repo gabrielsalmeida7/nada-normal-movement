@@ -102,8 +102,11 @@ Passo 3: builds habilitadas pelo usuário, variáveis Supabase e secret de reser
 conferidos. Primeira loja publicada em 21/10/2026 pelo Workers Builds, commit
 `28402b6`, em https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev.
 HTTP/health, rotas SPA, assets, cache e noindex conferidos. APIs de pedidos,
-pagamentos e cron continuam desligados. Aceite visual, Auth, ativação das APIs
-e E2E autenticado ainda pendentes; não marcar a migração completa como aceita.
+pagamentos e cron estavam desligados na primeira publicação. O usuário validou
+persistência de quantidade, totais, remoção, variantes separadas e carrinho no
+celular. Próxima publicação preparada com APIs da loja habilitadas exclusivamente
+em staging; pagamentos e cron continuam desligados. Auth e E2E autenticado das
+APIs ainda pendentes; não marcar a migração completa como aceita.
 Comandos e limites em [Worker da loja](workers/storefront/README.md).
 
 - Implementar o Worker da loja com Static Assets do build Vite e `/api/*` na

@@ -9,8 +9,13 @@ o projeto ficar pronto. Preparar o roteiro não publica o Worker nem habilita pa
 
 O site foi publicado em staging no commit `28402b6` e verificado por HTTP em
 21/10/2026: https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev.
-**Agora, testar catálogo, imagens, variantes e carrinho nessa URL.** As APIs de
-pedidos e pagamentos continuam desligadas; não testar compra ainda. Cadastro,
+O usuário concluiu os testes de quantidade persistida, totais, remoção, variantes
+separadas e carrinho no celular. **Próximo: APIs da loja em staging e checkout até
+a etapa de pagamento bloqueado.** A configuração preparada habilita somente as
+APIs da loja; confirmar `apiEnabled=true` no `/health` após o novo deploy. Isso
+não valida as credenciais externas nem substitui o ensaio autenticado das RPCs.
+O frontend mantém Checkout Pro desligado e ainda não cria pedidos pela tela;
+não testar cobrança nem afirmar E2E de pedido concluído. Cadastro,
 recuperação de senha e retornos Auth exigem conferir as URLs permitidas antes
 do aceite. Não configurar Vercel nem usar seus deploys antigos para o aceite.
 Antes da seção 2, concluir a Etapa 0 do

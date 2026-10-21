@@ -11,6 +11,13 @@ describe("guard de staging", () => {
     expect(validateStaging(config).APP_ENV).toBe("staging");
     expect(() => validateBuildContext(context, head)).not.toThrow();
   });
+  it.each(["false", "true"])("permite APIs %s somente no staging protegido", value => {
+    const stage = structuredClone(config);
+    stage.env.staging.vars.SHOP_API_ENABLED = value;
+    expect(validateStaging(stage).SHOP_API_ENABLED).toBe(value);
+    expect(frontendEnv(validateStaging(stage), {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
+    expect(stage.env.production.vars.SHOP_API_ENABLED).toBe("false");
+  });
   it.each([
     { WORKERS_CI_BRANCH: "main" }, { WORKERS_CI_BRANCH: "feature/checkout" },
     { WORKERS_CI_BRANCH: "" }, { WORKERS_CI: "" }, { WORKERS_CI_COMMIT_SHA: "b".repeat(40) },
@@ -18,7 +25,8 @@ describe("guard de staging", () => {
     expect(() => validateBuildContext({ ...context, ...override }, head)).toThrow();
   });
   it.each([
-    { SHOP_API_ENABLED: "true" }, { APP_ENV: "production" }, { RESERVATION_PROCESSOR_ENABLED: "true" },
+    { SHOP_API_ENABLED: "yes" }, { SHOP_API_ENABLED: true },
+    { APP_ENV: "production" }, { RESERVATION_PROCESSOR_ENABLED: "true" },
     { SUPABASE_URL: "https://other.supabase.co" }, { SUPABASE_PUBLISHABLE_KEY: "sb_secret_not-public" },
     { MP_ACCESS_TOKEN: "not-allowed" },
   ])("recusa bindings inseguros %j", vars => {

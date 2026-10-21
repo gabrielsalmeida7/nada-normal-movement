@@ -101,6 +101,20 @@ MCP funcionaram; disparo automático em push ainda deve ser comprovado.
 
 ## Cuidados e limites
 
+### Ativação controlada das APIs — 21/10/2026
+
+Após o usuário validar persistência, totais, remoção, variantes separadas e carrinho
+no celular, a configuração versionada passa a `SHOP_API_ENABLED=true` somente no
+staging. O guard aceita exclusivamente as strings `true`/`false`; continua
+rejeitando produção, domínio principal, cron e secrets em vars. O build mantém
+Checkout Pro desligado. Não confundir APIs habilitadas com compra validada:
+`prepareCheckout` ainda depende da flag de pagamento e não é acionado pela tela.
+Testar autenticação e autorização remotamente; criação/idempotência/cancelamento
+com sessão de teste continuam pendentes até ensaio autenticado específico.
+Expiração automática e Worker de pagamentos permanecem inalterados/desligados.
+Rollback: versionar `SHOP_API_ENABLED=false` e republicar pela mesma pipeline;
+não apagar pedidos, produtos ou migrations.
+
 Verificação desta preparação: 29 testes da loja em workerd, 86 do app/server e
 79 de pagamentos passaram (194 no total), além de typechecks, builds/dry-runs
 e lint sem erros (oito avisos preexistentes). Smoke local via Wrangler confirmou

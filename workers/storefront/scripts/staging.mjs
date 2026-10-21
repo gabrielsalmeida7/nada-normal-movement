@@ -15,7 +15,7 @@ export function validateStaging(config) {
       stage?.name !== "nada-normal-storefront-staging" || stage.workers_dev !== true ||
       stage.preview_urls !== false || config.routes?.length || stage.routes?.length ||
       config.triggers?.crons?.length || stage.triggers?.crons?.length ||
-      vars?.APP_ENV !== "staging" || vars.SHOP_API_ENABLED !== "false" ||
+      vars?.APP_ENV !== "staging" || !["false", "true"].includes(vars.SHOP_API_ENABLED) ||
       vars.RESERVATION_PROCESSOR_ENABLED !== "false" ||
       vars.SUPABASE_URL !== "https://bcemyxasbcwcrbinfguu.supabase.co" ||
       !/^sb_publishable_[A-Za-z0-9_-]+$/.test(vars.SUPABASE_PUBLISHABLE_KEY ?? "") ||
