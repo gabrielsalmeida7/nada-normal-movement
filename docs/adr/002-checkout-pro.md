@@ -2,14 +2,20 @@
 
 Data: 19/10/2026. Substitui a decisão de Payment Brick do ADR 001.
 
+Atualização de hospedagem em 20/10/2026: site e todas as APIs irão para a
+Cloudflare, sem Vercel. O fluxo financeiro abaixo permanece; as referências à
+Vercel descrevem o estado anterior ao port, não o destino aprovado. Ver
+[plano de migração](../MIGRACAO_CLOUDFLARE.md).
+
 Estado em 19/10/2026: código publicado no commit `9924e4a`; migrations de pedidos,
 reservas/frete e Checkout Pro aplicadas ao projeto NadaNormal após autorização
 do usuário para preservar dados e dispensar backup. Mapeamento das versões e
 verificações em [supabase/README.md](../../supabase/README.md). Deploy do Worker
 e testes online continuam pendentes; não repetir as migrations da preparação.
 
-O usuário escolheu Checkout Pro. O SPA continua na Vercel, pedidos e reservas
-continuam no Supabase e o Worker passa a criar preferências e verificar webhooks.
+O usuário escolheu Checkout Pro. Na entrega original, o SPA permanecia na Vercel;
+agora será migrado com as APIs para Cloudflare. Pedidos e reservas continuam
+no Supabase e o Worker de pagamentos cria preferências e verifica webhooks.
 Nenhum formulário coleta cartão e nenhuma rota envia tokens de cartão.
 
 ## Fluxo implementado
@@ -66,7 +72,8 @@ seção 2. O código foi integrado à home-v2-contraste; as migrations já foram
 aplicadas sem backup após dispensa e autorização explícitas do usuário. Não
 reaplicar arquivos nem reconstruir o banco compartilhado como preparação de teste.
 
-Faltam completar a configuração pública do wrangler, confirmar recebedor/credenciais,
+Antes, concluir a migração do site e das APIs (Etapa 0 do roadmap). Depois,
+faltam completar a configuração pública do wrangler, confirmar recebedor/credenciais,
 publicar primeiro com `PAYMENTS_ENABLED=false`, validar health/CORS e preparar
 webhook e preview. Só depois ativar submissões no staging sandbox. A `main`
 aguarda a conclusão do projeto; desenvolvimento segue na home-v2-contraste.

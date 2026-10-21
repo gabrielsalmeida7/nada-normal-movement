@@ -1,0 +1,38 @@
+name: Cloudflare checks
+
+on:
+  push:
+    branches: [home-v2-contraste]
+  pull_request:
+    branches: [home-v2-contraste, main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run worker:test
+      - run: npm run worker:typecheck
+      - run: npm run shop:typecheck
+      - run: npm run lint
+      - run: npm run build
+        env:
+          VITE_CHECKOUT_PRO_ENABLED: 'false'
+      - run: npm run worker:build
+      - run: npm run shop:build
+      - run: npm run shop:test
+      - run: npm run shop:types && git diff --exit-code -- workers/storefront/src/env.d.ts
+
+# No deploys, cloud credentials, shared DB or live payment calls in this workflow.

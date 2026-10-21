@@ -21,11 +21,11 @@
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "false",
-        "ALLOWED_ORIGINS": "https://nada-normal-movement-2sr4ux7cw.vercel.app,https://www.nadanormalclub.com.br",
+        "ALLOWED_ORIGINS": "",
         "SUPABASE_URL": "",
         "SUPABASE_PUBLISHABLE_KEY": "",
         "CHECKOUT_PRO_MODE": "",
-        "CHECKOUT_RETURN_ORIGIN": "https://nada-normal-movement-2sr4ux7cw.vercel.app",
+        "CHECKOUT_RETURN_ORIGIN": "",
         "CHECKOUT_WEBHOOK_URL": "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago",
         "MP_COLLECTOR_ID": ""
       }

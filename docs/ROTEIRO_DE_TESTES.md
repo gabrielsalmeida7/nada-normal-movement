@@ -1,19 +1,25 @@
 # Nada Normal — passo a passo de testes
 
-Atualizado em 20/10/2026. Planejamento vigente: [roadmap](../roadmap.md).
+Atualizado em 21/10/2026. Planejamento vigente: [roadmap](../roadmap.md).
 
 Este roteiro valida a loja na **home-v2-contraste**. A main e o PR #9 aguardam
 o projeto ficar pronto. Preparar o roteiro não publica o Worker nem habilita pagamentos.
 
-## 1. O que fazer agora, antes do pagamento
+## 1. O que fazer após a migração, antes do pagamento
 
-1. Na Vercel, abra o projeto **nada-normal-movement**, entre em **Deployments** e
-   selecione o deploy da branch **home-v2-contraste**, com o commit mais recente
-   e status **Ready**. Abra a URL pelo botão de visita/preview desse deployment.
-   Não usar o projeto `nada-normal-movement-tmp` nem presumir que o domínio
-   principal ou uma URL antiga estejam servindo essa branch.
-2. Guarde a URL e o commit. Se a Vercel pedir login para abrir o preview,
-   autentique-se; a proteção do deployment não é um erro da loja.
+O port local do site e das cinco APIs está preparado em `workers/storefront`, com
+testes no workerd; ainda não há aceite remoto. O staging Cloudflare completo
+ainda não foi publicado. **Agora, aguarde a URL
+e o commit confirmados pelo responsável técnico.** Não configurar Vercel nem
+usar seus deploys antigos para o aceite. Antes da seção 2, concluir a Etapa 0 do
+[roadmap](../roadmap.md) e o [checklist de migração](MIGRACAO_CLOUDFLARE.md).
+
+1. Abra a URL estável de staging **Cloudflare** informada pelo responsável técnico,
+   correspondente à **home-v2-contraste** e ao commit validado. Não presumir que
+   o domínio principal já tenha sido migrado. O nome do novo Worker da loja
+   será informado após sua criação.
+2. Guarde URL e commit. Se houver proteção do staging, use o acesso combinado;
+   o webhook Mercado Pago precisa continuar acessível ao provedor com HMAC.
 3. No celular e no computador, abra home, categorias e dois produtos.
    Confira imagens, tamanhos/cores, preços e seleção das variantes.
 4. Adicione um item ao carrinho, altere a quantidade, atualize a página e remova
@@ -34,6 +40,12 @@ número de cartão na loja. Não é esperado pagar antes da preparação da seç
 Esta parte é feita pelo responsável técnico/Codex com os acessos apropriados.
 O usuário confere os painéis e aprova as regras comerciais; não precisa instalar
 SDK nem colar código no editor online do Worker.
+
+Pré-requisito: site e cinco APIs portados e publicados na Cloudflare. Confirmar
+que `/api/checkout/order` e `/api/admin/users` são atendidos pelo Worker da loja,
+sem proxy à Vercel. Refresh de rotas profundas deve abrir o SPA; `/api/inexistente`
+deve retornar erro JSON/404, não HTML. Usuário comum não pode acessar a API admin.
+Testar cadastro, confirmação e recuperação de senha com as novas URLs de Auth.
 
 ### 2.1 Conferir as configurações existentes
 
@@ -114,18 +126,19 @@ O botão Simular notificação verifica apenas uma parte da entrega: um ID fict�
 pode ser rejeitado na consulta à API ou por não pertencer a um pedido local.
 Não considerar uma simulação isolada como compra confirmada.
 
-No preview Vercel da home-v2-contraste, o responsável técnico configura:
+No build de staging Cloudflare da home-v2-contraste, o responsável técnico configura:
 
 - `VITE_CHECKOUT_PRO_ENABLED=true`.
 - `VITE_PAYMENTS_API_URL=https://pagamentos-staging.nadanormalclub.com.br`.
 
 Conferir também os dados públicos Supabase do frontend e os bindings server-side
-das Vercel Functions de pedido: elas ainda fazem parte do fluxo e precisam da
-configuração de servidor correspondente. Nunca colocar a chave secreta em VITE_*.
+do Worker da loja que atende as APIs de pedido/admin. Secrets do Worker de
+pagamentos não são herdados automaticamente por outro Worker. Nunca colocar
+a chave secreta em VITE_*.
 O redirecionamento direto não usa Public Key Mercado Pago no frontend.
 
 As variáveis do Vite entram no build: gerar novo deployment do preview após
-alterá-las. Não habilitar a flag globalmente em produção nem no projeto temporário.
+alterá-las. Não habilitar a flag globalmente em produção nem em previews não confiáveis.
 
 Somente depois dessas conferências, o responsável técnico ativa
 `PAYMENTS_ENABLED=true` **no staging** e confirma `paymentsEnabled: true` no health.
@@ -157,13 +170,16 @@ automática de webhook perdido ainda é uma pendência, não uma garantia atual.
 
 ## 4. Cenários que precisamos registrar
 
-Executar o básico da loja agora; pagamentos só após a seção 2. Casos avançados
+Executar o básico da loja após o staging Cloudflare estar pronto; pagamentos só
+após a seção 2. Casos avançados
 devem ter acompanhamento técnico, especialmente porque o banco é compartilhado.
 
 | Cenário | Resultado esperado | Quando |
 | --- | --- | --- |
-| Catálogo e carrinho | Variante, quantidade e preços coerentes após refresh | Agora |
-| Login e endereço | Acesso válido e entrega correta na revisão | Agora |
+| Rotas e APIs migradas | Refresh abre a página; API inválida retorna JSON/404; nenhuma chamada à Vercel | Staging Cloudflare publicado |
+| Catálogo e carrinho | Variante, quantidade e preços coerentes após refresh | Staging Cloudflare publicado |
+| Login e endereço | Acesso válido, redirects Auth corretos e entrega correta na revisão | Staging Cloudflare publicado |
+| Admin e processador | Usuário comum/sem sessão recusado; expiração protegida e sem execução duplicada | Técnico, após port |
 | Cartão aprovado de teste | Um pedido confirmado após verificação do backend | Sandbox publicado |
 | Cartão recusado | Sem confirmação indevida; o checkout hospedado pode permitir nova tentativa | Sandbox publicado |
 | Cartão pendente | Página aguarda; sem marcar como pago | Sandbox publicado |
@@ -182,14 +198,15 @@ limitação do ambiente**. Não trocar para credenciais ou transferência reais 
 
 | Sintoma | Conferir primeiro / próxima ação |
 | --- | --- |
-| Deploy da Vercel ainda não Ready | Aguardar ou verificar logs; não testar um deploy antigo como se fosse o novo |
+| URL Cloudflare ainda não publicada | Migração pendente; aguardar deploy e commit confirmados, sem recorrer à Vercel |
+| API responde HTML / página perde rota no refresh | Conferir prioridade de `/api/*` e fallback SPA no Worker da loja |
 | URL mostra Hello World | Falta publicar o bundle do Worker |
 | CONFIGURATION_INVALID | Variáveis vazias, nomes, origem/URL, secrets ou ambiente; pedir revisão técnica |
 | Botão Finalizar compra em breve | Flag do frontend ou build/deploy errado; conferir a branch e refazer o build após configurar |
 | PAYMENTS_DISABLED | Submissões do Worker estão desligadas; confirmar a etapa antes de habilitar |
 | Erro de CORS | Origem exata do preview difere da allowlist ou do retorno configurado |
 | Sessão inválida / UNAUTHORIZED | Entrar novamente na loja e conferir o projeto Supabase do preview |
-| Pedido não é criado | Conferir endereço, variante, estoque e configuração server-side das Vercel Functions |
+| Pedido não é criado | Conferir endereço, variante, estoque e bindings/rota do Worker da loja |
 | Falha na preferência | Conferir recebedor, token de teste, resposta do provedor e gravação da claim; não repetir POST manualmente |
 | CHECKOUT_RECONCILIATION_REQUIRED | Há claim pendente; interromper novas tentativas e pedir reconciliação técnica |
 | Reserva expirada | Registrar o pedido e solicitar recuperação; a experiência de compra expirada ainda está em acabamento |
@@ -231,9 +248,17 @@ npm run worker:typecheck
 npm run lint
 npm run build
 npm run worker:build
+npm run shop:typecheck
+npm run shop:build
+npm run shop:test
 ```
 
-Após completar a configuração e ter autorização para o deploy de staging:
+Os comandos abaixo cobrem apenas o Worker de pagamentos, **não** a publicação
+do site e das cinco APIs. Comandos locais e configurações do Worker da loja
+estão em [workers/storefront/README.md](../workers/storefront/README.md).
+`shop:build` é dry-run; `shop:deploy` continua bloqueado até a preparação do passo 3.
+
+Após a Etapa 0, completar a configuração e ter autorização para o deploy de staging:
 
 ```sh
 npm run worker:deploy -- staging --check

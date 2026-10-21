@@ -6,13 +6,16 @@ Passo a passo para usuário e responsável técnico:
 
 ## O que está implementado
 
-Worker TypeScript ES Modules separado do SPA e das Vercel Functions.
+Worker TypeScript ES Modules separado do futuro Worker da loja (SPA e APIs).
 Cria preferências Checkout Pro, consulta status autenticado e verifica webhook
 assinado consultando a API Mercado Pago antes da transição financeira.
 O cliente paga no ambiente hospedado do Mercado Pago; não há Payment Brick.
 
-A criação de pedido continua em `POST /api/checkout/order` na Vercel, com a RPC
-transacional do Supabase. A preferência recebe apenas `{orderId}` e JWT; dinheiro,
+A criação de pedido ainda tem handler legado em `api/checkout/order.ts`, com a
+RPC transacional do Supabase. Seu port para `/api/checkout/order` no Worker da
+loja foi preparado localmente e seu aceite remoto é pré-requisito do staging;
+a Vercel não será usada. A preferência recebe
+apenas `{orderId}` e JWT; dinheiro,
 dono e reserva vêm do servidor. Rotas antigas quote/orders/payments do Worker
 permanecem stubs e não fazem parte do caminho de submissão atual.
 
@@ -67,6 +70,10 @@ Testes SQL no PostgreSQL descartável estão documentados no
 [ADR 002](../../docs/adr/002-checkout-pro.md).
 
 ## Configuração e publicação de staging
+
+Primeiro concluir a Etapa 0 do [roadmap](../../roadmap.md): site e cinco APIs na
+Cloudflare. Estes comandos publicam somente pagamentos, não a loja completa.
+Confira o [plano de migração](../../docs/MIGRACAO_CLOUDFLARE.md).
 
 Seguir a seção 2 do [roteiro](../../docs/ROTEIRO_DE_TESTES.md), sem publicar com
 campos vazios. O wrangler permanece JSON compatível porque o guard usa JSON.parse.

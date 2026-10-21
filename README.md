@@ -56,7 +56,7 @@ npm install
 npm run dev
 ```
 
-O projeto estará disponível em `http://localhost:5173` (ou outra porta indicada no terminal).
+O projeto estará disponível em `http://localhost:8080` (ou outra porta indicada no terminal).
 
 ### Build para Produção
 
@@ -90,7 +90,12 @@ npm run lint
 A branch oficial de desenvolvimento é `home-v2-contraste`; a `main` aguarda a
 validação final da loja. O planejamento vigente está em [roadmap.md](roadmap.md).
 O [passo a passo de testes](docs/ROTEIRO_DE_TESTES.md) separa o que pode ser
-conferido agora do que depende do deploy do Checkout Pro em staging.
+conferido após a migração do que depende do deploy do Checkout Pro em staging.
+A hospedagem de destino é **Cloudflare para o site e todas as APIs**, sem Vercel.
+O [plano de migração](docs/MIGRACAO_CLOUDFLARE.md) é a prioridade atual; o port
+local está preparado, mas configuração e deploy ainda estão pendentes.
+Comandos em [workers/storefront/README.md](workers/storefront/README.md).
+Supabase e Mercado Pago permanecem na arquitetura.
 Para configuração e comandos do Worker, consulte
 [workers/payments/README.md](workers/payments/README.md). As migrations já foram
 aplicadas ao Supabase; pagamentos reais permanecem bloqueados.

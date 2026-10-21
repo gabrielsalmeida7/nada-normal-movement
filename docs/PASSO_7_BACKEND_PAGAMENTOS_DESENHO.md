@@ -1,5 +1,9 @@
 # Passo 7 – Backend de pagamentos (Mercado Pago): desenho
 
+> Documento histórico, não executar as instruções Vercel abaixo. O planejamento
+> vigente usa site e APIs na Cloudflare: [migração](MIGRACAO_CLOUDFLARE.md) e
+> [Checkout Pro atual](adr/002-checkout-pro.md).
+
 Documento de design antes da implementação. Integração com Mercado Pago Checkout Pro via Vercel Serverless Functions.
 
 ---

@@ -29,7 +29,7 @@ export async function readJson(message: Request | Response, limit = 64 * 1024): 
 
 export async function upstreamJson(url: string, init: RequestInit): Promise<unknown> {
   try {
-    const response = await fetch(url, { ...init, redirect: "error", signal: AbortSignal.timeout(8000) });
+    const response = await fetch(url, { ...init, redirect: "manual", signal: AbortSignal.timeout(8000) });
     if (!response.ok) {
       await response.body?.cancel();
       throw new HttpError("UPSTREAM_UNAVAILABLE");

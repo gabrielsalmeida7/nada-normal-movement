@@ -1,14 +1,19 @@
 # API
 
-Somente os handlers HTTP ficam nesta pasta. Cada arquivo aqui vira uma
-Serverless Function no deploy, e o plano Hobby aceita no máximo 12. Núcleos,
-testes e utilitários ficam em `server/`.
+Esta pasta contém os cinco handlers HTTP **legados da Vercel**. O port local foi
+preparado em `workers/storefront`, mas ainda falta o aceite remoto antes de
+remover estes arquivos. A hospedagem de destino é exclusivamente Cloudflare: não criar novos
+deploys Vercel. Núcleos, testes e utilitários ficam em `server/`.
+O port, seus critérios de aceite e a retirada do legado estão no
+[plano de migração](../docs/MIGRACAO_CLOUDFLARE.md).
 
 Os endpoints antigos do Mercado Pago foram removidos.
 
 A integração Appmax foi descartada. A nova fronteira Mercado Pago será o
-Cloudflare Worker em `workers/payments`, conforme `roadmap.md` e
-`docs/adr/001-payments-worker.md`. Estes handlers permanecem durante o port.
+Cloudflare Worker em `workers/payments`, conforme [roadmap](../roadmap.md) e
+[ADR 002](../docs/adr/002-checkout-pro.md). Pedidos, orçamento, cancelamento,
+expiração e usuários admin serão portados para o Worker da loja, separado de
+pagamentos. Estes arquivos permanecem apenas enquanto o aceite do port está pendente.
 Até a integração validada, o checkout pode
 criar o pedido local e a tentativa `created`, mas não coleta dados de pagamento,
 chama gateway ou captura valores.
@@ -76,8 +81,8 @@ estoque de reserva já liberada nem de pedido pago ou com pagamento submetido.
 ## Gateway simulado
 
 O contrato `PaymentGateway`, os tipos de pedido, pagamento e resultado, e o
-adaptador determinístico ficam em `server/payments`. Nenhum arquivo novo entra
-em `api/`, então este passo não consome o limite de 12 Serverless Functions.
+adaptador determinístico ficam em `server/payments`. São utilitários de teste,
+não uma API produtiva nem persistência durável para o Worker.
 
 O adaptador não abre conexão de rede. Para uma tentativa explícita, ele devolve
 um destes resultados:

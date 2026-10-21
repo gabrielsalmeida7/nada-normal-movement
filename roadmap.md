@@ -1,6 +1,6 @@
 # Nada Normal — planejamento vigente
 
-Atualizado em 20/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
+Atualizado em 21/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
 
 Este documento descreve o estado entregue e as próximas etapas para abrir a loja.
 O [roteiro de testes](docs/ROTEIRO_DE_TESTES.md) explica o que executar e observar.
@@ -17,8 +17,14 @@ histórico; não orienta novas implementações de Payment Brick.
   nem publicar o ambiente de produção como parte dos testes.
 - Pagamentos: Mercado Pago **Checkout Pro via Preferences API**, com redirecionamento.
   Payment Brick e Appmax não fazem parte da implementação atual.
-- Frontend React/Vite na Vercel; preferências, webhook e consulta de status no
-  Cloudflare Worker; autenticação, catálogo, pedidos e estoque no Supabase.
+- Hospedar o site React/Vite e todas as APIs na Cloudflare. A Vercel não faz
+  parte da arquitetura de destino, dos testes nem do rollback planejado.
+- Usar Workers Static Assets para o site e Workers para as APIs; preservar o
+  Worker de pagamentos separado. Supabase continua com banco e autenticação;
+  Mercado Pago continua com Checkout Pro. Não migrar o banco para D1.
+- Priorizar a migração completa de hospedagem antes da validação online do
+  pagamento. Cobrança da Cloudflare é aceitável, mas deve ser estimada e monitorada;
+  não presumir custo fixo menor nem operação ilimitada gratuita.
 - O Supabase atual é compartilhado com os testes por decisão do usuário.
   Identificar os pedidos criados em cada sessão e preservar os dados existentes.
 
@@ -26,6 +32,7 @@ histórico; não orienta novas implementações de Payment Brick.
 
 | Área | Entregue | Ainda falta |
 | --- | --- | --- |
+| Hospedagem | Worker da loja com Static Assets, cinco APIs portadas e CI de verificação; testes locais em workerd | Configurar secrets, domínio, pipeline de deploy e validar staging remoto; remover legado após aceite |
 | Loja | Catálogo, variantes, carrinho, login, perfil, endereços e checkout em etapas | Validação completa no preview, principalmente no celular |
 | Pedidos | Cálculo autoritativo, criação transacional, idempotência e reserva | Recuperação de compras expiradas/repetidas e teste online de concorrência |
 | Checkout Pro | Código de preferência persistida, redirecionamento sandbox e retorno autenticado | Publicar/configurar o Worker e testar com o Mercado Pago |
@@ -45,13 +52,17 @@ Não reaplicar migrations, seeds ou bootstrap no projeto compartilhado.
 
 Último estado confirmado do ambiente remoto: secrets cadastrados e domínio do
 Worker associado; publicação do código novo e compras de teste ainda não foram
-validadas nesta entrega. A URL Vercel informada anteriormente pode apontar a um
-deploy antigo: selecionar sempre o preview da branch oficial e do commit correto.
+validadas nesta entrega. Deploys Vercel anteriores são legado, não o ambiente
+de aceite. A atualização deste plano não migra código nem altera DNS ou serviços.
 
-## 3. Fluxo implementado e responsabilidades
+## 3. Fluxo de destino e responsabilidades
+
+Destino aprovado, ainda não integralmente implementado. O inventário abaixo
+separa código existente de port pendente; publicar apenas o SPA não basta.
 
 1. O comprador entra na loja e seleciona itens e endereço.
-2. O frontend usa a Vercel Function de pedido; o Supabase recompõe valores e
+2. O frontend usa a API de pedido na Cloudflare, na mesma origem `/api/`;
+   o Supabase recompõe valores e
    reserva estoque. O cliente confere o total retornado pelo servidor.
 3. O Worker recebe somente o ID do pedido e a sessão autenticada. Confere dono
    e reserva, faz uma claim durável e cria a preferência no Mercado Pago.
@@ -61,17 +72,19 @@ deploy antigo: selecionar sempre o preview da branch oficial e do commit correto
 6. A página de retorno consulta o estado autenticado; parâmetros da URL não
    comprovam aprovação.
 
-| Endpoint | Onde roda | Estado atual |
+| Endpoint | Destino | Estado atual |
 | --- | --- | --- |
-| POST /api/checkout/quote | Vercel | Orçamento já implementado; não é a etapa de criação da preferência |
-| POST /api/checkout/order | Vercel | Criação/replay transacional usada pelo frontend |
-| POST /api/checkout/cancel | Vercel | Cancelamento de reserva ainda não submetida |
+| POST /api/checkout/quote | Worker da loja | Port local testado; aceite remoto pendente |
+| POST /api/checkout/order | Worker da loja | Port local testado, preservando RPC e chave idempotente; aceite remoto pendente |
+| POST /api/checkout/cancel | Worker da loja | Port local testado; aceite remoto pendente |
+| POST /api/checkout/expire-reservations | Worker da loja / agendamento interno | Rota protegida e handler scheduled preparados; nenhum Cron Trigger ativo |
+| GET /api/admin/users | Worker da loja | Port local testado com autorização admin e CPF mascarado; aceite remoto pendente |
 | GET /health | Worker | Verifica configuração local, sem testar credenciais externas |
 | POST /v1/checkout/preferences | Worker | Implementado, depende de configuração e ativação do staging |
 | GET /v1/checkout/orders/:id/status | Worker | Implementado, autenticado e restrito ao dono |
 | POST /webhooks/mercadopago | Worker | Implementado para notificações de pagamento de teste |
 | Quote/orders/payments antigos no Worker | Worker | Stubs; não usar no lugar das rotas acima |
-| Reconciliação agendada | A definir/implementar | Pendente |
+| Reconciliação agendada | Cloudflare Workers | Pendente; distinta da expiração de reservas |
 
 A Public Key Mercado Pago não é usada no redirecionamento direto atual.
 Os três secrets ficam no Worker, nunca no frontend. Detalhes no
@@ -79,19 +92,47 @@ Os três secrets ficam no Worker, nunca no frontend. Detalhes no
 
 ## 4. Etapas para concluir a loja
 
+### Etapa 0 — migrar site e APIs para Cloudflare
+
+**Estado: port e CI de verificação implementados; configuração/deploy e aceite remoto pendentes.**
+
+Passo 1: GitHub verificado; painel Cloudflare conferido manualmente pelo usuário.
+MCP Cloudflare ainda retorna erro interno; não foi possível confirmar o estado
+remoto independentemente nem inspecionar a aba do navegador nesta sessão.
+Passo 2: preparação em `workers/storefront`, sem publicação remota do site.
+Comandos e limites em [Worker da loja](workers/storefront/README.md).
+
+- Implementar o Worker da loja com Static Assets do build Vite e `/api/*` na
+  mesma origem. Manter `workers/payments` separado e seu domínio de webhook.
+- Portar os cinco handlers legados e seus testes para o runtime Workers;
+  preservar contratos, autorização, centavos, RPCs, locks e idempotência.
+- Configurar fallback do React Router sem devolver HTML em rotas de API;
+  validar rotas profundas, assets, cabeçalhos de cache e respostas privadas.
+- Separar staging/produção, variáveis de build e secrets de servidor. Rever
+  redirects de autenticação, CORS e retorno do Checkout Pro para origens Cloudflare.
+- Preparar CI/deploy da home-v2-contraste, URL estável de staging, verificações
+  obrigatórias e rollback na própria Cloudflare. Não publicar main automaticamente.
+- Medir uso/custos e documentar limites, alertas e plano escolhido antes do rollout.
+- Remover dependências/configuração Vercel após comprovar o port; planejar
+  desconexão dos deploys automáticos e desativação do legado sem apagar recursos agora.
+
+Aceite: staging Cloudflare serve o site e as cinco APIs com evidência de testes,
+sem chamadas ou proxy para a Vercel; autenticação e permissões preservadas,
+pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDFLARE.md).
+
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: etapa atual; publicação pendente.**
+**Estado: depende da Etapa 0; publicação pendente.**
 
 Responsável técnico/Codex:
 
-- Confirmar o preview Vercel da home-v2-contraste e a origem exata para o CORS.
+- Confirmar o staging Cloudflare da home-v2-contraste e a origem exata para o CORS.
 - Preencher as variáveis públicas vazias no wrangler de staging, conferir os
   secrets remotos e confirmar o recebedor do token de teste pela API.
 - Configurar Checkout Pro sandbox, retorno e webhook da aplicação correta.
 - Publicar primeiro com PAYMENTS_ENABLED=false; validar health, preflight,
   recusa de origem desconhecida e acesso autenticado ao status.
-- Preparar variáveis do frontend apenas no preview da branch oficial.
+- Preparar variáveis do frontend apenas no build Cloudflare de staging.
 
 Usuário:
 
@@ -154,6 +195,9 @@ aprovados, defeitos bloqueadores resolvidos e riscos restantes registrados.
 - Implementar configuração/validação de produção: o parser atual bloqueia a ativação.
 - Usar credenciais e webhook de produção separados, com cobrança inicialmente desligada.
 - Configurar monitoramento, alertas, procedimentos de estorno e rollback.
+- Vincular domínio principal e HTTPS à Cloudflare após aceite do staging;
+  conferir redirects, Auth, cache e URLs do Mercado Pago. Remover origens Vercel
+  e encerrar o legado conforme o plano de migração, sem usá-lo como fallback.
 - Com aprovação específica, fazer compra real controlada e verificar o estorno.
 - Após aceite, integrar a branch oficial à main e fazer o rollout planejado.
   Se necessário, atualizar o PR #9 ou abrir um substituto com o estado final.
@@ -180,13 +224,16 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** concluir a configuração e publicar o Worker de staging,
-inicialmente sem submissões. **Próxima ação do usuário:** selecionar o preview da
-home-v2-contraste e executar os testes de loja que não dependem de pagamento.
+**Próxima ação técnica:** concluir a configuração e publicação de staging
+(passo 3), pois o port local já está preparado. Comprovar o E2E remoto das APIs
+antes de publicar o sandbox de pagamentos. **Próxima ação do usuário:** aguardar
+a URL Cloudflare e o commit confirmados para executar o roteiro; não configurar
+novos deploys, variáveis ou planos na Vercel. Não é necessário reenviar secrets.
 
 Consultar também:
 
 - [Roteiro de testes e diagnóstico](docs/ROTEIRO_DE_TESTES.md).
+- [Plano de migração para Cloudflare](docs/MIGRACAO_CLOUDFLARE.md).
 - [Configuração e comandos do Worker](workers/payments/README.md).
 - [Estado e histórico do Supabase](supabase/README.md).
 - [Decisão técnica Checkout Pro](docs/adr/002-checkout-pro.md).

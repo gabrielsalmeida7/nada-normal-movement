@@ -16,7 +16,13 @@
     "worker:build": "node workers/payments/scripts/run.mjs build",
     "worker:typecheck": "tsc --noEmit -p workers/payments/tsconfig.json",
     "worker:test": "vitest run --config workers/payments/vitest.config.ts",
-    "worker:deploy": "node --experimental-strip-types workers/payments/scripts/deploy.mjs"
+    "worker:deploy": "node --experimental-strip-types workers/payments/scripts/deploy.mjs",
+    "shop:dev": "node workers/storefront/scripts/run.mjs dev",
+    "shop:build": "node workers/storefront/scripts/run.mjs build",
+    "shop:typecheck": "tsc --noEmit -p workers/storefront/tsconfig.json",
+    "shop:test": "vitest run --config workers/storefront/vitest.config.ts",
+    "shop:deploy": "node workers/storefront/scripts/run.mjs deploy",
+    "shop:types": "node workers/storefront/scripts/run.mjs types"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -90,6 +96,7 @@
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
     "lovable-tagger": "^1.1.13",
+    "miniflare": "5.20261012.1-beta",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",

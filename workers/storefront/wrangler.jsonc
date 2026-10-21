@@ -1,0 +1,61 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "nada-normal-storefront-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "upload_source_maps": true,
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "assets": {
+    "directory": "../../dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*", "/health"]
+  },
+  "vars": {
+    "APP_ENV": "local",
+    "SHOP_API_ENABLED": "false",
+    "RESERVATION_PROCESSOR_ENABLED": "false",
+    "SUPABASE_URL": "",
+    "SUPABASE_PUBLISHABLE_KEY": ""
+  },
+  "env": {
+    "staging": {
+      "name": "nada-normal-storefront-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      "assets": {
+        "directory": "../../dist", "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api", "/api/*", "/health"]
+      },
+      "secrets": { "required": ["SUPABASE_SECRET_KEY", "RESERVATION_PROCESSOR_SECRET"] },
+      "vars": {
+        "APP_ENV": "staging",
+        "SHOP_API_ENABLED": "false",
+        "RESERVATION_PROCESSOR_ENABLED": "false",
+        "SUPABASE_URL": "",
+        "SUPABASE_PUBLISHABLE_KEY": ""
+      }
+    },
+    "production": {
+      "name": "nada-normal-storefront-production",
+      "workers_dev": false,
+      "preview_urls": false,
+      "assets": {
+        "directory": "../../dist", "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+        "run_worker_first": ["/api", "/api/*", "/health"]
+      },
+      "vars": {
+        "APP_ENV": "production",
+        "SHOP_API_ENABLED": "false",
+        "RESERVATION_PROCESSOR_ENABLED": "false",
+        "SUPABASE_URL": "",
+        "SUPABASE_PUBLISHABLE_KEY": ""
+      }
+    }
+  }
+}
