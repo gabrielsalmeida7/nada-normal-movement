@@ -14,6 +14,7 @@ describe("guard de staging", () => {
   it.each(["false", "true"])("permite APIs %s somente no staging protegido", value => {
     const stage = structuredClone(config);
     stage.env.staging.vars.SHOP_API_ENABLED = value;
+    stage.env.staging.vars.CHECKOUT_PRO_ENABLED = "false";
     expect(validateStaging(stage).SHOP_API_ENABLED).toBe(value);
     expect(frontendEnv(validateStaging(stage), {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(stage.env.production.vars.SHOP_API_ENABLED).toBe("false");
@@ -29,6 +30,8 @@ describe("guard de staging", () => {
     { APP_ENV: "production" }, { RESERVATION_PROCESSOR_ENABLED: "true" },
     { SUPABASE_URL: "https://other.supabase.co" }, { SUPABASE_PUBLISHABLE_KEY: "sb_secret_not-public" },
     { MP_ACCESS_TOKEN: "not-allowed" },
+    { CHECKOUT_PRO_ENABLED: "yes" }, { CHECKOUT_PRO_MODE: "production" },
+    { PAYMENTS_API_URL: "https://wrong.example.com" }, { SHOP_API_ENABLED: "false" },
   ])("recusa bindings inseguros %j", vars => {
     const bad = structuredClone(config);
     Object.assign(bad.env.staging.vars, vars);
@@ -43,13 +46,26 @@ describe("guard de staging", () => {
     Object.assign(bad.env.staging, override);
     expect(() => validateStaging(bad)).toThrow();
   });
-  it("força frontend com chave pública e sem Checkout Pro mesmo com override herdado", () => {
+  it("forces the explicitly authorized sandbox with public keys over inherited overrides", () => {
     const result = frontendEnv(validateStaging(config), {
-      VITE_CHECKOUT_PRO_ENABLED: "true", VITE_SUPABASE_ANON_KEY: "sb_secret_wrong",
+      VITE_CHECKOUT_PRO_ENABLED: "false", VITE_SUPABASE_ANON_KEY: "sb_secret_wrong",
       VITE_PAYMENTS_API_URL: "https://wrong.example.com",
     });
+    expect(result.VITE_CHECKOUT_PRO_ENABLED).toBe("true");
+    expect(result.VITE_PAYMENTS_API_URL).toBe("https://pagamentos-staging.nadanormalclub.com.br");
+    expect(result.VITE_SUPABASE_ANON_KEY).toMatch(/^sb_publishable_/);
+  });
+  it("keeps rollback disabled despite inherited activation", () => {
+    const stage = structuredClone(config);
+    stage.env.staging.vars.CHECKOUT_PRO_ENABLED = "false";
+    const result = frontendEnv(validateStaging(stage), { VITE_CHECKOUT_PRO_ENABLED: "true" });
     expect(result.VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(result.VITE_PAYMENTS_API_URL).toBe("");
-    expect(result.VITE_SUPABASE_ANON_KEY).toMatch(/^sb_publishable_/);
+  });
+  it("never enables checkout in local or production builds", () => {
+    for (const APP_ENV of ["local", "production"]) {
+      expect(() => frontendEnv({ ...config.env.staging.vars, APP_ENV }, {})).toThrow();
+    }
+    expect(frontendEnv(config.env.production.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
   });
 });

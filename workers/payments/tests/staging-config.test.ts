@@ -36,8 +36,9 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(Object.keys(vars).filter(name => /SECRET|TOKEN/.test(name))).toEqual([]);
     expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS]);
   });
-  it("keeps frontend, production, previews and schedulers closed", () => {
-    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
+  it("enables only the authorized sandbox frontend, keeping production/previews/schedulers closed", () => {
+    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("true");
+    expect(frontendEnv(storefront.env.production.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(config.env.production.vars.PAYMENTS_ENABLED).toBe("false");
     expect(config.env.staging.workers_dev).toBe(false);
     expect(config.env.staging.preview_urls).toBe(false);

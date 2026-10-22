@@ -31,10 +31,11 @@ não considera a query string como confirmação de pagamento.
   token instalado como vendedor de teste 3272217989 (Brasil/MLB).
 - Configuração pública de staging preenchida e publicada em 22/10: conta fixa,
   CORS/retorno exatos da loja, Supabase público, sandbox, webhook e vendedor.
-- Worker 0.2.0 com PAYMENTS_ENABLED=false. Health/CORS, status autenticado e
+- Worker 0.2.0; PAYMENTS_ENABLED=true autorizado exclusivamente em staging sandbox.
+  Conferir health após o release; produção continua false. Health/CORS, status autenticado e
   recusa de webhook sem assinatura verificados online. O pedido QA foi cancelado
   com estoque restituído; nenhuma preferência criada. E2E de pagamento pendente.
-- Frontend desativado sem `VITE_CHECKOUT_PRO_ENABLED=true`.
+- Frontend de staging ativado explicitamente no build protegido; produção fica desativada.
 - Cobrança permitida somente em staging sandbox após configuração explícita.
   Produção continua bloqueada no parser, mesmo mudando a flag.
 
@@ -55,7 +56,11 @@ distingue assinatura aceita de recurso inexistente; não comprova uma compra.
 Sem registro correspondente, não atribuir o 503 a essa hipótese. As simulações
 anteriores não podem ser reconstruídas pelos novos logs.
 
-Manter pagamentos/frontend bloqueados durante o diagnóstico. Após resolver a
+Durante a investigação inicial, pagamentos/frontend ficaram bloqueados. A
+assinatura foi posteriormente validada por notificações simuladas, com upstream
+404 no ID fictício; o usuário autorizou ativação exclusivamente sandbox.
+O backend já confirmou health true no build `9ceb8c91-e268-4fc8-ab4c-aea615553d1c`.
+Isso não comprova compra ponta a ponta. Após resolver a
 pendência, remover/reduzir esta coleta temporária e ajustar o guard de release
 em conjunto. Logs persistidos podem consumir a franquia de observabilidade;
 não manter coleta integral indefinidamente.
@@ -131,7 +136,8 @@ referência ao token de build existente, sem obter seu valor. Pushes na
 home-v2-contraste acionam também o Worker de pagamentos; previews ficam desligados.
 Build `npm run worker:stage:prepare`, deploy `npm run worker:stage:deploy`, raiz `/`,
 Node 24. O release exige branch/commit da Cloudflare, configuração exata de
-staging/pagamentos false, manifesto/fingerprint atual e secrets presentes por nome.
+staging/sandbox, flag explícita true ou false conferida no manifesto/fingerprint
+atual e secrets presentes por nome.
 Não executar o deploy de release fora do Workers Builds ou contornar seus gates.
 
 ```sh

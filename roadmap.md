@@ -38,7 +38,7 @@ histórico; não orienta novas implementações de Payment Brick.
 | Hospedagem | Loja publicada em workers.dev, APIs habilitadas só no staging, secrets separados e deploy automático da home-v2-contraste confirmado | URLs Auth, custos/limites, aceite de expiração e retirada do legado; domínio principal só no rollout |
 | Loja | Camisa Sem Tempo NN ativa com duas fotos e seis variantes; usuário validou carrinho no celular, persistência, totais, remoção, variantes, login, admin e checkout até pagamento bloqueado | Cadastro/recuperação de senha, catálogo completo, acessibilidade e operação dropshipping |
 | Pedidos | Ensaio autenticado online de orçamento, criação, replay, conflito de chave e cancelamento idempotente aprovado; estoque restaurado | Recuperação de compras expiradas/repetidas e teste online de concorrência |
-| Checkout Pro | Worker 0.2.0 publicado em staging, token/vendedor validados, CORS/health/status autenticado testados, submissões desligadas | Conferir webhook/aplicação/assinatura e preparar ativação exclusivamente sandbox; testar preferência e compra |
+| Checkout Pro | Worker 0.2.0 publicado em staging, token/vendedor e assinatura de notificações de teste validados; ativação sandbox autorizada e versionada | Conferir publicação das flags, preferência, redirecionamento e compra de teste ponta a ponta |
 | Confirmação | Código de HMAC, consulta da API e gravação financeira deduplicada | Validar webhook real de teste e automatizar reconciliação |
 | Supabase | Três migrations aplicadas em 19/10/2026, com RLS e acesso financeiro do backend | Revisão dos alertas anteriores e reconciliação do histórico antes de usar db push |
 | GitHub | Código e documentação integrados na home-v2-contraste | Manter a main aguardando o aceite final |
@@ -61,7 +61,9 @@ Não reaplicar migrations, seeds ou bootstrap no projeto compartilhado.
 Estado remoto: loja/APIs publicadas na Cloudflare; 20 pedidos anteriores
 preservados e 2 pedidos QA adicionais cancelados, com tentativas locais canceladas
 e estoque restituído. Nenhuma sessão Checkout Pro foi criada nesses testes.
-Worker de pagamentos publicado com novas submissões desligadas; health/CORS,
+Worker de pagamentos publicado; backend sandbox habilitado e health confirmou
+`paymentsEnabled=true` no build `9ceb8c91-e268-4fc8-ab4c-aea615553d1c`, commit
+`f3d874d`. Frontend preparado para release posterior ao backend. Health/CORS,
 recusa de webhook sem assinatura e status autenticado foram verificados online.
 Isso ainda não comprova preferência, pagamento ou webhook real do Mercado Pago.
 Vercel é legado, não ambiente de aceite. Produção/main/DNS principal inalterados.
@@ -148,9 +150,9 @@ pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDF
 
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: partes 1, 2 e 3 concluídas. Worker de pagamentos publicado em staging;
-health/CORS/status autenticado aprovados. Submissões e frontend continuam desligados;
-notificações reais e ativação exclusivamente sandbox ainda pendentes.**
+**Estado: partes 1, 2 e 3 concluídas; assinatura de notificações simuladas validada.
+Parte 4: ativação exclusivamente sandbox autorizada e versionada. Confirmar flags
+remotas e primeira compra de teste; produção continua bloqueada.**
 
 #### Parte 1 — identificar aplicação, credenciais e recebedor
 
@@ -213,7 +215,7 @@ Estoque voltou a 50; nenhuma sessão Checkout Pro criada. Exceção controlada d
 substituição inicial foi retirada, com retorno do --strict obrigatório.
 [Evidências e IDs](docs/PUBLICACAO_PAGAMENTOS_STAGING_2026-10-22.md).
 
-#### Parte 4 — webhook registrado; assinatura ainda pendente
+#### Parte 4 — assinatura validada; ativação exclusivamente sandbox
 
 - [x] MCP `save_webhook` confirmou a aplicação `6344920694868580` com URL sandbox
   `https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago`.
@@ -225,7 +227,7 @@ substituição inicial foi retirada, com retorno do --strict obrigatório.
 - [ ] Conferir os eventos no painel: apesar da solicitação de `payment`, o MCP
   também listou `shipping`, `topic_claims_integration_wh` e
   `topic_merchant_order_wh`. O receptor atual trata somente `payment`.
-- [ ] Enviar **Simular notificação** no painel e verificar assinatura/resultado.
+- [x] Enviar **Simular notificação** no painel e verificar assinatura/resultado.
   O MCP não oferece ferramenta de simulação nem acesso ao valor completo da
   assinatura; histórico vazio não prova ausência ou correção da configuração.
   Não redefinir o secret nem interpretar uma simulação com ID fictício como
@@ -233,12 +235,26 @@ substituição inicial foi retirada, com retorno do --strict obrigatório.
 - Diagnóstico em andamento: duas simulações do usuário retornaram 503, incluindo
   uma com tópico `payment` e ID fictício `123456`. O painel omite o corpo da
   resposta do Worker; a consulta de logs históricos não retornou registros.
-  Foi autorizado diagnóstico seguro: novo evento `webhook_diagnostic` somente
+  Foi autorizado diagnóstico seguro: evento `webhook_diagnostic` somente
   em staging, sem payloads/credenciais, com etapa, assinatura verificada ou não,
-  código fixo e status de upstream. Exige nova simulação após publicar; ainda
-  não atribuir o erro ao ID fictício nem marcar HMAC como validado.
-- [ ] Após essa conferência, preparar e habilitar exclusivamente sandbox/backend
-  e frontend para a compra de teste da Etapa 2. Produção permanece bloqueada.
+  código fixo e status de upstream. Após publicar o commit `46899b2`, quatro
+  consultas registraram `signatureVerified=true`, etapa de consulta/validação
+  do provedor, `UPSTREAM_UNAVAILABLE` e upstream HTTP 404. Isso comprova assinatura
+  aceita e recurso não encontrado nessas tentativas, compatível com ID fictício.
+  Outra tentativa teve assinatura aceita, mas falhou na leitura do payload;
+  não atribuí-la automaticamente à mesma causa. Nenhuma dessas simulações
+  comprova pagamento ou atualização financeira de um pedido.
+- [x] Usuário autorizou habilitar exclusivamente sandbox/backend e frontend.
+  Backend primeiro, frontend depois; guards continuam exigindo conta, branch,
+  domínio, sandbox e vendedor fixos. Manifestos passam a conferir a flag
+  autorizada em vez de forçar false. Rollback para false continua permitido.
+- [ ] Confirmar publicação remota das duas flags e executar preferência,
+  redirecionamento e compra sandbox vinculada a pedido da loja (Etapa 2).
+  Produção/main/DNS principal inalterados; nenhuma compra real autorizada.
+
+Backend da parte 4 publicado e verificado: health staging com pagamentos true;
+criação sem sessão retorna 401, sem criar pedido ou preferência. Não é ainda
+evidência de preferência autenticada, redirecionamento ou compra concluída.
 
 Responsável técnico/Codex:
 

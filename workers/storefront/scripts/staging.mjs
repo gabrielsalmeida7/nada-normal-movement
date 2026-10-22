@@ -6,7 +6,18 @@ import { fileURLToPath } from "node:url";
 export const root = fileURLToPath(new URL("../../../", import.meta.url));
 export const configPath = "workers/storefront/wrangler.jsonc";
 export const manifestPath = `${root}/.wrangler/storefront-staging.json`;
+const paymentsOrigin = "https://pagamentos-staging.nadanormalclub.com.br";
 const hash = data => createHash("sha256").update(data).digest("hex");
+
+export function sandboxEnabled(vars) {
+  const flag = vars.CHECKOUT_PRO_ENABLED ?? "false";
+  if (!["false", "true"].includes(flag)) throw new Error("SANDBOX_CONFIGURATION_INVALID");
+  if (flag === "true" && (vars.APP_ENV !== "staging" || vars.SHOP_API_ENABLED !== "true" ||
+    vars.CHECKOUT_PRO_MODE !== "sandbox" || vars.PAYMENTS_API_URL !== paymentsOrigin)) {
+    throw new Error("SANDBOX_CONFIGURATION_INVALID");
+  }
+  return flag === "true";
+}
 
 export function validateStaging(config) {
   const stage = config.env?.staging;
@@ -26,6 +37,7 @@ export function validateStaging(config) {
       !["SUPABASE_SECRET_KEY", "RESERVATION_PROCESSOR_SECRET"].every(name => stage.secrets?.required?.includes(name))) {
     throw new Error("STAGING_CONFIGURATION_INVALID");
   }
+  sandboxEnabled(vars);
   return vars;
 }
 
@@ -37,9 +49,10 @@ export function validateBuildContext(env, head) {
 }
 
 export function frontendEnv(vars, inherited = process.env) {
+  const enabled = sandboxEnabled(vars);
   return { ...inherited, VITE_SUPABASE_URL: vars.SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: vars.SUPABASE_PUBLISHABLE_KEY,
-    VITE_CHECKOUT_PRO_ENABLED: "false", VITE_PAYMENTS_API_URL: "" };
+    VITE_CHECKOUT_PRO_ENABLED: String(enabled), VITE_PAYMENTS_API_URL: enabled ? paymentsOrigin : "" };
 }
 
 export function runNode(args, env = process.env, capture = false) {
@@ -73,15 +86,15 @@ export async function prepareStaging() {
   await writeFile(`${root}/dist/_headers`, `${headers}\n/*\n  X-Robots-Tag: noindex, nofollow\n`);
   await mkdir(`${root}/.wrangler`, { recursive: true });
   await writeFile(manifestPath, JSON.stringify({ commit: getHead(), config: hash(text),
-    assets: await fingerprint(), paymentsEnabled: false }));
+    assets: await fingerprint(), paymentsEnabled: sandboxEnabled(vars) }));
 }
 
 export async function checkManifest() {
   const text = await readFile(`${root}/${configPath}`, "utf8");
-  validateStaging(JSON.parse(text));
+  const vars = validateStaging(JSON.parse(text));
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   if (manifest.commit !== getHead() || manifest.config !== hash(text) ||
-      manifest.assets !== await fingerprint() || manifest.paymentsEnabled !== false) {
+      manifest.assets !== await fingerprint() || manifest.paymentsEnabled !== sandboxEnabled(vars)) {
     throw new Error("STAGING_BUILD_STALE");
   }
 }

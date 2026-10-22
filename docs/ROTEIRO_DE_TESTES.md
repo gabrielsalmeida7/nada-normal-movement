@@ -157,9 +157,11 @@ faz GET e pode retornar 405: isso não testa o POST assinado do Mercado Pago.
 ### 2.4 Preparar notificações e o preview
 
 Em 22/10/2026, o MCP confirmou o registro da URL sandbox na aplicação
-`6344920694868580`, sem URL produtiva configurada. A assinatura ainda não foi
-validada por uma notificação do Mercado Pago; backend e frontend seguem
-desligados para novas compras. O retorno do MCP listou eventos extras mesmo com
+`6344920694868580`, sem URL produtiva configurada. Após publicar diagnóstico,
+notificações simuladas tiveram `signatureVerified=true` e a consulta ao provedor
+retornou 404, compatível com o ID fictício `123456`. A assinatura foi validada,
+mas isso não confirma pagamento. Ativação exclusivamente sandbox autorizada;
+confirmar health remoto e build do frontend antes de testar. O MCP listou eventos extras mesmo com
 a solicitação de `payment`: conferir a seleção no painel, pois o receptor atual
 trata somente Pagamentos.
 
@@ -175,11 +177,9 @@ Após confirmar o endpoint publicado, no Mercado Pago Developers:
 O botão Simular notificação verifica apenas uma parte da entrega: um ID fictício
 pode ser rejeitado na consulta à API ou por não pertencer a um pedido local.
 Não considerar uma simulação isolada como compra confirmada.
-Para continuar agora: abra o painel Webhooks da aplicação acima, confira o modo
-de teste e evento Pagamentos, clique em **Simular notificação** e envie somente
-o código HTTP e mensagem exibidos, ou um print ocultando assinatura e dados
-pessoais. Não clique em **Redefinir**. Uma recusa de assinatura deve ser
-investigada antes de ativar as compras de teste.
+Não repetir indefinidamente o ID fictício: o receptor consulta a API e não deve
+confirmar como paga uma compra inexistente. O próximo teste usa o ID de pagamento
+criado no Checkout Pro de um pedido da loja. Não clique em **Redefinir**.
 
 No build de staging Cloudflare da home-v2-contraste, o responsável técnico configura:
 
