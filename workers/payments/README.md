@@ -29,10 +29,11 @@ não considera a query string como confirmação de pagamento.
 - Migrations remotas aplicadas e verificadas em 19/10/2026. Não reaplicar.
 - Secrets e domínio confirmados; a consulta protegida na Cloudflare validou o
   token instalado como vendedor de teste 3272217989 (Brasil/MLB).
-- Configuração pública de staging preenchida em 22/10: conta fixa, CORS/retorno
-  exatos da loja em workers.dev, Supabase público, modo sandbox, webhook e vendedor.
-  Não foi publicada nesta preparação; o Worker remoto ainda está na versão
-  Hello World restaurada após o diagnóstico. E2E de pagamento continua pendente.
+- Configuração pública de staging preenchida e publicada em 22/10: conta fixa,
+  CORS/retorno exatos da loja, Supabase público, sandbox, webhook e vendedor.
+- Worker 0.2.0 com PAYMENTS_ENABLED=false. Health/CORS, status autenticado e
+  recusa de webhook sem assinatura verificados online. O pedido QA foi cancelado
+  com estoque restituído; nenhuma preferência criada. E2E de pagamento pendente.
 - Frontend desativado sem `VITE_CHECKOUT_PRO_ENABLED=true`.
 - Cobrança permitida somente em staging sandbox após configuração explícita.
   Produção continua bloqueada no parser, mesmo mudando a flag.
@@ -79,8 +80,8 @@ Primeiro concluir a Etapa 0 do [roadmap](../../roadmap.md): site e cinco APIs na
 Cloudflare. Estes comandos publicam somente pagamentos, não a loja completa.
 Confira o [plano de migração](../../docs/MIGRACAO_CLOUDFLARE.md).
 
-Seguir a seção 2 do [roteiro](../../docs/ROTEIRO_DE_TESTES.md). Os campos de staging
-foram preenchidos; produção continua incompleta/bloqueada. O wrangler permanece
+Seguir a seção 2 do [roteiro](../../docs/ROTEIRO_DE_TESTES.md). Staging foi publicado
+com submissões desligadas; produção continua incompleta/bloqueada. O wrangler permanece
 JSON compatível porque o guard usa JSON.parse.
 Secrets nunca entram em vars, VITE_*, Git, logs ou exemplos com valores reais.
 
@@ -98,10 +99,27 @@ nem ativa o frontend. A URL de webhook no código é o destino planejado; presen
 de secret não comprova que o painel aponta para a aplicação correta ou que HMAC
 foi testado. Conferir isso após publicar o endpoint na parte seguinte.
 
-Verificação local: guard `staging --check`, tipos regenerados e build de staging
-em dry-run; 104 testes de pagamentos passaram, incluindo nove testes da
-configuração versionada sem tráfego externo. Nenhum secret real é usado nos
-testes; nenhum deploy de pagamentos ou alteração do Supabase foi executado.
+Verificação: suíte permanente de pagamentos com 116 testes, guard, tipos,
+build dry-run e testes online documentados em
+[publicação de staging](../../docs/PUBLICACAO_PAGAMENTOS_STAGING_2026-10-22.md).
+Secrets reais não são usados nos testes unitários; o smoke online usa conta QA.
+
+Publicação remota configurada pelo Workers Builds, com a conexão Git da loja e
+referência ao token de build existente, sem obter seu valor. Pushes na
+home-v2-contraste acionam também o Worker de pagamentos; previews ficam desligados.
+Build `npm run worker:stage:prepare`, deploy `npm run worker:stage:deploy`, raiz `/`,
+Node 24. O release exige branch/commit da Cloudflare, configuração exata de
+staging/pagamentos false, manifesto/fingerprint atual e secrets presentes por nome.
+Não executar o deploy de release fora do Workers Builds ou contornar seus gates.
+
+```sh
+npm run worker:stage:check    # offline, sem publicação
+npm run worker:stage:prepare  # testes e dry-run; não publica
+```
+
+A substituição inicial do Hello World exigiu exceção pontual validada por IDs
+imutáveis conhecidos. A exceção e sua variável de build foram removidas após
+o sucesso. Os scripts atuais voltaram a exigir --strict no deploy normal.
 
 ```sh
 npm run worker:deploy -- staging --check

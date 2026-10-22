@@ -38,15 +38,17 @@ histórico; não orienta novas implementações de Payment Brick.
 | Hospedagem | Loja publicada em workers.dev, APIs habilitadas só no staging, secrets separados e deploy automático da home-v2-contraste confirmado | URLs Auth, custos/limites, aceite de expiração e retirada do legado; domínio principal só no rollout |
 | Loja | Camisa Sem Tempo NN ativa com duas fotos e seis variantes; usuário validou carrinho no celular, persistência, totais, remoção, variantes, login, admin e checkout até pagamento bloqueado | Cadastro/recuperação de senha, catálogo completo, acessibilidade e operação dropshipping |
 | Pedidos | Ensaio autenticado online de orçamento, criação, replay, conflito de chave e cancelamento idempotente aprovado; estoque restaurado | Recuperação de compras expiradas/repetidas e teste online de concorrência |
-| Checkout Pro | Preferência persistida, redirecionamento sandbox e retorno implementados; token instalado validado na Cloudflare e configuração sandbox preenchida no código | Publicar pagamentos desligados e validar health/CORS/status; depois conferir webhook e ativar somente sandbox |
+| Checkout Pro | Worker 0.2.0 publicado em staging, token/vendedor validados, CORS/health/status autenticado testados, submissões desligadas | Conferir webhook/aplicação/assinatura e preparar ativação exclusivamente sandbox; testar preferência e compra |
 | Confirmação | Código de HMAC, consulta da API e gravação financeira deduplicada | Validar webhook real de teste e automatizar reconciliação |
 | Supabase | Três migrations aplicadas em 19/10/2026, com RLS e acesso financeiro do backend | Revisão dos alertas anteriores e reconciliação do histórico antes de usar db push |
 | GitHub | Código e documentação integrados na home-v2-contraste | Manter a main aguardando o aceite final |
 | Produção | Cobrança desativada por padrão e bloqueada fora de staging no código atual | Implementar ambiente produtivo e validar compra real controlada |
 
 Na ativação das APIs, 215 testes passaram com TypeScript/builds e CI aprovados.
-Na preparação atual, pagamentos tem 104 testes aprovados, incluindo diagnóstico
-protegido e configuração sandbox versionada; app/server tem 86 e storefront/guard 50.
+Na publicação atual, a suíte permanente de pagamentos tem 116 testes aprovados,
+incluindo diagnóstico, configuração e guard Workers Builds; app/server tem 86 e
+storefront/guard 50. A exceção inicial de bootstrap teve sete testes adicionais
+durante seu uso e foi removida após a substituição do Hello World.
 Lint sem erros, com oito avisos preexistentes. O ensaio autenticado online de
 pedidos também passou; [relatório](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
 Isso não comprova pagamento, webhook, expiração ou concorrência online.
@@ -57,10 +59,11 @@ Mapeamento dos arquivos e versões remotas em [supabase/README.md](supabase/READ
 Não reaplicar migrations, seeds ou bootstrap no projeto compartilhado.
 
 Estado remoto: loja/APIs publicadas na Cloudflare; 20 pedidos anteriores
-preservados e 1 pedido QA adicional cancelado, com tentativa local cancelada e
-estoque restituído. Nenhuma sessão Checkout Pro foi criada para esse teste.
-Worker de pagamentos ainda aguarda configuração/publicação do código novo;
-não confundir sua criação e presença de secrets com integração funcional.
+preservados e 2 pedidos QA adicionais cancelados, com tentativas locais canceladas
+e estoque restituído. Nenhuma sessão Checkout Pro foi criada nesses testes.
+Worker de pagamentos publicado com novas submissões desligadas; health/CORS,
+recusa de webhook sem assinatura e status autenticado foram verificados online.
+Isso ainda não comprova preferência, pagamento ou webhook real do Mercado Pago.
 Vercel é legado, não ambiente de aceite. Produção/main/DNS principal inalterados.
 
 ## 3. Fluxo de destino e responsabilidades
@@ -89,8 +92,8 @@ o que foi verificado remotamente do que existe apenas como código.
 | GET /api/admin/users | Worker da loja | Usuário confirmou listagem como admin; comprador QA recusado com 403 |
 | GET /health | Worker | Verifica configuração local, sem testar credenciais externas |
 | POST /v1/checkout/preferences | Worker | Implementado, depende de configuração e ativação do staging |
-| GET /v1/checkout/orders/:id/status | Worker | Implementado, autenticado e restrito ao dono |
-| POST /webhooks/mercadopago | Worker | Implementado para notificações de pagamento de teste |
+| GET /v1/checkout/orders/:id/status | Worker pagamentos | Online: dono consultou pending/held e cancelled/released; outro comprador 404; sem sessão 401 |
+| POST /webhooks/mercadopago | Worker pagamentos | Publicado; sem assinatura retorna 401; evento real assinado e vínculo ao aplicativo pendentes |
 | Quote/orders/payments antigos no Worker | Worker | Stubs; não usar no lugar das rotas acima |
 | Reconciliação agendada | Cloudflare Workers | Pendente; distinta da expiração de reservas |
 
@@ -145,9 +148,9 @@ pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDF
 
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: partes 1 e 2 concluídas. Identidade do vendedor validada na Cloudflare;
-configuração sandbox preparada e testada no código. Publicação do Worker de
-pagamentos (parte 3) ainda pendente; submissões e frontend continuam desligados.**
+**Estado: partes 1, 2 e 3 concluídas. Worker de pagamentos publicado em staging;
+health/CORS/status autenticado aprovados. Submissões e frontend continuam desligados;
+notificações reais e ativação exclusivamente sandbox ainda pendentes.**
 
 #### Parte 1 — identificar aplicação, credenciais e recebedor
 
@@ -197,11 +200,24 @@ publica o backend de pagamentos. Nenhum secret, webhook do painel, dado do banco
 ou ambiente de produção foi alterado nesta parte. A assinatura de webhook e sua
 associação à aplicação ainda exigem conferência/teste na etapa própria.
 
-#### Partes seguintes — ainda não executadas
+#### Parte 3 — publicada e verificada em 22/10/2026
 
-3. Publicar primeiro com `PAYMENTS_ENABLED=false` e conferir health/CORS/status.
-4. Após os critérios anteriores, habilitar exclusivamente sandbox/frontend
-   para a compra de teste da Etapa 2. Não ativar produção.
+Workers Builds conectado ao Worker de pagamentos, somente home-v2-contraste e
+sem previews, com testes/guard/manifesto antes de publicar. Build
+`0109807f-bc61-4376-912b-114e75648d5a`, commit `6e5e87d`, versão
+`3fd08eef-5a93-4bca-b9f8-59a80f259afa`; pagamentos continuam false.
+Health 0.2.0, preflight exato, origem inválida 403, preferência 503,
+status sem sessão 401 e webhook sem assinatura 401 verificados online.
+Novo pedido QA consultado pelo dono antes/depois do cancelamento; outro dono 404.
+Estoque voltou a 50; nenhuma sessão Checkout Pro criada. Exceção controlada da
+substituição inicial foi retirada, com retorno do --strict obrigatório.
+[Evidências e IDs](docs/PUBLICACAO_PAGAMENTOS_STAGING_2026-10-22.md).
+
+#### Próxima parte — ainda não executada
+
+4. Conferir webhook de teste e assinatura da aplicação correta; após isso,
+   preparar e habilitar exclusivamente sandbox/frontend para a compra de teste
+   da Etapa 2. Não ativar produção.
 
 Responsável técnico/Codex:
 
@@ -287,7 +303,7 @@ ativa e decisão explícita de abertura. Teste sandbox ou build verde não basta
 ## 5. Pendências conhecidas que não devem ser confundidas com falhas novas
 
 - Botão indisponível sem flag explícita do frontend é o comportamento esperado.
-- Staging de pagamentos está preenchido no código, mas ainda não publicado;
+- Staging de pagamentos está publicado com submissões desligadas;
   produção permanece incompleta/bloqueada. Cadastrar dados no painel não preenche
   o arquivo automaticamente nem garante que uma nova versão já esteja em tráfego.
 - Health 200 não verifica autorização funcional do Supabase/Mercado Pago.
@@ -304,15 +320,14 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** parte 3 da Etapa 1: publicar o código normal do Worker
-de pagamentos usando a configuração sandbox preparada, com PAYMENTS_ENABLED=false,
-preservando secrets existentes e validando health/CORS/status autenticado.
-O Worker remoto voltou ao Hello World anterior após o diagnóstico; esta parte 2
-não publicou pagamentos. Não confundir configuração local ou build verde com
-aceite remoto. Depois conferir webhook e preparar ativação exclusiva de sandbox.
+**Próxima ação técnica:** parte 4 da Etapa 1: conferir webhook de teste no painel,
+aplicação e assinatura correspondentes, e preparar ativação exclusiva de sandbox.
+Worker 0.2.0 já publicado e health/CORS/status autenticado verificados. Preservar
+credenciais existentes; não redefinir assinatura sem necessidade. O próximo ajuste
+de flags deve revisar o guard que exige pagamentos false e o build do frontend.
 APIs de pedidos já foram testadas online; não reexecutar migrations.
 
-**Próxima ação do usuário:** seguir para a publicação controlada da parte 3; não reenviar
+**Próxima ação do usuário:** seguir para a conferência de webhook e preparação do sandbox; não reenviar
 tokens, renovar credenciais ou tentar pagar pelo botão bloqueado. Webhook será
 conferido na etapa própria, sem redefinir sua assinatura. Tudo segue na
 home-v2-contraste; main e produção aguardam aceite.

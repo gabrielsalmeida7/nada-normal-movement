@@ -30,18 +30,6 @@ export function validatePaymentRelease(config) {
   }
 }
 
-export function validateKnownBootstrap(versions, deployments) {
-  // Immutable versions from the authorized Hello World / read-only probe migration.
-  // Wrangler JSON lists oldest first; API responses may use the opposite order.
-  const newest = (items, date) => [...(items ?? [])]
-    .sort((a, b) => String(date(a) ?? "").localeCompare(String(date(b) ?? ""))).at(-1);
-  const latest = newest(Array.isArray(versions) ? versions : versions?.items, v => v.metadata?.created_on);
-  const active = newest(Array.isArray(deployments) ? deployments : deployments?.deployments, d => d.created_on)?.versions;
-  if (latest?.id !== "26b0b315-ca7f-4144-b7b1-ed7ff0d45e14" ||
-      active?.length !== 1 || active[0].version_id !== "ed97243c-3c59-4e23-bf7f-75b38a277513" ||
-      active[0].percentage !== 100) throw new Error("BOOTSTRAP_REMOTE_STATE_CHANGED");
-}
-
 async function main(mode) {
   const raw = await readFile(`${root}/${configPath}`, "utf8");
   const config = JSON.parse(raw);
@@ -76,8 +64,7 @@ async function main(mode) {
     throw new Error("PAYMENTS_SECRETS_MISSING");
   }
   // Reuse the normal deployment guard; never replace it with a direct upload.
-  runNode(["--experimental-strip-types", "workers/payments/scripts/deploy.mjs", "staging",
-    ...(process.env.PAYMENTS_REPLACE_BOOTSTRAP === "1" ? ["--replace-known-bootstrap"] : [])]);
+  runNode(["--experimental-strip-types", "workers/payments/scripts/deploy.mjs", "staging"]);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {

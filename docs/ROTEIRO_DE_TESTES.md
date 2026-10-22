@@ -130,6 +130,14 @@ com pagamentos desativados, descrita a seguir.
 
 ### 2.3 Publicar e conferir o Worker com submissões desativadas
 
+**Concluído em 22/10/2026.** Worker 0.2.0 publicado na Cloudflare com pagamentos
+desligados; health, CORS, preferência bloqueada e status autenticado passaram.
+O smoke criou um pedido QA cancelado ao final, restaurando o estoque. Consulta
+de pedido de outro comprador retornou 404. Nenhuma sessão Checkout Pro criada.
+[Relatório completo](PUBLICACAO_PAGAMENTOS_STAGING_2026-10-22.md).
+O frontend continua bloqueado. Próxima seção: conferir notificações e preparar
+a ativação exclusivamente sandbox; não renovar secrets para repetir esta etapa.
+
 O responsável técnico executa os checks e publica o código da branch oficial
 com `PAYMENTS_ENABLED=false`. Não substituir o projeto pelo exemplo Hello World.
 
