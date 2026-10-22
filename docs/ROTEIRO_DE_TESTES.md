@@ -1,6 +1,6 @@
 # Nada Normal — passo a passo de testes
 
-Atualizado em 21/10/2026. Planejamento vigente: [roadmap](../roadmap.md).
+Atualizado em 22/10/2026. Planejamento vigente: [roadmap](../roadmap.md).
 
 Este roteiro valida a loja na **home-v2-contraste**. A main e o PR #9 aguardam
 o projeto ficar pronto. Preparar o roteiro não publica o Worker nem habilita pagamentos.
@@ -101,19 +101,20 @@ Não substituir secrets. Pagamentos continuam desligados.
 
 O responsável técnico preenche `env.staging` em
 [wrangler.jsonc](../workers/payments/wrangler.jsonc), preservando os secrets remotos.
-Variáveis de texto do painel não preenchem o arquivo automaticamente; um deploy
-pode substituir valores do painel pelos valores definidos no arquivo.
+Configuração preenchida e validada localmente em 22/10/2026, sem deploy de
+pagamentos. Variáveis de texto do painel não preenchem o arquivo automaticamente;
+um deploy pode substituir valores do painel pelos valores definidos no arquivo.
 
 | Nome | Valor/critério |
 | --- | --- |
 | APP_ENV | staging |
 | PAYMENTS_ENABLED | false na primeira publicação |
 | ALLOWED_ORIGINS | Origens HTTPS exatas aprovadas, incluindo o preview escolhido; sem caminho ou barra final |
-| SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY | Dados públicos corretos; atualmente há campos vazios no arquivo |
+| SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY | Preenchidos com o mesmo projeto e chave publicável usados pela loja |
 | CHECKOUT_PRO_MODE | sandbox |
 | CHECKOUT_RETURN_ORIGIN | Mesma origem exata do preview, também presente no CORS |
 | CHECKOUT_WEBHOOK_URL | https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago |
-| MP_COLLECTOR_ID | ID retornado por /users/me usando o token de teste em uma sessão segura; não é o ID da aplicação |
+| MP_COLLECTOR_ID | 3272217989, confirmado pela API usando o token instalado na Cloudflare; não é o ID da aplicação |
 
 Preferir um alias estável do preview da branch. Se ele mudar, atualizar a origem
 explicitamente; não liberar todos os previews com wildcard.
@@ -121,6 +122,11 @@ explicitamente; não liberar todos os previews com wildcard.
 As três migrations já estão aplicadas. **Não executar novamente SQL, seeds,
 bootstrap ou db push no banco compartilhado.** O histórico e o mapeamento de
 versões estão em [supabase/README.md](../supabase/README.md).
+
+A configuração passou no guard offline e no dry-run de staging; isso não altera
+o Worker remoto, não ativa cobranças e não valida o webhook real. O frontend
+segue com VITE_CHECKOUT_PRO_ENABLED=false. Próxima ação: publicação controlada
+com pagamentos desativados, descrita a seguir.
 
 ### 2.3 Publicar e conferir o Worker com submissões desativadas
 

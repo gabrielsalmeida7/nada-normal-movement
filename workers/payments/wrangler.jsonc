@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "nada-normal-payments-local",
+  "account_id": "8f6b63890cf677004b89b130cba0dbf6",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-16",
   "workers_dev": false,
@@ -21,13 +22,13 @@
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "false",
-        "ALLOWED_ORIGINS": "",
-        "SUPABASE_URL": "",
-        "SUPABASE_PUBLISHABLE_KEY": "",
-        "CHECKOUT_PRO_MODE": "",
-        "CHECKOUT_RETURN_ORIGIN": "",
+        "ALLOWED_ORIGINS": "https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev",
+        "SUPABASE_URL": "https://bcemyxasbcwcrbinfguu.supabase.co",
+        "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_HWo2KFFmedy4nsd5eTp9_g_RJUwOPr5",
+        "CHECKOUT_PRO_MODE": "sandbox",
+        "CHECKOUT_RETURN_ORIGIN": "https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev",
         "CHECKOUT_WEBHOOK_URL": "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago",
-        "MP_COLLECTOR_ID": ""
+        "MP_COLLECTOR_ID": "3272217989"
       }
     },
     "production": {

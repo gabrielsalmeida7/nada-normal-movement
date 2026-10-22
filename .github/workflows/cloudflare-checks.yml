@@ -25,6 +25,7 @@ jobs:
       - run: npm test
       - run: npm run worker:test
       - run: npm run worker:typecheck
+      - run: npm run worker:deploy -- staging --check
       - run: npm run shop:typecheck
       - run: npm run lint
       - run: npm run shop:deploy -- --check
@@ -33,5 +34,6 @@ jobs:
       - run: npm run shop:build
       - run: npm run shop:test
       - run: npm run shop:types && git diff --exit-code -- workers/storefront/src/env.d.ts
+      - run: node node_modules/wrangler/bin/wrangler.js types workers/payments/src/env.d.ts --config workers/payments/wrangler.jsonc --env staging --env-interface WorkerBindings --strict-vars=false --include-runtime=false && git diff --exit-code -- workers/payments/src/env.d.ts
 
 # No deploys, cloud credentials, shared DB or live payment calls in this workflow.

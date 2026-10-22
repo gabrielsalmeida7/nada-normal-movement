@@ -1,19 +1,19 @@
 # API de pagamentos — Checkout Pro sandbox
 
-Estado consolidado em 20/10/2026. Plano vigente: [roadmap](../../roadmap.md).
+Estado consolidado em 22/10/2026. Plano vigente: [roadmap](../../roadmap.md).
 Passo a passo para usuário e responsável técnico:
 [roteiro de testes](../../docs/ROTEIRO_DE_TESTES.md).
 
 ## O que está implementado
 
-Worker TypeScript ES Modules separado do futuro Worker da loja (SPA e APIs).
+Worker TypeScript ES Modules separado do Worker da loja (SPA e APIs).
 Cria preferências Checkout Pro, consulta status autenticado e verifica webhook
 assinado consultando a API Mercado Pago antes da transição financeira.
 O cliente paga no ambiente hospedado do Mercado Pago; não há Payment Brick.
 
 A criação de pedido ainda tem handler legado em `api/checkout/order.ts`, com a
-RPC transacional do Supabase. Seu port para `/api/checkout/order` no Worker da
-loja foi preparado localmente e seu aceite remoto é pré-requisito do staging;
+RPC transacional do Supabase. O port para `/api/checkout/order` no Worker da
+loja foi publicado e testado remotamente com criação, replay e cancelamento;
 a Vercel não será usada. A preferência recebe
 apenas `{orderId}` e JWT; dinheiro,
 dono e reserva vêm do servidor. Rotas antigas quote/orders/payments do Worker
@@ -27,8 +27,12 @@ não considera a query string como confirmação de pagamento.
 
 - Código integrado à home-v2-contraste; ela é a branch oficial de desenvolvimento.
 - Migrations remotas aplicadas e verificadas em 19/10/2026. Não reaplicar.
-- Secrets e domínio de staging previamente confirmados; configuração pública do
-  wrangler ainda tem campos vazios. Deploy do código novo e E2E online pendentes.
+- Secrets e domínio confirmados; a consulta protegida na Cloudflare validou o
+  token instalado como vendedor de teste 3272217989 (Brasil/MLB).
+- Configuração pública de staging preenchida em 22/10: conta fixa, CORS/retorno
+  exatos da loja em workers.dev, Supabase público, modo sandbox, webhook e vendedor.
+  Não foi publicada nesta preparação; o Worker remoto ainda está na versão
+  Hello World restaurada após o diagnóstico. E2E de pagamento continua pendente.
 - Frontend desativado sem `VITE_CHECKOUT_PRO_ENABLED=true`.
 - Cobrança permitida somente em staging sandbox após configuração explícita.
   Produção continua bloqueada no parser, mesmo mudando a flag.
@@ -75,8 +79,9 @@ Primeiro concluir a Etapa 0 do [roadmap](../../roadmap.md): site e cinco APIs na
 Cloudflare. Estes comandos publicam somente pagamentos, não a loja completa.
 Confira o [plano de migração](../../docs/MIGRACAO_CLOUDFLARE.md).
 
-Seguir a seção 2 do [roteiro](../../docs/ROTEIRO_DE_TESTES.md), sem publicar com
-campos vazios. O wrangler permanece JSON compatível porque o guard usa JSON.parse.
+Seguir a seção 2 do [roteiro](../../docs/ROTEIRO_DE_TESTES.md). Os campos de staging
+foram preenchidos; produção continua incompleta/bloqueada. O wrangler permanece
+JSON compatível porque o guard usa JSON.parse.
 Secrets nunca entram em vars, VITE_*, Git, logs ou exemplos com valores reais.
 
 Secrets obrigatórios no Worker: `SUPABASE_SECRET_KEY`, `MP_ACCESS_TOKEN` de
@@ -87,6 +92,16 @@ A Public Key Mercado Pago não é usada no redirecionamento direto atual.
 A configuração do código é fonte de verdade para o deploy; variáveis de texto
 cadastradas no painel não preenchem automaticamente o arquivo e podem ser
 substituídas por ele. Preservar os secrets remotos já cadastrados.
+
+A parte 2 não salva notificações no painel Mercado Pago, não redefine assinatura
+nem ativa o frontend. A URL de webhook no código é o destino planejado; presença
+de secret não comprova que o painel aponta para a aplicação correta ou que HMAC
+foi testado. Conferir isso após publicar o endpoint na parte seguinte.
+
+Verificação local: guard `staging --check`, tipos regenerados e build de staging
+em dry-run; 104 testes de pagamentos passaram, incluindo nove testes da
+configuração versionada sem tráfego externo. Nenhum secret real é usado nos
+testes; nenhum deploy de pagamentos ou alteração do Supabase foi executado.
 
 ```sh
 npm run worker:deploy -- staging --check

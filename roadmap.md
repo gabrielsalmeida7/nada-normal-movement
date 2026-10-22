@@ -1,6 +1,6 @@
 # Nada Normal — planejamento vigente
 
-Atualizado em 21/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
+Atualizado em 22/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
 
 Este documento descreve o estado entregue e as próximas etapas para abrir a loja.
 O [roteiro de testes](docs/ROTEIRO_DE_TESTES.md) explica o que executar e observar.
@@ -38,14 +38,15 @@ histórico; não orienta novas implementações de Payment Brick.
 | Hospedagem | Loja publicada em workers.dev, APIs habilitadas só no staging, secrets separados e deploy automático da home-v2-contraste confirmado | URLs Auth, custos/limites, aceite de expiração e retirada do legado; domínio principal só no rollout |
 | Loja | Camisa Sem Tempo NN ativa com duas fotos e seis variantes; usuário validou carrinho no celular, persistência, totais, remoção, variantes, login, admin e checkout até pagamento bloqueado | Cadastro/recuperação de senha, catálogo completo, acessibilidade e operação dropshipping |
 | Pedidos | Ensaio autenticado online de orçamento, criação, replay, conflito de chave e cancelamento idempotente aprovado; estoque restaurado | Recuperação de compras expiradas/repetidas e teste online de concorrência |
-| Checkout Pro | Preferência persistida, redirecionamento sandbox e retorno autenticado implementados; MCP confirmou TesteNN e aplicação vendedora de teste associada | Confirmar credencial usada pelo Worker, configurar/publicar pagamentos desligados e depois validar sandbox |
+| Checkout Pro | Preferência persistida, redirecionamento sandbox e retorno implementados; token instalado validado na Cloudflare e configuração sandbox preenchida no código | Publicar pagamentos desligados e validar health/CORS/status; depois conferir webhook e ativar somente sandbox |
 | Confirmação | Código de HMAC, consulta da API e gravação financeira deduplicada | Validar webhook real de teste e automatizar reconciliação |
 | Supabase | Três migrations aplicadas em 19/10/2026, com RLS e acesso financeiro do backend | Revisão dos alertas anteriores e reconciliação do histórico antes de usar db push |
 | GitHub | Código e documentação integrados na home-v2-contraste | Manter a main aguardando o aceite final |
 | Produção | Cobrança desativada por padrão e bloqueada fora de staging no código atual | Implementar ambiente produtivo e validar compra real controlada |
 
-Evidências atuais: 215 testes automatizados passaram (86 app/server, 79 pagamentos,
-50 storefront/guard), com TypeScript/builds e CI aprovados na ativação das APIs.
+Na ativação das APIs, 215 testes passaram com TypeScript/builds e CI aprovados.
+Na preparação atual, pagamentos tem 104 testes aprovados, incluindo diagnóstico
+protegido e configuração sandbox versionada; app/server tem 86 e storefront/guard 50.
 Lint sem erros, com oito avisos preexistentes. O ensaio autenticado online de
 pedidos também passou; [relatório](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
 Isso não comprova pagamento, webhook, expiração ou concorrência online.
@@ -144,9 +145,9 @@ pagamentos desligados. Checklist em [migração Cloudflare](docs/MIGRACAO_CLOUDF
 
 ### Etapa 1 — preparar e publicar o ambiente de testes
 
-**Estado: parte 1 concluída. MCP confirmou o vínculo de aplicações e a consulta
-protegida na Cloudflare confirmou o token instalado e o vendedor de teste.
-Configuração/publicação do Worker de pagamentos ainda pendentes.**
+**Estado: partes 1 e 2 concluídas. Identidade do vendedor validada na Cloudflare;
+configuração sandbox preparada e testada no código. Publicação do Worker de
+pagamentos (parte 3) ainda pendente; submissões e frontend continuam desligados.**
 
 #### Parte 1 — identificar aplicação, credenciais e recebedor
 
@@ -177,10 +178,27 @@ Nenhuma preferência/cobrança, nova aplicação ou novo usuário Mercado Pago f
 criado; webhook e credenciais existentes não foram alterados.
 Detalhes: [verificação Mercado Pago](docs/VALIDACAO_MERCADO_PAGO_2026-10-21.md).
 
+#### Parte 2 — configuração sandbox preparada em 22/10/2026
+
+- [x] Fixar a conta Cloudflare do projeto no wrangler de pagamentos.
+- [x] Configurar somente a origem exata da loja em workers.dev para CORS e retorno,
+  sem wildcard, domínio principal, localhost ou origem Vercel.
+- [x] Usar URL/chave publicável do mesmo Supabase do Worker da loja.
+- [x] Definir CHECKOUT_PRO_MODE=sandbox, MP_COLLECTOR_ID=3272217989 e URL
+  `https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago`.
+- [x] Manter PAYMENTS_ENABLED=false e o frontend Checkout Pro desligado.
+- [x] Validar guard offline, regenerar tipos e executar build dry-run de staging.
+  Novos testes usam a configuração real versionada com secrets fictícios;
+  verificam CORS/health, bloqueio de criação e status sem sessão, sem upstream.
+- [x] Adicionar ao CI o guard de pagamentos e a conferência dos tipos gerados.
+
+Isso prepara a configuração local/versionada, não aplica variáveis remotas nem
+publica o backend de pagamentos. Nenhum secret, webhook do painel, dado do banco
+ou ambiente de produção foi alterado nesta parte. A assinatura de webhook e sua
+associação à aplicação ainda exigem conferência/teste na etapa própria.
+
 #### Partes seguintes — ainda não executadas
 
-2. Preencher configuração de staging, origens Cloudflare, retorno e webhook,
-   preservando secrets. Configurar ambiente sandbox e recebedor confirmado.
 3. Publicar primeiro com `PAYMENTS_ENABLED=false` e conferir health/CORS/status.
 4. Após os critérios anteriores, habilitar exclusivamente sandbox/frontend
    para a compra de teste da Etapa 2. Não ativar produção.
@@ -269,8 +287,9 @@ ativa e decisão explícita de abertura. Teste sandbox ou build verde não basta
 ## 5. Pendências conhecidas que não devem ser confundidas com falhas novas
 
 - Botão indisponível sem flag explícita do frontend é o comportamento esperado.
-- Valores vazios no arquivo de configuração ainda bloqueiam o deploy; cadastrar
-  dados no painel não preenche o arquivo automaticamente.
+- Staging de pagamentos está preenchido no código, mas ainda não publicado;
+  produção permanece incompleta/bloqueada. Cadastrar dados no painel não preenche
+  o arquivo automaticamente nem garante que uma nova versão já esteja em tráfego.
 - Health 200 não verifica autorização funcional do Supabase/Mercado Pago.
 - O carrinho ainda permanece após o pagamento; limpeza seletiva é backlog.
 - Recusa de um pagamento no checkout hospedado não encerra automaticamente o pedido.
@@ -285,15 +304,15 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** parte 2 da Etapa 1: completar a configuração de staging
-do Worker de pagamentos com origens Cloudflare, Supabase, sandbox, retorno,
-webhook e recebedor confirmado `3272217989`. Depois publicar pelo fluxo protegido
-com `PAYMENTS_ENABLED=false` e validar health/CORS/status antes de habilitar
-sandbox. O Worker voltou ao Hello World anterior após o diagnóstico; não confundir
-confirmação do token com publicação da integração completa.
+**Próxima ação técnica:** parte 3 da Etapa 1: publicar o código normal do Worker
+de pagamentos usando a configuração sandbox preparada, com PAYMENTS_ENABLED=false,
+preservando secrets existentes e validando health/CORS/status autenticado.
+O Worker remoto voltou ao Hello World anterior após o diagnóstico; esta parte 2
+não publicou pagamentos. Não confundir configuração local ou build verde com
+aceite remoto. Depois conferir webhook e preparar ativação exclusiva de sandbox.
 APIs de pedidos já foram testadas online; não reexecutar migrations.
 
-**Próxima ação do usuário:** seguir para a configuração da parte 2; não reenviar
+**Próxima ação do usuário:** seguir para a publicação controlada da parte 3; não reenviar
 tokens, renovar credenciais ou tentar pagar pelo botão bloqueado. Webhook será
 conferido na etapa própria, sem redefinir sua assinatura. Tudo segue na
 home-v2-contraste; main e produção aguardam aceite.
