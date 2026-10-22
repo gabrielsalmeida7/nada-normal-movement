@@ -9,7 +9,10 @@ const origin = "https://nada-normal-storefront-staging.gabriel-salmeida7.workers
 const projectUrl = "https://bcemyxasbcwcrbinfguu.supabase.co";
 const variantId = "4e040960-e674-489c-887b-18af3eb0a33d";
 const productId = "f2022593-ae32-4f21-8549-359f18ee0ee4";
-if (process.argv.length !== 3 || process.argv[2] !== "--execute") {
+const paymentsOrigin = "https://pagamentos-staging.nadanormalclub.com.br";
+const checkPaymentStatus = process.argv[3] === "--with-payment-status";
+if (process.argv[2] !== "--execute" ||
+    ![3, 4].includes(process.argv.length) || (process.argv.length === 4 && !checkPaymentStatus)) {
   throw new Error("Explicit --execute required: creates QA records in shared staging database.");
 }
 const config = JSON.parse(await readFile(new URL("../workers/storefront/wrangler.jsonc", import.meta.url), "utf8"));
@@ -22,7 +25,7 @@ const nativeFetch = globalThis.fetch;
 // Reject all non-allowlisted destinations, including the payment provider.
 const safeFetch = (input, init = {}) => {
   const url = new URL(input instanceof Request ? input.url : input);
-  assert.ok([origin, projectUrl].includes(url.origin), "Unexpected remote destination");
+  assert.ok([origin, projectUrl, ...(checkPaymentStatus ? [paymentsOrigin] : [])].includes(url.origin), "Unexpected remote destination");
   return nativeFetch(input, { ...init, redirect: "error", signal: AbortSignal.timeout(20000) });
 };
 const client = createClient(projectUrl, vars.SUPABASE_PUBLISHABLE_KEY, {
@@ -63,6 +66,14 @@ const api = async (path, body, key) => {
   assert.equal(response.headers.get("cache-control"), "private, no-store");
   return { status: response.status, body: await response.json() };
 };
+const paymentStatus = async id => {
+  const response = await safeFetch(`${paymentsOrigin}/v1/checkout/orders/${id}/status`, {
+    headers: { Origin: origin, Authorization: `Bearer ${token}` },
+  });
+  assert.equal(response.headers.get("access-control-allow-origin"), origin);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  return { status: response.status, body: await response.json() };
+};
 
 try {
   const health = await (await safeFetch(`${origin}/health`)).json();
@@ -78,6 +89,13 @@ try {
   assert.ok(stockBefore >= 2, "Insufficient stock for smoke test");
   report.stockBefore = stockBefore;
   ok("staging_preflight");
+  if (checkPaymentStatus) {
+    const paymentHealth = await (await safeFetch(`${paymentsOrigin}/health`)).json();
+    assert.equal(paymentHealth.environment, "staging");
+    assert.equal(paymentHealth.version, "0.2.0");
+    assert.equal(paymentHealth.paymentsEnabled, false);
+    ok("payment_submissions_disabled");
+  }
 
   const signup = must(await client.auth.signUp({
     email: `nn-checkout-qa-${runId}@example.com`,
@@ -122,6 +140,16 @@ try {
   report.paymentAttemptId = first.body.paymentAttemptId;
   assert.equal(await stock(), stockBefore - 1);
   ok("created_and_reserved", { stock: stockBefore - 1 });
+  if (checkPaymentStatus) {
+    const status = await paymentStatus(orderId);
+    assert.equal(status.status, 200);
+    assert.equal(status.body.orderId, orderId);
+    assert.equal(status.body.financialStatus, "pending");
+    assert.equal(status.body.reservationState, "held");
+    const foreignStatus = await paymentStatus("aba80f65-6ef2-42e4-993a-e22306cfc5b6");
+    assert.equal(foreignStatus.status, 404);
+    ok("payment_status_owner_isolation");
+  }
 
   const repeated = await api("/api/checkout/order", payload, report.idempotencyKey);
   assert.equal(repeated.status, 200);
@@ -162,6 +190,14 @@ try {
   report.finalOrder = finalOrder;
   report.stockAfter = await stock();
   ok("persisted_cancelled_state");
+  if (checkPaymentStatus) {
+    const status = await paymentStatus(orderId);
+    assert.equal(status.status, 200);
+    assert.equal(status.body.financialStatus, "cancelled");
+    assert.equal(status.body.reservationState, "released");
+    report.paymentStatusChecked = true;
+    ok("payment_status_cancelled");
+  }
 } catch (error) {
   failed = true;
   report.error = error instanceof Error ? error.message : "Unknown test failure";

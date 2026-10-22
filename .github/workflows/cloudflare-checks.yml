@@ -26,6 +26,7 @@ jobs:
       - run: npm run worker:test
       - run: npm run worker:typecheck
       - run: npm run worker:deploy -- staging --check
+      - run: npm run worker:stage:check
       - run: npm run shop:typecheck
       - run: npm run lint
       - run: npm run shop:deploy -- --check
