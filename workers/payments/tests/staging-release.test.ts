@@ -11,11 +11,14 @@ describe("protected Workers Builds payment release", () => {
       redact_query_string: true, logs: { enabled: true, head_sampling_rate: 1, invocation_logs: false, persist: true },
       traces: { enabled: false } });
   });
-  it("accepts only the prepared disabled sandbox deployment", () => {
+  it.each(["false", "true"])("accepts explicit sandbox activation %s only in the protected staging target", value => {
+    const stage = structuredClone(config);
+    stage.env.staging.vars.PAYMENTS_ENABLED = value;
+    expect(() => validatePaymentRelease(stage)).not.toThrow();
     expect(() => validatePaymentRelease(config)).not.toThrow();
   });
   it.each([
-    { PAYMENTS_ENABLED: "true" }, { APP_ENV: "production" }, { CHECKOUT_PRO_MODE: "production" },
+    { PAYMENTS_ENABLED: "yes" }, { APP_ENV: "production" }, { CHECKOUT_PRO_MODE: "production" },
     { MP_COLLECTOR_ID: "123" }, { ALLOWED_ORIGINS: "https://evil.example.com" },
     { SUPABASE_URL: "https://other.supabase.co" }, { MP_ACCESS_TOKEN: "not-allowed" },
   ])("rejects unsafe bindings %j", vars => {

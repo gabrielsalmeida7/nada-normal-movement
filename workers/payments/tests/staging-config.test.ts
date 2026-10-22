@@ -18,13 +18,13 @@ beforeEach(() => {
 });
 afterEach(() => vi.restoreAllMocks());
 
-describe("versioned payment staging configuration with submissions disabled", () => {
+describe("versioned payment staging configuration with sandbox submissions", () => {
   it("targets the verified account, Worker, domain and seller", () => {
     expect(config.account_id).toBe(storefront.account_id);
     expect(config.env.staging.name).toBe("nada-normal-payments-staging");
     expect(config.env.staging.routes).toEqual([{ pattern: new URL(host).hostname, custom_domain: true }]);
     expect(() => validateDeployment("staging", config.env.staging)).not.toThrow();
-    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: false,
+    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: true,
       origins: [origin], checkoutPro: { returnOrigin: origin,
         webhookUrl: `${host}/webhooks/mercadopago`, collectorId: "3272217989" } });
   });
@@ -48,7 +48,7 @@ describe("versioned payment staging configuration with submissions disabled", ()
     const fetch = vi.spyOn(globalThis, "fetch");
     const health = await worker.fetch(new Request(`${host}/health`), bindings);
     expect(health.status).toBe(200);
-    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: false });
+    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: true });
     const preflight = await worker.fetch(new Request(`${host}/v1/checkout/preferences`, {
       method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "authorization,content-type,idempotency-key" },
@@ -57,14 +57,14 @@ describe("versioned payment staging configuration with submissions disabled", ()
     expect(preflight.headers.get("Access-Control-Allow-Origin")).toBe(origin);
     expect(fetch).not.toHaveBeenCalled();
   });
-  it("rejects creation before any Supabase/provider request", async () => {
+  it("rejects unauthenticated creation before any Supabase/provider request", async () => {
     const fetch = vi.spyOn(globalThis, "fetch");
     const response = await worker.fetch(new Request(`${host}/v1/checkout/preferences`, {
       method: "POST", headers: { Origin: origin, "Content-Type": "application/json" },
       body: JSON.stringify({ orderId: "40000000-0000-4000-8000-000000000001" }),
     }), bindings);
-    expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: { code: "PAYMENTS_DISABLED" } });
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: { code: "UNAUTHORIZED" } });
     expect(fetch).not.toHaveBeenCalled();
   });
   it.each(["https://example.vercel.app", "https://nadanormalclub.com.br", `${origin}.evil.example`])(

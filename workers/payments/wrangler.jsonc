@@ -28,7 +28,7 @@
       "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] },
       "vars": {
         "APP_ENV": "staging",
-        "PAYMENTS_ENABLED": "false",
+        "PAYMENTS_ENABLED": "true",
         "ALLOWED_ORIGINS": "https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev",
         "SUPABASE_URL": "https://bcemyxasbcwcrbinfguu.supabase.co",
         "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_HWo2KFFmedy4nsd5eTp9_g_RJUwOPr5",

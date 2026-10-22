@@ -22,7 +22,7 @@ export function validatePaymentRelease(config) {
       stage.observability?.enabled !== true || stage.observability.redact_query_string !== true ||
       stage.observability.logs?.enabled !== true || stage.observability.logs.invocation_logs !== false ||
       stage.observability.logs.persist !== true || stage.observability.traces?.enabled !== false ||
-      vars.PAYMENTS_ENABLED !== "false" || vars.CHECKOUT_PRO_MODE !== "sandbox" ||
+      !["false", "true"].includes(vars.PAYMENTS_ENABLED) || vars.CHECKOUT_PRO_MODE !== "sandbox" ||
       vars.ALLOWED_ORIGINS !== origin || vars.CHECKOUT_RETURN_ORIGIN !== origin ||
       vars.CHECKOUT_WEBHOOK_URL !== "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago" ||
       vars.MP_COLLECTOR_ID !== "3272217989" ||
@@ -51,14 +51,15 @@ async function main(mode) {
     ]) runNode(args);
     await mkdir(`${root}/.wrangler`, { recursive: true });
     await writeFile(manifestPath, JSON.stringify({ commit: getHead(), config: digest(raw),
-      bundle: await fingerprint(bundlePath), paymentsEnabled: false }));
+      bundle: await fingerprint(bundlePath), paymentsEnabled: config.env.staging.vars.PAYMENTS_ENABLED === "true" }));
     return;
   }
   if (mode !== "deploy") throw new Error("INVALID_RELEASE_MODE");
   validateBuildContext(process.env, getHead());
   const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   if (manifest.commit !== getHead() || manifest.config !== digest(raw) ||
-      manifest.bundle !== await fingerprint(bundlePath) || manifest.paymentsEnabled !== false) {
+      manifest.bundle !== await fingerprint(bundlePath) ||
+      manifest.paymentsEnabled !== (config.env.staging.vars.PAYMENTS_ENABLED === "true")) {
     throw new Error("PAYMENTS_RELEASE_STALE");
   }
   const secrets = JSON.parse(runNode(["node_modules/wrangler/bin/wrangler.js", "secret", "list",
