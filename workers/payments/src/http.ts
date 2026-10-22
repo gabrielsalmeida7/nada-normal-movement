@@ -1,5 +1,6 @@
 export class HttpError extends Error {
-  constructor(public readonly code: string, public readonly status = 503) { super(code); }
+  constructor(public readonly code: string, public readonly status = 503,
+    public readonly upstreamStatus?: number) { super(code); }
 }
 
 /** Read through a bounded stream; Content-Length alone is not authoritative. */
@@ -28,12 +29,14 @@ export async function readJson(message: Request | Response, limit = 64 * 1024): 
 }
 
 export async function upstreamJson(url: string, init: RequestInit): Promise<unknown> {
+  let upstreamStatus: number | undefined;
   try {
     const response = await fetch(url, { ...init, redirect: "manual", signal: AbortSignal.timeout(8000) });
+    upstreamStatus = response.status;
     if (!response.ok) {
       await response.body?.cancel();
       throw new HttpError("UPSTREAM_UNAVAILABLE");
     }
     return await readJson(response, 128 * 1024);
-  } catch { throw new HttpError("UPSTREAM_UNAVAILABLE"); }
+  } catch { throw new HttpError("UPSTREAM_UNAVAILABLE", 503, upstreamStatus); }
 }

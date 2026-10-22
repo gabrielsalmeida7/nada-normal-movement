@@ -19,6 +19,9 @@ export function validatePaymentRelease(config) {
       stage.name !== "nada-normal-payments-staging" || config.routes?.length ||
       JSON.stringify(stage.routes) !== JSON.stringify([{ pattern: "pagamentos-staging.nadanormalclub.com.br", custom_domain: true }]) ||
       config.triggers?.crons?.length || stage.triggers?.crons?.length ||
+      stage.observability?.enabled !== true || stage.observability.redact_query_string !== true ||
+      stage.observability.logs?.enabled !== true || stage.observability.logs.invocation_logs !== false ||
+      stage.observability.logs.persist !== true || stage.observability.traces?.enabled !== false ||
       vars.PAYMENTS_ENABLED !== "false" || vars.CHECKOUT_PRO_MODE !== "sandbox" ||
       vars.ALLOWED_ORIGINS !== origin || vars.CHECKOUT_RETURN_ORIGIN !== origin ||
       vars.CHECKOUT_WEBHOOK_URL !== "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago" ||

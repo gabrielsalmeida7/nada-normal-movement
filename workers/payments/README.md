@@ -40,6 +40,28 @@ não considera a query string como confirmação de pagamento.
 
 ## Desenvolvimento e verificações locais
 
+### Diagnóstico temporário do webhook em staging
+
+O staging persiste logs de aplicação, com logs automáticos de invocação e traces
+desligados e query strings ocultadas. O evento `webhook_diagnostic` registra
+somente ID aleatório gerado pelo servidor, etapa fixa, `signatureVerified`,
+status HTTP, código de erro permitido e status HTTP do upstream, quando houver.
+Não registra URL, query, corpo, headers, IDs de pagamento/usuário, credenciais,
+mensagens de exceção ou respostas externas. Produção/local não emitem esse evento.
+
+Consultar após uma nova simulação do painel Mercado Pago. Uma falha na etapa
+`provider_lookup_and_validation` com `signatureVerified=true` e upstream 404
+distingue assinatura aceita de recurso inexistente; não comprova uma compra.
+Sem registro correspondente, não atribuir o 503 a essa hipótese. As simulações
+anteriores não podem ser reconstruídas pelos novos logs.
+
+Manter pagamentos/frontend bloqueados durante o diagnóstico. Após resolver a
+pendência, remover/reduzir esta coleta temporária e ajustar o guard de release
+em conjunto. Logs persistidos podem consumir a franquia de observabilidade;
+não manter coleta integral indefinidamente.
+
+### Comandos
+
 Use Node.js 22.18+ ou 24+; validado anteriormente com 24.19.0. Na raiz:
 
 ```sh

@@ -213,11 +213,32 @@ Estoque voltou a 50; nenhuma sessão Checkout Pro criada. Exceção controlada d
 substituição inicial foi retirada, com retorno do --strict obrigatório.
 [Evidências e IDs](docs/PUBLICACAO_PAGAMENTOS_STAGING_2026-10-22.md).
 
-#### Próxima parte — ainda não executada
+#### Parte 4 — webhook registrado; assinatura ainda pendente
 
-4. Conferir webhook de teste e assinatura da aplicação correta; após isso,
-   preparar e habilitar exclusivamente sandbox/frontend para a compra de teste
-   da Etapa 2. Não ativar produção.
+- [x] MCP `save_webhook` confirmou a aplicação `6344920694868580` com URL sandbox
+  `https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago`.
+  A resposta informa URL de produção não configurada. Nenhuma redefinição de
+  assinatura foi solicitada; nenhum valor de secret foi lido ou substituído.
+- [x] Build normal `c51ec9de-8dcf-4719-a218-5689fc905696`, commit `8e821a6`,
+  concluído com sucesso após retirada da exceção inicial. Health remoto confirmou
+  versão 0.2.0, staging e `paymentsEnabled=false`.
+- [ ] Conferir os eventos no painel: apesar da solicitação de `payment`, o MCP
+  também listou `shipping`, `topic_claims_integration_wh` e
+  `topic_merchant_order_wh`. O receptor atual trata somente `payment`.
+- [ ] Enviar **Simular notificação** no painel e verificar assinatura/resultado.
+  O MCP não oferece ferramenta de simulação nem acesso ao valor completo da
+  assinatura; histórico vazio não prova ausência ou correção da configuração.
+  Não redefinir o secret nem interpretar uma simulação com ID fictício como
+  pagamento aprovado.
+- Diagnóstico em andamento: duas simulações do usuário retornaram 503, incluindo
+  uma com tópico `payment` e ID fictício `123456`. O painel omite o corpo da
+  resposta do Worker; a consulta de logs históricos não retornou registros.
+  Foi autorizado diagnóstico seguro: novo evento `webhook_diagnostic` somente
+  em staging, sem payloads/credenciais, com etapa, assinatura verificada ou não,
+  código fixo e status de upstream. Exige nova simulação após publicar; ainda
+  não atribuir o erro ao ID fictício nem marcar HMAC como validado.
+- [ ] Após essa conferência, preparar e habilitar exclusivamente sandbox/backend
+  e frontend para a compra de teste da Etapa 2. Produção permanece bloqueada.
 
 Responsável técnico/Codex:
 

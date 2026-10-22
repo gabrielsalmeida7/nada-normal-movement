@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Bindings, Config } from "./config";
 import { createPreference, readPayment, sandboxCheckoutUrl, snapshotSchema, verifyWebhook } from "./checkout-pro";
 import { HttpError, readJson, upstreamJson } from "./http";
+import type { WebhookDiagnostic } from "./webhook-diagnostic";
 
 async function rpc(env: Bindings, name: string, body: Record<string, unknown>): Promise<unknown> {
   return upstreamJson(`${env.SUPABASE_URL}/rest/v1/rpc/${name}`, {
@@ -20,23 +21,29 @@ async function userId(request: Request, env: Bindings): Promise<string> {
   } catch { throw new HttpError("UNAUTHORIZED", 401); }
 }
 
-export async function handleCheckoutPro(request: Request, env: Bindings, config: Config): Promise<Response> {
+export async function handleCheckoutPro(request: Request, env: Bindings, config: Config,
+  diagnostic?: WebhookDiagnostic): Promise<Response> {
   const path = new URL(request.url).pathname;
   const pro = config.checkoutPro;
   if (!pro) throw new HttpError("CHECKOUT_UNAVAILABLE");
   if (path === "/webhooks/mercadopago") {
     // Webhook processing remains available when new submissions are disabled.
+    if (diagnostic) diagnostic.stage = "signature";
     const id = await verifyWebhook(request, env.MP_WEBHOOK_SECRET!);
+    if (diagnostic) { diagnostic.signatureVerified = true; diagnostic.stage = "payload"; }
     const event = z.object({ type: z.literal("payment"), data: z.object({ id: z.union([z.string(), z.number()]) }) })
       .parse(await readJson(request));
     if (String(event.data.id) !== id) throw new HttpError("WEBHOOK_RESOURCE_MISMATCH", 400);
+    if (diagnostic) diagnostic.stage = "provider_lookup_and_validation";
     const payment = await readPayment(id, pro, env.MP_ACCESS_TOKEN!);
+    if (diagnostic) diagnostic.stage = "database_apply";
     await rpc(env, "apply_checkout_pro_payment", {
       p_attempt_id: payment.external_reference, p_payment_id: String(payment.id),
       p_amount_cents: Math.round(payment.transaction_amount * 100), p_status: payment.status,
       p_refunded_cents: Math.round(payment.transaction_amount_refunded * 100),
       p_updated_at: payment.date_last_updated,
     });
+    if (diagnostic) diagnostic.stage = "completed";
     return Response.json({ received: true });
   }
   if (request.method !== "GET" && !config.paymentsEnabled) throw new HttpError("PAYMENTS_DISABLED");

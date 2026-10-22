@@ -1,6 +1,7 @@
 import { readConfig, type Bindings, type Config } from "./config";
 import { handleCheckoutPro } from "./checkout-pro-handler";
 import { HttpError } from "./http";
+import { diagnosticCode, type WebhookDiagnostic } from "./webhook-diagnostic";
 
 const VERSION = "0.2.0";
 const ALLOWED_HEADERS = ["authorization", "content-type", "idempotency-key"];
@@ -16,7 +17,8 @@ function json(value: unknown, status = 200): Response {
   return Response.json(value, { status });
 }
 
-async function dispatch(request: Request, config: Config, env: Bindings): Promise<Response> {
+async function dispatch(request: Request, config: Config, env: Bindings,
+  diagnostic?: WebhookDiagnostic): Promise<Response> {
   const path = new URL(request.url).pathname;
   const method = routeMethod(path);
   if (!method) return json({ error: { code: "NOT_FOUND" } }, 404);
@@ -47,7 +49,7 @@ async function dispatch(request: Request, config: Config, env: Bindings): Promis
       environment: config.environment, paymentsEnabled: config.paymentsEnabled });
   }
   if (config.checkoutPro && (path === "/v1/checkout/preferences" || path === "/webhooks/mercadopago" || path.endsWith("/status"))) {
-    return handleCheckoutPro(request, env, config);
+    return handleCheckoutPro(request, env, config, diagnostic);
   }
   const code = ["/v1/checkout/payments", "/v1/checkout/preferences"].includes(path) ? "PAYMENTS_DISABLED" : "NOT_IMPLEMENTED";
   return json({ error: { code } }, 503);
@@ -58,13 +60,23 @@ export default {
     const requestId = crypto.randomUUID();
     let response: Response;
     let config: Config | undefined;
+    const diagnostic: WebhookDiagnostic | undefined = env.APP_ENV === "staging" &&
+      new URL(request.url).pathname === "/webhooks/mercadopago"
+      ? { stage: "configuration", signatureVerified: false } : undefined;
+    let errorCode: string | undefined;
+    let upstreamStatus: number | undefined;
     try {
       config = readConfig(env);
+      if (diagnostic) diagnostic.stage = "routing";
       const origin = request.headers.get("Origin");
       response = origin !== null && !config.origins.includes(origin)
         ? json({ error: { code: "CORS_DENIED" } }, 403)
-        : await dispatch(request, config, env);
+        : await dispatch(request, config, env, diagnostic);
     } catch (error) {
+      errorCode = error instanceof HttpError ? diagnosticCode(error.code)
+        : config ? "CHECKOUT_UNAVAILABLE" : "CONFIGURATION_INVALID";
+      if (error instanceof HttpError && Number.isInteger(error.upstreamStatus) &&
+        error.upstreamStatus! >= 100 && error.upstreamStatus! <= 599) upstreamStatus = error.upstreamStatus;
       response = error instanceof HttpError ? json({ error: { code: error.code } }, error.status)
         : json({ error: { code: config ? "CHECKOUT_UNAVAILABLE" : "CONFIGURATION_INVALID" } }, 503);
     }
@@ -79,6 +91,9 @@ export default {
     }
     // Allowlist-only telemetry: never log URL, headers, body, bindings or caught errors.
     console.info(JSON.stringify({ event: "http_response", requestId, status: response.status }));
+    if (diagnostic) console.info(JSON.stringify({ event: "webhook_diagnostic", requestId,
+      stage: diagnostic.stage, signatureVerified: diagnostic.signatureVerified,
+      status: response.status, errorCode, upstreamStatus }));
     return response;
   },
 } satisfies ExportedHandler<Bindings>;

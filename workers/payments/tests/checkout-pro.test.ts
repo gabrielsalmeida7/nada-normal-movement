@@ -120,6 +120,63 @@ describe("Worker checkout endpoints", () => {
 });
 
 describe("webhook confirmation", () => {
+  const diagnostic = () => vi.mocked(console.info).mock.calls
+    .map(([line]) => JSON.parse(String(line)))
+    .filter(line => line.event === "webhook_diagnostic");
+
+  it("records signature rejection without logging request or secret data", async () => {
+    const spy = vi.spyOn(globalThis, "fetch");
+    const response = await worker.fetch(await signedRequest("456", "wrong-secret-sentinel"), env);
+    expect(response.status).toBe(401);
+    expect(diagnostic()).toEqual([{ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
+      stage: "signature", signatureVerified: false, status: 401, errorCode: "WEBHOOK_SIGNATURE_INVALID" }]);
+    expect(spy).not.toHaveBeenCalled();
+    const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
+    for (const value of [...Object.values(env), "wrong-secret-sentinel", "request-123", "data.id", "x-signature"]) {
+      expect(logs).not.toContain(value);
+    }
+  });
+  it.each([404, 401, 403, 500])("records provider HTTP %i after verified signature without acknowledging it", async status => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ secret: "provider-body-sentinel" }, { status }));
+    const response = await worker.fetch(await signedRequest(), { ...env, PAYMENTS_ENABLED: "false" });
+    expect(response.status).toBe(503);
+    expect(diagnostic()[0]).toMatchObject({ stage: "provider_lookup_and_validation", signatureVerified: true,
+      errorCode: "UPSTREAM_UNAVAILABLE", upstreamStatus: status });
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("provider-body-sentinel");
+    expect(await response.json()).toEqual({ error: { code: "UPSTREAM_UNAVAILABLE" } });
+  });
+  it("records transport failure without exception messages", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("token-url-private-sentinel"));
+    await worker.fetch(await signedRequest(), env);
+    expect(diagnostic()[0]).toMatchObject({ stage: "provider_lookup_and_validation", signatureVerified: true,
+      errorCode: "UPSTREAM_UNAVAILABLE" });
+    expect(diagnostic()[0]).not.toHaveProperty("upstreamStatus");
+    expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("token-url-private-sentinel");
+  });
+  it("distinguishes database errors from provider errors", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(payment))
+      .mockResolvedValueOnce(Response.json({ error: "database-private-sentinel" }, { status: 400 }));
+    expect((await worker.fetch(await signedRequest(), env)).status).toBe(503);
+    expect(diagnostic()[0]).toMatchObject({ stage: "database_apply", signatureVerified: true,
+      errorCode: "UPSTREAM_UNAVAILABLE", upstreamStatus: 400 });
+    expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("database-private-sentinel");
+  });
+  it("records completed processing only after persistence", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(payment)).mockResolvedValueOnce(Response.json({ applied: true }));
+    expect((await worker.fetch(await signedRequest(), env)).status).toBe(200);
+    expect(diagnostic()[0]).toMatchObject({ stage: "completed", signatureVerified: true, status: 200 });
+    expect(diagnostic()[0]).not.toHaveProperty("errorCode");
+  });
+  it("records configuration failure before signature verification", async () => {
+    expect((await worker.fetch(await signedRequest(), { ...env, MP_ACCESS_TOKEN: "" })).status).toBe(503);
+    expect(diagnostic()[0]).toMatchObject({ stage: "configuration", signatureVerified: false,
+      errorCode: "CONFIGURATION_INVALID" });
+  });
+  it("never emits the staging diagnostic in production", async () => {
+    await worker.fetch(await signedRequest(), { ...env, APP_ENV: "production", PAYMENTS_ENABLED: "false", CHECKOUT_PRO_MODE: "" });
+    expect(diagnostic()).toEqual([]);
+  });
   it("accepts valid HMAC and rejects wrong secrets, changed IDs and stale signatures", async () => {
     expect(await verifyWebhook(await signedRequest(), env.MP_WEBHOOK_SECRET)).toBe("456");
     await expect(verifyWebhook(await signedRequest("456", "wrong"), env.MP_WEBHOOK_SECRET)).rejects.toThrow();
