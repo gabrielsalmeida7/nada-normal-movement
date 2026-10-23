@@ -43,6 +43,14 @@ não considera a query string como confirmação de pagamento.
 
 ### Diagnóstico temporário do webhook em staging
 
+O Checkout Pro com vendedor APP_USR de teste pode divergir da antiga exigência
+`live_mode=false`. O parser exige booleano; quando true, somente o vendedor
+3272217989 e comprador 3272217991 são admitidos, após confirmar via API as duas
+identidades, país MLB e marcador test_user. Não basta o ID fixo ou o prefixo da
+credencial. Falha de identidade usa `PROVIDER_TEST_ACCOUNT_UNVERIFIED`, sem
+dados pessoais nos logs. Esse caminho só é alcançável no staging sandbox.
+Novos compradores de teste precisam de revisão explícita da lista permitida.
+
 O staging persiste logs de aplicação, com logs automáticos de invocação e traces
 desligados e query strings ocultadas. O evento `webhook_diagnostic` registra
 somente ID aleatório gerado pelo servidor, etapa fixa, `signatureVerified`,

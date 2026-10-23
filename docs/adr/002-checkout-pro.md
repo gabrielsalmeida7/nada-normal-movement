@@ -2,6 +2,18 @@
 
 Data: 19/10/2026. Substitui a decisão de Payment Brick do ADR 001.
 
+Atualização de validação em 23/10/2026, autorizada pelo usuário: o pagamento de
+teste aprovado pelo provedor foi bloqueado no campo `live_mode`. Em staging,
+`live_mode` continua obrigatório e booleano. Quando true, a exceção exige o par
+fixo vendedor 3272217989/comprador 3272217991, identidade do token em `/users/me`
+e comprador em `/users/3272217991`, ambos MLB e com marcador `test_user` em
+`tags` ou `user_type`. Qualquer ausência, divergência ou falha de consulta bloqueia
+a persistência. Não usar prefixo APP_USR, nome/e-mail, payload do webhook ou
+`live_mode` isoladamente como prova de teste. O caminho false e as validações de
+assinatura, valor, moeda, referência, banco e idempotência permanecem. Produção
+continua indisponível no parser; não há alteração de credenciais ou migrations.
+O novo caminho requer validação online antes de considerar o pedido confirmado.
+
 Atualização de inicialização em 23/10/2026, autorizada pelo usuário: o frontend
 de staging passa a iniciar Checkout Pro pelo Wallet Brick oficial, com Public
 Key de teste e preferenceId. Isso substitui a abertura manual do sandbox_init_point

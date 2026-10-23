@@ -39,20 +39,24 @@ histórico; não orienta novas implementações de Payment Brick.
 | Hospedagem | Loja publicada em workers.dev, APIs habilitadas só no staging, secrets separados e deploy automático da home-v2-contraste confirmado | URLs Auth, custos/limites, aceite de expiração e retirada do legado; domínio principal só no rollout |
 | Loja | Camisa Sem Tempo NN ativa com duas fotos e seis variantes; usuário validou carrinho no celular, persistência, totais, remoção, variantes, login, admin e checkout até pagamento bloqueado | Cadastro/recuperação de senha, catálogo completo, acessibilidade e operação dropshipping |
 | Pedidos | Ensaio autenticado online de orçamento, criação, replay, conflito de chave e cancelamento idempotente aprovado; estoque restaurado | Recuperação de compras expiradas/repetidas e teste online de concorrência |
-| Checkout Pro | Worker 0.2.0 publicado em staging, token/vendedor e assinatura de notificações de teste validados; ativação sandbox autorizada e versionada | Conferir publicação das flags, preferência, redirecionamento e compra de teste ponta a ponta |
-| Confirmação | Código de HMAC, consulta da API e gravação financeira deduplicada | Validar webhook real de teste e automatizar reconciliação |
+| Checkout Pro | Flags e Wallet oficial publicados; usuário apresentou compra aprovada de R$119 no provedor em 23/10 | Concluir confirmação financeira ponta a ponta na loja |
+| Confirmação | Simulação com ID da compra passou HMAC; diagnóstico apontou bloqueio em live_mode; adequação restrita às contas de teste implementada | Validar a adequação online, investigar os 401 da entrega automática e automatizar reconciliação |
 | Supabase | Três migrations aplicadas em 19/10/2026, com RLS e acesso financeiro do backend | Revisão dos alertas anteriores e reconciliação do histórico antes de usar db push |
 | GitHub | Código e documentação integrados na home-v2-contraste | Manter a main aguardando o aceite final |
 | Produção | Cobrança desativada por padrão e bloqueada fora de staging no código atual | Implementar ambiente produtivo e validar compra real controlada |
 
 Na ativação das APIs, 215 testes passaram com TypeScript/builds e CI aprovados.
-Na publicação atual, a suíte permanente de pagamentos tem 116 testes aprovados,
-incluindo diagnóstico, configuração e guard Workers Builds; app/server tem 86 e
-storefront/guard 50. A exceção inicial de bootstrap teve sete testes adicionais
+Na adequação de 23/10, a suíte permanente de pagamentos tem 163 testes aprovados,
+incluindo verificação das contas de teste, diagnóstico, configuração e guard
+Workers Builds; app/server tem 105 e storefront/guard 59. A exceção inicial de bootstrap teve sete testes adicionais
 durante seu uso e foi removida após a substituição do Hello World.
 Lint sem erros, com oito avisos preexistentes. O ensaio autenticado online de
 pedidos também passou; [relatório](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
-Isso não comprova pagamento, webhook, expiração ou concorrência online.
+Essas suítes não comprovam webhook, expiração ou concorrência online.
+A compra de teste foi aprovada no Mercado Pago, mas o pedido 773d299b continua
+processing/held na última consulta. A adequação de live_mode exige comprovação
+via API de vendedor e comprador de teste específicos; não altera o pedido
+manualmente nem exige nova compra. Detalhes no [ADR 002](docs/adr/002-checkout-pro.md).
 
 As migrations preservaram 20 pedidos, 21 itens e os estoques existentes. Esses
 números são o retrato da verificação, não uma lista de registros a apagar.

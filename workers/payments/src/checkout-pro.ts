@@ -84,12 +84,39 @@ export async function verifyWebhook(request: Request, secret: string): Promise<s
 
 export const verifiedPaymentSchema = z.object({
   id: z.number().int().positive(), external_reference: z.string().uuid(),
-  collector_id: z.number().int().positive(), live_mode: z.literal(false),
+  collector_id: z.number().int().positive(), live_mode: z.boolean(),
+  payer: z.object({ id: z.union([z.number().int().positive().safe(),
+    z.string().regex(/^[1-9]\d{0,19}$/)]).transform(String) }).optional(),
   currency_id: z.literal("BRL"), transaction_amount: z.number().positive(),
   transaction_amount_refunded: z.number().nonnegative().default(0),
   status: z.enum(["pending", "in_process", "authorized", "approved", "rejected", "cancelled", "refunded", "charged_back"]),
   date_last_updated: z.string().datetime({ offset: true }),
 });
+
+// Deliberately narrow staging exception, not a general production payment switch.
+const TEST_SELLER = 3272217989;
+const TEST_BUYER = 3272217991;
+const testIdentitySchema = z.object({
+  id: z.number().int().positive(), site_id: z.literal("MLB"),
+  tags: z.array(z.string()).optional(), user_type: z.string().optional(),
+}).refine(user => user.user_type === "test_user" || user.tags?.includes("test_user") === true);
+
+async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>,
+  config: CheckoutProConfig, token: string) {
+  if (config.collectorId !== String(TEST_SELLER) || payment.collector_id !== TEST_SELLER ||
+      payment.payer?.id !== String(TEST_BUYER)) throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
+  const headers = { Authorization: `Bearer ${token}` };
+  const [seller, buyer] = await Promise.all([
+    upstreamJson("https://api.mercadopago.com/users/me", { headers }),
+    upstreamJson(`https://api.mercadopago.com/users/${TEST_BUYER}`, { headers }),
+  ]);
+  const verifiedSeller = testIdentitySchema.safeParse(seller);
+  const verifiedBuyer = testIdentitySchema.safeParse(buyer);
+  if (!verifiedSeller.success || !verifiedBuyer.success ||
+      verifiedSeller.data.id !== TEST_SELLER || verifiedBuyer.data.id !== TEST_BUYER) {
+    throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
+  }
+}
 
 export async function readPayment(id: string, config: CheckoutProConfig, token: string,
   diagnostic?: WebhookDiagnostic) {
@@ -109,5 +136,8 @@ export async function readPayment(id: string, config: CheckoutProConfig, token: 
       Math.abs(payment.transaction_amount_refunded * 100 - Math.round(payment.transaction_amount_refunded * 100)) > 0.00001) {
     throw new HttpError("PROVIDER_PAYMENT_MISMATCH");
   }
+  // APP_USR test-seller flows can use the regular API environment. A true flag
+  // alone is NEVER enough: attest the exact approved test identities server-side.
+  if (payment.live_mode) await verifyTestAccounts(payment, config, token);
   return payment;
 }

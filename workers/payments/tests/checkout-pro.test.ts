@@ -164,7 +164,7 @@ describe("webhook confirmation", () => {
   });
   it("logs only allowlisted rejected payment field names and never applies invalid data", async () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...payment,
-      live_mode: true, external_reference: "reference-private-sentinel",
+      live_mode: "live-private-sentinel", external_reference: "reference-private-sentinel",
       date_last_updated: "date-private-sentinel", status: "status-private-sentinel",
       payer: { email: "payer-private-sentinel" }, "attacker-private-sentinel": "body-private-sentinel" }));
     const response = await worker.fetch(await signedRequest(), env);
@@ -173,10 +173,10 @@ describe("webhook confirmation", () => {
     expect(diagnostic()[0]).toEqual({ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
       stage: "provider_lookup_and_validation", signatureVerified: true, status: 503,
       errorCode: "CHECKOUT_UNAVAILABLE",
-      rejectedPaymentFields: ["external_reference", "live_mode", "status", "date_last_updated"] });
+      rejectedPaymentFields: ["external_reference", "live_mode", "payer", "status", "date_last_updated"] });
     expect(spy).toHaveBeenCalledTimes(1);
     const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
-    for (const value of ["reference-private-sentinel", "date-private-sentinel", "status-private-sentinel",
+    for (const value of ["live-private-sentinel", "reference-private-sentinel", "date-private-sentinel", "status-private-sentinel",
       "payer-private-sentinel", "attacker-private-sentinel", "body-private-sentinel",
       env.MP_ACCESS_TOKEN, env.MP_WEBHOOK_SECRET, env.SUPABASE_SECRET_KEY,
       "received", "expected", "issues"]) expect(logs).not.toContain(value);
@@ -190,7 +190,7 @@ describe("webhook confirmation", () => {
     expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("provider-private-sentinel");
   });
   it("does not emit schema field diagnostics outside staging", async () => {
-    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...payment, live_mode: true }));
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...payment, live_mode: "invalid" }));
     await expect(readPayment("456", config, "private")).rejects.toThrow("CHECKOUT_UNAVAILABLE");
     expect(spy).toHaveBeenCalledTimes(1);
     expect(diagnostic()).toEqual([]);
@@ -234,5 +234,88 @@ describe("webhook confirmation", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(payment))
       .mockResolvedValueOnce(Response.json({}, { status: 503 }));
     expect((await worker.fetch(await signedRequest(), env)).status).toBe(503);
+  });
+});
+
+describe("staging APP_USR test-account payments", () => {
+  const testEnv = { ...env, MP_COLLECTOR_ID: "3272217989" };
+  const testConfig = { ...config, collectorId: testEnv.MP_COLLECTOR_ID };
+  const testPayment = { ...payment, live_mode: true, collector_id: 3272217989, payer: { id: 3272217991 } };
+  const seller = { id: 3272217989, site_id: "MLB", tags: ["test_user"] };
+  const buyer = { id: 3272217991, site_id: "MLB", user_type: "test_user" };
+  const diagnostic = () => vi.mocked(console.info).mock.calls.map(([line]) => JSON.parse(String(line)))
+    .find(line => line.event === "webhook_diagnostic");
+
+  it.each([3272217991, "3272217991"])("attests both approved test identities before applying (%s)", async payerId => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ ...testPayment, payer: { id: payerId } }))
+      .mockResolvedValueOnce(Response.json(seller)).mockResolvedValueOnce(Response.json(buyer))
+      .mockResolvedValueOnce(Response.json({ applied: true }));
+    const response = await worker.fetch(await signedRequest(), testEnv);
+    expect(response.status).toBe(200);
+    expect(spy.mock.calls.map(([url]) => String(url))).toEqual([
+      "https://api.mercadopago.com/v1/payments/456", "https://api.mercadopago.com/users/me",
+      "https://api.mercadopago.com/users/3272217991", `${env.SUPABASE_URL}/rest/v1/rpc/apply_checkout_pro_payment`]);
+    expect(JSON.parse(String(spy.mock.calls[3][1]?.body))).toEqual({ p_attempt_id: attemptId,
+      p_payment_id: "456", p_amount_cents: 12345, p_status: "approved", p_refunded_cents: 0,
+      p_updated_at: payment.date_last_updated });
+    expect(diagnostic()).toMatchObject({ stage: "completed", signatureVerified: true, status: 200 });
+    for (const secret of [env.MP_ACCESS_TOKEN, env.MP_WEBHOOK_SECRET, env.SUPABASE_SECRET_KEY]) {
+      expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain(secret);
+    }
+  });
+  it.each([
+    { collector_id: 999 }, { payer: { id: 999 } }, { payer: { id: 3272217989 } }, { payer: undefined },
+    { id: 999 }, { external_reference: "invalid" }, { currency_id: "USD" },
+    { transaction_amount: 1.001 }, { transaction_amount_refunded: 999 },
+    { live_mode: "true" }, { live_mode: null }, { live_mode: undefined },
+  ])("rejects payment/account mismatches before extra lookups and persistence (%#)", async override => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...testPayment, ...override }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+  it("rejects other configured collectors even if the response matches that collector", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...testPayment, collector_id: 999 }));
+    await expect(readPayment("456", { ...testConfig, collectorId: "999" }, "private"))
+      .rejects.toThrow("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    [ { ...seller, tags: [] }, buyer ], [ seller, { ...buyer, user_type: "normal" } ],
+    [ { ...seller, site_id: "MLA" }, buyer ], [ seller, { ...buyer, site_id: "MLA" } ],
+    [ { ...seller, id: 999 }, buyer ], [ seller, { ...buyer, id: 999 } ],
+    [ null, buyer ], [ seller, null ],
+  ])("requires authoritative identity, country and test-user markers for both accounts (%#)", async (sellerBody, buyerBody) => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
+      .mockResolvedValueOnce(Response.json(sellerBody)).mockResolvedValueOnce(Response.json(buyerBody));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(diagnostic()).toMatchObject({ stage: "provider_lookup_and_validation",
+      errorCode: "PROVIDER_TEST_ACCOUNT_UNVERIFIED", signatureVerified: true });
+  });
+  it.each([0, 1])("does not persist when identity lookup %i fails", async failed => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
+      .mockResolvedValueOnce(Response.json(seller, { status: failed === 0 ? 403 : 200 }))
+      .mockResolvedValueOnce(Response.json(buyer, { status: failed === 1 ? 403 : 200 }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(diagnostic()).toMatchObject({ errorCode: "UPSTREAM_UNAVAILABLE", upstreamStatus: 403 });
+  });
+  it("keeps the signature mandatory for test-account payments", async () => {
+    const spy = vi.spyOn(globalThis, "fetch");
+    expect((await worker.fetch(await signedRequest("456", "wrong"), testEnv)).status).toBe(401);
+    expect(spy).not.toHaveBeenCalled();
+  });
+  it.each(["production", "local"])("blocks the exception outside staging (%s)", async APP_ENV => {
+    const spy = vi.spyOn(globalThis, "fetch");
+    expect((await worker.fetch(await signedRequest(), { ...testEnv, APP_ENV })).status).toBe(503);
+    expect(spy).not.toHaveBeenCalled();
+  });
+  it("never acknowledges a test-account payment if database validation fails", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
+      .mockResolvedValueOnce(Response.json(seller)).mockResolvedValueOnce(Response.json(buyer))
+      .mockResolvedValueOnce(Response.json({}, { status: 400 }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(spy).toHaveBeenCalledTimes(4);
+    expect(diagnostic()).toMatchObject({ stage: "database_apply", upstreamStatus: 400 });
   });
 });

@@ -54,3 +54,20 @@ Aceite financeiro exige pagamento de teste, webhook verificado, estado no banco
 e retorno server-authoritative. Nenhum desses resultados é presumido pela mudança.
 
 Fonte: https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-preferences/web-integration/add-frontend-sdk
+
+## Atualização após teste do usuário em 23/10
+
+O comprador apresentou comprovante aprovado de R$119 para o pedido 773d299b.
+Isso comprova aprovação no provedor, não confirmação na loja. A simulação assinada
+com ID do pagamento passou o HMAC e foi rejeitada pelo schema em `live_mode`.
+Diagnóstico não registrou o valor desse campo. Não presumir que a divergência de
+IDs entre aplicação principal e aplicação do vendedor de teste seja erro.
+
+A adequação aceita booleano e, se true, exige confirmação server-side das duas
+contas de teste específicas (MLB, test_user), além de todas as validações
+financeiras anteriores. Não há alteração manual do estado do pedido, criação de
+nova cobrança, rotação de segredo ou ativação de produção. Aceite remoto depende
+de nova entrega assinada e verificação do estado persistido; não repetir compra.
+
+Fonte sobre vendedor de teste automático e credenciais APP_USR:
+https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-preferences/test-accounts
