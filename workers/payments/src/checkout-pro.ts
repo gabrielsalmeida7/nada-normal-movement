@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { HttpError, upstreamJson } from "./http";
+import type { WebhookDiagnostic } from "./webhook-diagnostic";
 
 export const snapshotSchema = z.object({
   orderId: z.string().uuid(), attemptId: z.string().uuid(),
@@ -90,9 +91,17 @@ export const verifiedPaymentSchema = z.object({
   date_last_updated: z.string().datetime({ offset: true }),
 });
 
-export async function readPayment(id: string, config: CheckoutProConfig, token: string) {
-  const payment = verifiedPaymentSchema.parse(await upstreamJson(
+export async function readPayment(id: string, config: CheckoutProConfig, token: string,
+  diagnostic?: WebhookDiagnostic) {
+  const result = verifiedPaymentSchema.safeParse(await upstreamJson(
     `https://api.mercadopago.com/v1/payments/${id}`, { headers: { Authorization: `Bearer ${token}` } }));
+  if (!result.success) {
+    // Output only known schema field names, never Zod issues/messages or provider values.
+    if (diagnostic) diagnostic.rejectedPaymentFields = Object.keys(verifiedPaymentSchema.shape)
+      .filter(field => result.error.issues.some(issue => issue.path[0] === field));
+    throw new HttpError("CHECKOUT_UNAVAILABLE");
+  }
+  const payment = result.data;
   if (String(payment.id) !== id || String(payment.collector_id) !== config.collectorId ||
       !Number.isSafeInteger(Math.round(payment.transaction_amount * 100)) ||
       Math.abs(payment.transaction_amount * 100 - Math.round(payment.transaction_amount * 100)) > 0.00001 ||

@@ -47,6 +47,9 @@ O staging persiste logs de aplicação, com logs automáticos de invocação e t
 desligados e query strings ocultadas. O evento `webhook_diagnostic` registra
 somente ID aleatório gerado pelo servidor, etapa fixa, `signatureVerified`,
 status HTTP, código de erro permitido e status HTTP do upstream, quando houver.
+Em falhas do schema do pagamento, `rejectedPaymentFields` contém somente nomes
+de campos conhecidos do schema, sem valores, tipos recebidos ou mensagens Zod.
+As validações, o HTTP 503 e o bloqueio de persistência permanecem inalterados.
 Não registra URL, query, corpo, headers, IDs de pagamento/usuário, credenciais,
 mensagens de exceção ou respostas externas. Produção/local não emitem esse evento.
 

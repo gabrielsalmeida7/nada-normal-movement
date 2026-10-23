@@ -2,6 +2,7 @@
 export interface WebhookDiagnostic {
   stage: "configuration" | "routing" | "signature" | "payload" | "provider_lookup_and_validation" | "database_apply" | "completed";
   signatureVerified: boolean;
+  rejectedPaymentFields?: string[];
 }
 
 const CODES = new Set([

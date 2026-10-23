@@ -162,11 +162,45 @@ describe("webhook confirmation", () => {
       errorCode: "UPSTREAM_UNAVAILABLE", upstreamStatus: 400 });
     expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("database-private-sentinel");
   });
+  it("logs only allowlisted rejected payment field names and never applies invalid data", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...payment,
+      live_mode: true, external_reference: "reference-private-sentinel",
+      date_last_updated: "date-private-sentinel", status: "status-private-sentinel",
+      payer: { email: "payer-private-sentinel" }, "attacker-private-sentinel": "body-private-sentinel" }));
+    const response = await worker.fetch(await signedRequest(), env);
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: { code: "CHECKOUT_UNAVAILABLE" } });
+    expect(diagnostic()[0]).toEqual({ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
+      stage: "provider_lookup_and_validation", signatureVerified: true, status: 503,
+      errorCode: "CHECKOUT_UNAVAILABLE",
+      rejectedPaymentFields: ["external_reference", "live_mode", "status", "date_last_updated"] });
+    expect(spy).toHaveBeenCalledTimes(1);
+    const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
+    for (const value of ["reference-private-sentinel", "date-private-sentinel", "status-private-sentinel",
+      "payer-private-sentinel", "attacker-private-sentinel", "body-private-sentinel",
+      env.MP_ACCESS_TOKEN, env.MP_WEBHOOK_SECRET, env.SUPABASE_SECRET_KEY,
+      "received", "expected", "issues"]) expect(logs).not.toContain(value);
+  });
+  it.each([null, [], "provider-private-sentinel"])("keeps non-object provider responses private (%#)", async body => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json(body));
+    const response = await worker.fetch(await signedRequest(), env);
+    expect(response.status).toBe(503);
+    expect(diagnostic()[0].rejectedPaymentFields).toEqual([]);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("provider-private-sentinel");
+  });
+  it("does not emit schema field diagnostics outside staging", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...payment, live_mode: true }));
+    await expect(readPayment("456", config, "private")).rejects.toThrow("CHECKOUT_UNAVAILABLE");
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(diagnostic()).toEqual([]);
+  });
   it("records completed processing only after persistence", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(payment)).mockResolvedValueOnce(Response.json({ applied: true }));
     expect((await worker.fetch(await signedRequest(), env)).status).toBe(200);
     expect(diagnostic()[0]).toMatchObject({ stage: "completed", signatureVerified: true, status: 200 });
     expect(diagnostic()[0]).not.toHaveProperty("errorCode");
+    expect(diagnostic()[0]).not.toHaveProperty("rejectedPaymentFields");
   });
   it("records configuration failure before signature verification", async () => {
     expect((await worker.fetch(await signedRequest(), { ...env, MP_ACCESS_TOKEN: "" })).status).toBe(503);

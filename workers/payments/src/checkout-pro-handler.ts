@@ -35,7 +35,7 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
       .parse(await readJson(request));
     if (String(event.data.id) !== id) throw new HttpError("WEBHOOK_RESOURCE_MISMATCH", 400);
     if (diagnostic) diagnostic.stage = "provider_lookup_and_validation";
-    const payment = await readPayment(id, pro, env.MP_ACCESS_TOKEN!);
+    const payment = await readPayment(id, pro, env.MP_ACCESS_TOKEN!, diagnostic);
     if (diagnostic) diagnostic.stage = "database_apply";
     await rpc(env, "apply_checkout_pro_payment", {
       p_attempt_id: payment.external_reference, p_payment_id: String(payment.id),
