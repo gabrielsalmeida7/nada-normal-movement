@@ -242,11 +242,11 @@ describe("staging APP_USR test-account payments", () => {
   const testConfig = { ...config, collectorId: testEnv.MP_COLLECTOR_ID };
   const testPayment = { ...payment, live_mode: true, collector_id: 3272217989, payer: { id: 3272217991 } };
   const seller = { id: 3272217989, site_id: "MLB", tags: ["test_user"] };
-  const buyer = { id: 3272217991, site_id: "MLB", user_type: "test_user" };
+  const buyer = { id: 3272217991, site_id: "MLB" };
   const diagnostic = () => vi.mocked(console.info).mock.calls.map(([line]) => JSON.parse(String(line)))
     .find(line => line.event === "webhook_diagnostic");
 
-  it.each([3272217991, "3272217991"])("attests both approved test identities before applying (%s)", async payerId => {
+  it.each([3272217991, "3272217991"])("verifies test seller and panel-approved buyer without a public test marker (%s)", async payerId => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ ...testPayment, payer: { id: payerId } }))
       .mockResolvedValueOnce(Response.json(seller)).mockResolvedValueOnce(Response.json(buyer))
       .mockResolvedValueOnce(Response.json({ applied: true }));
@@ -280,17 +280,26 @@ describe("staging APP_USR test-account payments", () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
   it.each([
-    [ { ...seller, tags: [] }, buyer ], [ seller, { ...buyer, user_type: "normal" } ],
+    [ { ...seller, tags: [] }, buyer ],
     [ { ...seller, site_id: "MLA" }, buyer ], [ seller, { ...buyer, site_id: "MLA" } ],
     [ { ...seller, id: 999 }, buyer ], [ seller, { ...buyer, id: 999 } ],
     [ null, buyer ], [ seller, null ],
-  ])("requires authoritative identity, country and test-user markers for both accounts (%#)", async (sellerBody, buyerBody) => {
+  ])("requires matching identities/countries and the authenticated seller's test marker (%#)", async (sellerBody, buyerBody) => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
       .mockResolvedValueOnce(Response.json(sellerBody)).mockResolvedValueOnce(Response.json(buyerBody));
     expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
     expect(spy).toHaveBeenCalledTimes(3);
     expect(diagnostic()).toMatchObject({ stage: "provider_lookup_and_validation",
       errorCode: "PROVIDER_TEST_ACCOUNT_UNVERIFIED", signatureVerified: true });
+  });
+  it.each([{ user_type: "normal", tags: ["normal"] }, { tags: [] }])("does not require a test marker in the panel-approved buyer's public profile (%#)", async publicFields => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
+      .mockResolvedValueOnce(Response.json(seller)).mockResolvedValueOnce(Response.json({ ...buyer, ...publicFields }))
+      .mockResolvedValueOnce(Response.json({ applied: true }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(200);
+    expect(spy).toHaveBeenCalledTimes(4);
+    expect(diagnostic()).toMatchObject({ stage: "completed", status: 200 });
+    expect(diagnostic()).not.toHaveProperty("rejectedTestAccountChecks");
   });
   it.each([0, 1])("does not persist when identity lookup %i fails", async failed => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))

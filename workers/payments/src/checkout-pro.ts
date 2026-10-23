@@ -95,9 +95,12 @@ export const verifiedPaymentSchema = z.object({
 
 // Deliberately narrow staging exception, not a general production payment switch.
 const TEST_SELLER = 3272217989;
+// Confirmed in the operator's Test Accounts panel; never learned from callbacks.
 const TEST_BUYER = 3272217991;
-const testIdentitySchema = z.object({
+const publicIdentitySchema = z.object({
   id: z.number().int().positive(), site_id: z.literal("MLB"),
+});
+const testIdentitySchema = publicIdentitySchema.extend({
   tags: z.array(z.string()).optional(), user_type: z.string().optional(),
 }).refine(user => user.user_type === "test_user" || user.tags?.includes("test_user") === true,
   { path: ["test_marker"] });
@@ -120,9 +123,12 @@ async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>
     upstreamJson(`https://api.mercadopago.com/users/${TEST_BUYER}`, { headers }),
   ]);
   const verifiedSeller = testIdentitySchema.safeParse(seller);
-  const verifiedBuyer = testIdentitySchema.safeParse(buyer);
+  // A seller cannot attest another user's test marker from their public profile.
+  // The panel-approved buyer ID is authoritative; this lookup checks ID/country only.
+  const verifiedBuyer = publicIdentitySchema.safeParse(buyer);
   // Only fixed labels from our own schema: no issue messages, paths or values.
-  const checks = (result: typeof verifiedSeller, account: "seller" | "buyer", expectedId: number): string[] => {
+  const checks = (result: typeof verifiedSeller | typeof verifiedBuyer,
+    account: "seller" | "buyer", expectedId: number): string[] => {
     if (result.success) return result.data.id === expectedId ? [] : [`${account}_id`];
     const fields = ["id", "site_id", "tags", "user_type", "test_marker"]
       .filter(field => result.error.issues.some(issue => issue.path[0] === field));
@@ -151,7 +157,7 @@ export async function readPayment(id: string, config: CheckoutProConfig, token: 
     throw new HttpError("PROVIDER_PAYMENT_MISMATCH");
   }
   // APP_USR test-seller flows can use the regular API environment. A true flag
-  // alone is NEVER enough: attest the exact approved test identities server-side.
+  // alone is NEVER enough: attest the test seller and enforce the panel-approved pair.
   if (payment.live_mode) await verifyTestAccounts(payment, config, token, diagnostic);
   return payment;
 }

@@ -6,8 +6,12 @@ Atualização de validação em 23/10/2026, autorizada pelo usuário: o pagament
 teste aprovado pelo provedor foi bloqueado no campo `live_mode`. Em staging,
 `live_mode` continua obrigatório e booleano. Quando true, a exceção exige o par
 fixo vendedor 3272217989/comprador 3272217991, identidade do token em `/users/me`
-e comprador em `/users/3272217991`, ambos MLB e com marcador `test_user` em
-`tags` ou `user_type`. Qualquer ausência, divergência ou falha de consulta bloqueia
+e comprador em `/users/3272217991`, ambos MLB. Exigir marcador `test_user` em
+`tags` ou `user_type` **somente no próprio vendedor autenticado**. Correção após
+diagnóstico `buyer_test_marker`: para o comprador, a fonte da condição de teste
+é o ID aprovado no painel Contas de teste apresentado pelo operador. O perfil
+público verifica somente ID e país, sem exigir tags/user_type de terceiros.
+Qualquer divergência dos IDs, país, prova do vendedor ou falha de consulta bloqueia
 a persistência. Não usar prefixo APP_USR, nome/e-mail, payload do webhook ou
 `live_mode` isoladamente como prova de teste. O caminho false e as validações de
 assinatura, valor, moeda, referência, banco e idempotência permanecem. Produção

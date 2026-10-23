@@ -63,8 +63,12 @@ com ID do pagamento passou o HMAC e foi rejeitada pelo schema em `live_mode`.
 Diagnóstico não registrou o valor desse campo. Não presumir que a divergência de
 IDs entre aplicação principal e aplicação do vendedor de teste seja erro.
 
-A adequação aceita booleano e, se true, exige confirmação server-side das duas
-contas de teste específicas (MLB, test_user), além de todas as validações
+A adequação aceita booleano e, se true, exige o par fixo de contas de teste:
+vendedor com prova server-side (MLB, test_user) em `/users/me`, comprador aprovado
+no painel Contas de teste do operador e perfil público com ID/país correspondentes.
+O diagnóstico posterior passou vendedor/IDs/país, mas recusou buyer_test_marker;
+a exigência de marcador de terceiros na API pública foi então removida. O perfil
+público não é prova da condição de teste do comprador. Mantêm-se as validações
 financeiras anteriores. Não há alteração manual do estado do pedido, criação de
 nova cobrança, rotação de segredo ou ativação de produção. Aceite remoto depende
 de nova entrega assinada e verificação do estado persistido; não repetir compra.

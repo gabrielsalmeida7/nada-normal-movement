@@ -46,14 +46,19 @@ não considera a query string como confirmação de pagamento.
 O Checkout Pro com vendedor APP_USR de teste pode divergir da antiga exigência
 `live_mode=false`. O parser exige booleano; quando true, somente o vendedor
 3272217989 e comprador 3272217991 são admitidos, após confirmar via API as duas
-identidades, país MLB e marcador test_user. Não basta o ID fixo ou o prefixo da
+identidades e país MLB. O vendedor autenticado deve ter marcador test_user em
+`/users/me`; o comprador deve corresponder ao ID de teste confirmado no painel.
+Não exigir marcador test_user de terceiros na API pública `/users/{buyer_id}`.
+Não basta o prefixo da
 credencial. Falha de identidade usa `PROVIDER_TEST_ACCOUNT_UNVERIFIED`, sem
 dados pessoais nos logs. Esse caminho só é alcançável no staging sandbox.
 Novos compradores de teste precisam de revisão explícita da lista permitida.
 Se a verificação falhar, `rejectedTestAccountChecks` distingue pré-condições
 (`configured_seller`, `payment_seller`, `payment_buyer`) e campos fixos de cada
-perfil (`seller_`/`buyer_` + `id`, `site_id`, `tags`, `user_type`, `test_marker`
-ou `profile`). Nunca contém o valor recebido, um ID de conta ou mensagens Zod.
+perfil (`seller_` + `id`, `site_id`, `tags`, `user_type`, `test_marker` ou `profile`;
+`buyer_` + `id`, `site_id` ou `profile`). Nunca contém o valor recebido, um ID de
+conta ou mensagens Zod. O erro buyer_test_marker pertence ao critério anterior,
+substituído após confirmar a limitação da consulta pública de terceiros.
 Esse detalhamento não altera nenhum critério de aceitação.
 
 O staging persiste logs de aplicação, com logs automáticos de invocação e traces

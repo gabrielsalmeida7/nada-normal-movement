@@ -46,7 +46,7 @@ histórico; não orienta novas implementações de Payment Brick.
 | Produção | Cobrança desativada por padrão e bloqueada fora de staging no código atual | Implementar ambiente produtivo e validar compra real controlada |
 
 Na ativação das APIs, 215 testes passaram com TypeScript/builds e CI aprovados.
-Na adequação de 23/10, a suíte permanente de pagamentos tem 163 testes aprovados,
+Na adequação de 23/10, a suíte permanente de pagamentos tem 166 testes aprovados,
 incluindo verificação das contas de teste, diagnóstico, configuração e guard
 Workers Builds; app/server tem 105 e storefront/guard 59. A exceção inicial de bootstrap teve sete testes adicionais
 durante seu uso e foi removida após a substituição do Hello World.
@@ -54,8 +54,9 @@ Lint sem erros, com oito avisos preexistentes. O ensaio autenticado online de
 pedidos também passou; [relatório](docs/TESTE_PEDIDOS_STAGING_2026-10-21.md).
 Essas suítes não comprovam webhook, expiração ou concorrência online.
 A compra de teste foi aprovada no Mercado Pago, mas o pedido 773d299b continua
-processing/held na última consulta. A adequação de live_mode exige comprovação
-via API de vendedor e comprador de teste específicos; não altera o pedido
+processing/held na última consulta. A adequação de live_mode exige prova via API
+do vendedor de teste, Buyer ID aprovado no painel e perfil com ID/país consistente;
+não exige marcador de teste público de terceiros e não altera o pedido
 manualmente nem exige nova compra. Detalhes no [ADR 002](docs/adr/002-checkout-pro.md).
 
 As migrations preservaram 20 pedidos, 21 itens e os estoques existentes. Esses
