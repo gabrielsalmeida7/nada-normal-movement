@@ -300,6 +300,26 @@ describe("staging APP_USR test-account payments", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(diagnostic()).toMatchObject({ errorCode: "UPSTREAM_UNAVAILABLE", upstreamStatus: 403 });
   });
+  it("records fixed failed identity checks without serializing profiles or received markers", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(testPayment))
+      .mockResolvedValueOnce(Response.json({ ...seller, tags: ["identity-private-sentinel"],
+        email: "email-private-sentinel", "key-private-sentinel": "value-private-sentinel" }))
+      .mockResolvedValueOnce(Response.json({ ...buyer, site_id: "country-private-sentinel" }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(diagnostic().rejectedTestAccountChecks).toEqual(["seller_test_marker", "buyer_site_id"]);
+    expect(spy).toHaveBeenCalledTimes(3);
+    const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
+    for (const value of ["identity-private-sentinel", "email-private-sentinel", "key-private-sentinel",
+      "value-private-sentinel", "country-private-sentinel", "received", "expected", "issues"])
+      expect(logs).not.toContain(value);
+  });
+  it("identifies a non-approved payer without logging its identifier or querying profiles", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...testPayment, payer: { id: 987654321 } }));
+    expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
+    expect(diagnostic().rejectedTestAccountChecks).toEqual(["payment_buyer"]);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("987654321");
+  });
   it("keeps the signature mandatory for test-account payments", async () => {
     const spy = vi.spyOn(globalThis, "fetch");
     expect((await worker.fetch(await signedRequest("456", "wrong"), testEnv)).status).toBe(401);

@@ -50,6 +50,11 @@ identidades, país MLB e marcador test_user. Não basta o ID fixo ou o prefixo d
 credencial. Falha de identidade usa `PROVIDER_TEST_ACCOUNT_UNVERIFIED`, sem
 dados pessoais nos logs. Esse caminho só é alcançável no staging sandbox.
 Novos compradores de teste precisam de revisão explícita da lista permitida.
+Se a verificação falhar, `rejectedTestAccountChecks` distingue pré-condições
+(`configured_seller`, `payment_seller`, `payment_buyer`) e campos fixos de cada
+perfil (`seller_`/`buyer_` + `id`, `site_id`, `tags`, `user_type`, `test_marker`
+ou `profile`). Nunca contém o valor recebido, um ID de conta ou mensagens Zod.
+Esse detalhamento não altera nenhum critério de aceitação.
 
 O staging persiste logs de aplicação, com logs automáticos de invocação e traces
 desligados e query strings ocultadas. O evento `webhook_diagnostic` registra

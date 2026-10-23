@@ -94,7 +94,8 @@ export default {
     if (diagnostic) console.info(JSON.stringify({ event: "webhook_diagnostic", requestId,
       stage: diagnostic.stage, signatureVerified: diagnostic.signatureVerified,
       status: response.status, errorCode, upstreamStatus,
-      rejectedPaymentFields: diagnostic.rejectedPaymentFields }));
+      rejectedPaymentFields: diagnostic.rejectedPaymentFields,
+      rejectedTestAccountChecks: diagnostic.rejectedTestAccountChecks }));
     return response;
   },
 } satisfies ExportedHandler<Bindings>;

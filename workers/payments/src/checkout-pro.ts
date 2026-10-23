@@ -99,12 +99,21 @@ const TEST_BUYER = 3272217991;
 const testIdentitySchema = z.object({
   id: z.number().int().positive(), site_id: z.literal("MLB"),
   tags: z.array(z.string()).optional(), user_type: z.string().optional(),
-}).refine(user => user.user_type === "test_user" || user.tags?.includes("test_user") === true);
+}).refine(user => user.user_type === "test_user" || user.tags?.includes("test_user") === true,
+  { path: ["test_marker"] });
 
 async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>,
-  config: CheckoutProConfig, token: string) {
-  if (config.collectorId !== String(TEST_SELLER) || payment.collector_id !== TEST_SELLER ||
-      payment.payer?.id !== String(TEST_BUYER)) throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
+  config: CheckoutProConfig, token: string, diagnostic?: WebhookDiagnostic) {
+  const reject = (checks: string[]): never => {
+    if (diagnostic) diagnostic.rejectedTestAccountChecks = checks;
+    throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
+  };
+  const mismatches = [
+    ...(config.collectorId !== String(TEST_SELLER) ? ["configured_seller"] : []),
+    ...(payment.collector_id !== TEST_SELLER ? ["payment_seller"] : []),
+    ...(payment.payer?.id !== String(TEST_BUYER) ? ["payment_buyer"] : []),
+  ];
+  if (mismatches.length) reject(mismatches);
   const headers = { Authorization: `Bearer ${token}` };
   const [seller, buyer] = await Promise.all([
     upstreamJson("https://api.mercadopago.com/users/me", { headers }),
@@ -112,10 +121,15 @@ async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>
   ]);
   const verifiedSeller = testIdentitySchema.safeParse(seller);
   const verifiedBuyer = testIdentitySchema.safeParse(buyer);
-  if (!verifiedSeller.success || !verifiedBuyer.success ||
-      verifiedSeller.data.id !== TEST_SELLER || verifiedBuyer.data.id !== TEST_BUYER) {
-    throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
-  }
+  // Only fixed labels from our own schema: no issue messages, paths or values.
+  const checks = (result: typeof verifiedSeller, account: "seller" | "buyer", expectedId: number): string[] => {
+    if (result.success) return result.data.id === expectedId ? [] : [`${account}_id`];
+    const fields = ["id", "site_id", "tags", "user_type", "test_marker"]
+      .filter(field => result.error.issues.some(issue => issue.path[0] === field));
+    return fields.length ? fields.map(field => `${account}_${field}`) : [`${account}_profile`];
+  };
+  const rejected = [...checks(verifiedSeller, "seller", TEST_SELLER), ...checks(verifiedBuyer, "buyer", TEST_BUYER)];
+  if (rejected.length) reject(rejected);
 }
 
 export async function readPayment(id: string, config: CheckoutProConfig, token: string,
@@ -138,6 +152,6 @@ export async function readPayment(id: string, config: CheckoutProConfig, token: 
   }
   // APP_USR test-seller flows can use the regular API environment. A true flag
   // alone is NEVER enough: attest the exact approved test identities server-side.
-  if (payment.live_mode) await verifyTestAccounts(payment, config, token);
+  if (payment.live_mode) await verifyTestAccounts(payment, config, token, diagnostic);
   return payment;
 }
