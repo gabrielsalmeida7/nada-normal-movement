@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { HttpError, upstreamJson } from "./http";
-import type { WebhookDiagnostic } from "./webhook-diagnostic";
+import type { SignatureFailureReason, WebhookDiagnostic } from "./webhook-diagnostic";
 
 export const snapshotSchema = z.object({
   orderId: z.string().uuid(), attemptId: z.string().uuid(),
@@ -61,24 +61,37 @@ export async function createPreference(snapshot: CheckoutSnapshot, config: Check
 }
 
 /** Verify the signed query ID, never a resource URL supplied by the caller. */
-export async function verifyWebhook(request: Request, secret: string): Promise<string> {
+export async function verifyWebhook(request: Request, secret: string,
+  diagnostic?: WebhookDiagnostic): Promise<string> {
   const ids = new URL(request.url).searchParams.getAll("data.id");
   const id = ids[0] ?? "";
   const requestId = request.headers.get("x-request-id") ?? "";
   const signature = request.headers.get("x-signature") ?? "";
   const match = /^ts=(\d{10,13}),v1=([a-fA-F0-9]{64})$/.exec(signature.replace(/\s/g, ""));
-  if (ids.length !== 1 || !/^\d{1,24}$/.test(id) || !/^[A-Za-z0-9._:-]{1,128}$/.test(requestId) || !match) {
+  const reject = (reasons: SignatureFailureReason[]): never => {
+    if (diagnostic) diagnostic.signatureFailureReasons = reasons;
     throw new HttpError("WEBHOOK_SIGNATURE_INVALID", 401);
-  }
+  };
+  const reasons: SignatureFailureReason[] = [];
+  if (!ids.length) reasons.push("query_id_missing");
+  else if (ids.length !== 1) reasons.push("query_id_duplicate");
+  else if (!/^\d{1,24}$/.test(id)) reasons.push("query_id_invalid");
+  if (!requestId) reasons.push("request_id_missing");
+  else if (!/^[A-Za-z0-9._:-]{1,128}$/.test(requestId)) reasons.push("request_id_invalid");
+  if (!signature) reasons.push("signature_missing");
+  else if (!match) reasons.push("signature_format_invalid");
+  if (reasons.length) reject(reasons);
+  // The same strict parser and acceptance rules remain in force.
+  if (!match) return reject(["signature_format_invalid"]);
   const [, timestamp, mac] = match;
   const seconds = timestamp.length === 13 ? Number(timestamp) / 1000 : Number(timestamp);
-  if (Math.abs(Date.now() / 1000 - seconds) > 300) throw new HttpError("WEBHOOK_SIGNATURE_INVALID", 401);
+  if (Math.abs(Date.now() / 1000 - seconds) > 300) reject(["timestamp_outside_window"]);
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
   const bytes = Uint8Array.from(mac.match(/../g)!, (hex) => parseInt(hex, 16));
   const valid = await crypto.subtle.verify("HMAC", key, bytes,
     new TextEncoder().encode(`id:${id};request-id:${requestId};ts:${timestamp};`));
-  if (!valid) throw new HttpError("WEBHOOK_SIGNATURE_INVALID", 401);
+  if (!valid) reject(["hmac_mismatch"]);
   return id;
 }
 

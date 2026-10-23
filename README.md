@@ -100,6 +100,10 @@ Para configuração e comandos do Worker, consulte
 [workers/payments/README.md](workers/payments/README.md). As migrations já foram
 aplicadas ao Supabase; pagamentos reais permanecem bloqueados.
 
+Para reaproveitar os aprendizados em outro projeto, consulte o
+[guia de implementação do Mercado Pago para outro agente](docs/GUIA_IMPLEMENTACAO_MERCADO_PAGO_PARA_OUTRO_PROJETO.md),
+com arquitetura, configuração, erros, correções e limites do que foi validado.
+
 ```
 nada-normal-movement/
 ├── src/

@@ -1,7 +1,12 @@
 /** Request-local, allowlisted metadata only. Never attach provider/request data. */
+export type SignatureFailureReason = "query_id_missing" | "query_id_duplicate" | "query_id_invalid" |
+  "request_id_missing" | "request_id_invalid" | "signature_missing" | "signature_format_invalid" |
+  "timestamp_outside_window" | "hmac_mismatch";
+
 export interface WebhookDiagnostic {
   stage: "configuration" | "routing" | "signature" | "payload" | "provider_lookup_and_validation" | "database_apply" | "completed";
   signatureVerified: boolean;
+  signatureFailureReasons?: SignatureFailureReason[];
   rejectedPaymentFields?: string[];
   rejectedTestAccountChecks?: string[];
 }

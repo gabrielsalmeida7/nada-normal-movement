@@ -65,6 +65,13 @@ O staging persiste logs de aplicação, com logs automáticos de invocação e t
 desligados e query strings ocultadas. O evento `webhook_diagnostic` registra
 somente ID aleatório gerado pelo servidor, etapa fixa, `signatureVerified`,
 status HTTP, código de erro permitido e status HTTP do upstream, quando houver.
+Para investigar recusas automáticas 401, `signatureFailureReasons` contém somente
+rótulos fixos: query_id_missing/duplicate/invalid, request_id_missing/invalid,
+signature_missing/format_invalid, timestamp_outside_window ou hmac_mismatch.
+Nenhum valor da query, header, timestamp ou assinatura entra no log. O parser,
+janela de cinco minutos, HMAC e respostas HTTP permanecem iguais. Esse diagnóstico
+não reconstrói os cabeçalhos das entregas anteriores: requer uma nova entrega do
+evento original ou retry automático, não outra simulação fictícia como prova.
 Em falhas do schema do pagamento, `rejectedPaymentFields` contém somente nomes
 de campos conhecidos do schema, sem valores, tipos recebidos ou mensagens Zod.
 As validações, o HTTP 503 e o bloqueio de persistência permanecem inalterados.

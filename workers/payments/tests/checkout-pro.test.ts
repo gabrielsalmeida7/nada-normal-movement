@@ -129,12 +129,61 @@ describe("webhook confirmation", () => {
     const response = await worker.fetch(await signedRequest("456", "wrong-secret-sentinel"), env);
     expect(response.status).toBe(401);
     expect(diagnostic()).toEqual([{ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
-      stage: "signature", signatureVerified: false, status: 401, errorCode: "WEBHOOK_SIGNATURE_INVALID" }]);
+      stage: "signature", signatureVerified: false, signatureFailureReasons: ["hmac_mismatch"],
+      status: 401, errorCode: "WEBHOOK_SIGNATURE_INVALID" }]);
     expect(spy).not.toHaveBeenCalled();
     const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
     for (const value of [...Object.values(env), "wrong-secret-sentinel", "request-123", "data.id", "x-signature"]) {
       expect(logs).not.toContain(value);
     }
+  });
+  const signatureCases: { name: string; query?: string; header?: string; value?: string;
+    timestamp?: string; reasons: string[] }[] = [
+    { name: "missing query ID", query: "", reasons: ["query_id_missing"] },
+    { name: "duplicate query IDs", query: "?data.id=456&data.id=456", reasons: ["query_id_duplicate"] },
+    { name: "invalid query ID", query: "?data.id=query-private-sentinel", reasons: ["query_id_invalid"] },
+    { name: "missing request ID", header: "x-request-id", reasons: ["request_id_missing"] },
+    { name: "invalid request ID", header: "x-request-id", value: "request private sentinel", reasons: ["request_id_invalid"] },
+    { name: "missing signature", header: "x-signature", reasons: ["signature_missing"] },
+    { name: "invalid signature format", header: "x-signature", value: "signature-private-sentinel", reasons: ["signature_format_invalid"] },
+    { name: "expired signature", timestamp: "1704908010", reasons: ["timestamp_outside_window"] },
+    { name: "future signature", timestamp: "1999999999", reasons: ["timestamp_outside_window"] },
+  ];
+  it.each(signatureCases)("diagnoses $name using fixed labels, with no upstream I/O", async item => {
+    const request = await signedRequest("456", env.MP_WEBHOOK_SECRET, item.timestamp);
+    const headers = new Headers(request.headers);
+    if (item.header) {
+      if (item.value === undefined) headers.delete(item.header);
+      else headers.set(item.header, item.value);
+    }
+    const url = new URL(request.url);
+    if (item.query !== undefined) url.search = item.query;
+    const spy = vi.spyOn(globalThis, "fetch");
+    const response = await worker.fetch(new Request(url, { method: "POST", headers,
+      body: "body-private-sentinel" }), env);
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({ error: { code: "WEBHOOK_SIGNATURE_INVALID" } });
+    expect(diagnostic()[0]).toMatchObject({ stage: "signature", signatureVerified: false,
+      signatureFailureReasons: item.reasons });
+    expect(spy).not.toHaveBeenCalled();
+    const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
+    for (const value of ["query-private-sentinel", "request private sentinel", "signature-private-sentinel",
+      "body-private-sentinel", env.MP_WEBHOOK_SECRET, "1704908010", "1999999999"])
+      expect(logs).not.toContain(value);
+  });
+  it("records multiple missing signature inputs without accepting the notification", async () => {
+    const spy = vi.spyOn(globalThis, "fetch");
+    const response = await worker.fetch(new Request("https://api.example.com/webhooks/mercadopago", { method: "POST" }), env);
+    expect(response.status).toBe(401);
+    expect(diagnostic()[0].signatureFailureReasons).toEqual(["query_id_missing", "request_id_missing", "signature_missing"]);
+    expect(spy).not.toHaveBeenCalled();
+  });
+  it("keeps valid seconds and milliseconds signatures accepted without rejection diagnostics", async () => {
+    for (const timestamp of [String(Math.floor(Date.now() / 1000)), String(Date.now())]) {
+      vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json(payment)).mockResolvedValueOnce(Response.json({ applied: true }));
+      expect((await worker.fetch(await signedRequest("456", env.MP_WEBHOOK_SECRET, timestamp), env)).status).toBe(200);
+    }
+    for (const event of diagnostic()) expect(event).not.toHaveProperty("signatureFailureReasons");
   });
   it.each([404, 401, 403, 500])("records provider HTTP %i after verified signature without acknowledging it", async status => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ secret: "provider-body-sentinel" }, { status }));
