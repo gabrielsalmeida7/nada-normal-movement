@@ -7,6 +7,19 @@ const orderSchema = z.object({ orderId: z.string().uuid(), paymentAttemptId: z.s
   shippingCents: z.number().int().nonnegative(), reservationExpiresAt: z.string().datetime({ offset: true }) });
 export type PreparedCheckout = z.infer<typeof orderSchema>;
 export const checkoutProEnabled = import.meta.env.VITE_CHECKOUT_PRO_ENABLED === "true";
+const testPublicKey = "APP_USR-e39b420f-08ac-48ed-b17a-3bea9480aa7f";
+const preferenceSchema = z.object({ preferenceId: z.string().regex(/^3272217989-[a-zA-Z0-9-]{1,180}$/) });
+export type WalletPreference = z.infer<typeof preferenceSchema>;
+
+export function getWalletPublicKey(): string {
+  if (!checkoutProEnabled || import.meta.env.VITE_APP_ENV !== "staging" ||
+    import.meta.env.VITE_CHECKOUT_PRO_MODE !== "sandbox" ||
+    import.meta.env.VITE_PAYMENTS_API_URL !== "https://pagamentos-staging.nadanormalclub.com.br" ||
+    import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY !== testPublicKey) {
+    throw new Error("Checkout de teste indisponível. Nenhum pagamento foi iniciado.");
+  }
+  return testPublicKey;
+}
 
 function apiOrigin(): string {
   const url = new URL(import.meta.env.VITE_PAYMENTS_API_URL ?? "");
@@ -45,6 +58,7 @@ export function validateCheckoutRedirect(value: string): string {
 
 export async function prepareCheckout(userId: string, items: CartItem[], addressId: string, method: "pix" | "credit_card") {
   if (!checkoutProEnabled) throw new Error("Pagamento temporariamente indisponível.");
+  getWalletPublicKey();
   const payloadItems = await Promise.all(items.map(async (item) => {
     if (item.productVariantId) return { variantId: item.productVariantId, quantity: item.quantity };
     let query = supabase.from("product_variants").select("id").eq("product_id", item.productId).eq("size", item.size ?? "Único");
@@ -70,11 +84,13 @@ export async function prepareCheckout(userId: string, items: CartItem[], address
   return order;
 }
 
-export async function openCheckout(orderId: string) {
-  const preference = z.object({ checkoutUrl: z.string() }).parse(await jsonRequest(`${apiOrigin()}/v1/checkout/preferences`, {
+export async function prepareWalletCheckout(orderId: string): Promise<WalletPreference> {
+  getWalletPublicKey();
+  z.string().uuid().parse(orderId);
+  // Ignore checkoutUrl: the official SDK opens Checkout Pro using this preference.
+  return preferenceSchema.parse(await jsonRequest(`${apiOrigin()}/v1/checkout/preferences`, {
     method: "POST", headers: await headers(), body: JSON.stringify({ orderId }),
   }));
-  return validateCheckoutRedirect(preference.checkoutUrl);
 }
 
 export async function getCheckoutStatus(orderId: string) {

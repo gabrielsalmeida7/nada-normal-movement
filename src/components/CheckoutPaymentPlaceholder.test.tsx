@@ -7,7 +7,7 @@ describe("CheckoutPaymentPlaceholder", () => {
     const onPay = vi.fn();
     render(<CheckoutPaymentPlaceholder selectedMethod="pix" onMethodChange={vi.fn()} enabled totalCents={12000} onPay={onPay} />);
     expect(screen.getByRole("status")).toHaveTextContent("120,00");
-    fireEvent.click(screen.getByRole("button", { name: "Continuar no Mercado Pago" }));
+    fireEvent.click(screen.getByRole("button", { name: "Carregar botão do Mercado Pago" }));
     expect(onPay).toHaveBeenCalledOnce();
     expect(screen.queryByLabelText(/número do cartão/i)).not.toBeInTheDocument();
   });

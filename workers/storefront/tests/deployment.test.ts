@@ -32,6 +32,7 @@ describe("guard de staging", () => {
     { MP_ACCESS_TOKEN: "not-allowed" },
     { CHECKOUT_PRO_ENABLED: "yes" }, { CHECKOUT_PRO_MODE: "production" },
     { PAYMENTS_API_URL: "https://wrong.example.com" }, { SHOP_API_ENABLED: "false" },
+    { MP_PUBLIC_KEY: "" }, { MP_PUBLIC_KEY: "APP_USR-another-app" }, { MP_PUBLIC_KEY: "sb_secret_wrong" },
   ])("recusa bindings inseguros %j", vars => {
     const bad = structuredClone(config);
     Object.assign(bad.env.staging.vars, vars);
@@ -50,10 +51,14 @@ describe("guard de staging", () => {
     const result = frontendEnv(validateStaging(config), {
       VITE_CHECKOUT_PRO_ENABLED: "false", VITE_SUPABASE_ANON_KEY: "sb_secret_wrong",
       VITE_PAYMENTS_API_URL: "https://wrong.example.com",
+      VITE_MERCADO_PAGO_PUBLIC_KEY: "wrong-key", VITE_APP_ENV: "production", VITE_CHECKOUT_PRO_MODE: "production",
     });
     expect(result.VITE_CHECKOUT_PRO_ENABLED).toBe("true");
     expect(result.VITE_PAYMENTS_API_URL).toBe("https://pagamentos-staging.nadanormalclub.com.br");
     expect(result.VITE_SUPABASE_ANON_KEY).toMatch(/^sb_publishable_/);
+    expect(result.VITE_MERCADO_PAGO_PUBLIC_KEY).toBe(config.env.staging.vars.MP_PUBLIC_KEY);
+    expect(result.VITE_APP_ENV).toBe("staging");
+    expect(result.VITE_CHECKOUT_PRO_MODE).toBe("sandbox");
   });
   it("keeps rollback disabled despite inherited activation", () => {
     const stage = structuredClone(config);
@@ -61,6 +66,8 @@ describe("guard de staging", () => {
     const result = frontendEnv(validateStaging(stage), { VITE_CHECKOUT_PRO_ENABLED: "true" });
     expect(result.VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(result.VITE_PAYMENTS_API_URL).toBe("");
+    expect(result.VITE_MERCADO_PAGO_PUBLIC_KEY).toBe("");
+    expect(result.VITE_CHECKOUT_PRO_MODE).toBe("");
   });
   it("never enables checkout in local or production builds", () => {
     for (const APP_ENV of ["local", "production"]) {

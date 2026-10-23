@@ -115,7 +115,10 @@ Secrets nunca entram em vars, VITE_*, Git, logs ou exemplos com valores reais.
 Secrets obrigatórios no Worker: `SUPABASE_SECRET_KEY`, `MP_ACCESS_TOKEN` de
 teste e `MP_WEBHOOK_SECRET` correspondente. Variáveis públicas incluem Supabase,
 origens, modo sandbox, URL de retorno/webhook e o recebedor validado pela API.
-A Public Key Mercado Pago não é usada no redirecionamento direto atual.
+A Public Key de teste é usada pelo Wallet Brick no frontend protegido de staging;
+o backend continua recebendo somente orderId/JWT e devolvendo preferenceId.
+Nenhum secret é compartilhado com o SDK. O checkoutUrl persistido é mantido por
+compatibilidade, mas o frontend novo não o abre nem altera seu domínio.
 
 A configuração do código é fonte de verdade para o deploy; variáveis de texto
 cadastradas no painel não preenchem automaticamente o arquivo e podem ser

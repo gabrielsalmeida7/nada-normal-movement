@@ -1,5 +1,8 @@
 import { CreditCard, LockKeyhole, QrCode } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
+
+const CheckoutWallet = lazy(() => import("@/components/CheckoutWallet").then(module => ({ default: module.CheckoutWallet })));
 
 export type PaymentMethod = "pix" | "credit_card";
 
@@ -10,6 +13,8 @@ interface CheckoutPaymentPlaceholderProps {
   busy?: boolean;
   totalCents?: number;
   onPay?: () => void;
+  walletPreferenceId?: string;
+  reservationExpiresAt?: string;
 }
 
 const methods: Array<{
@@ -39,6 +44,8 @@ export function CheckoutPaymentPlaceholder({
   busy = false,
   totalCents,
   onPay,
+  walletPreferenceId,
+  reservationExpiresAt,
 }: CheckoutPaymentPlaceholderProps) {
   return (
     <section className="space-y-6" aria-labelledby="payment-step-title">
@@ -108,10 +115,14 @@ export function CheckoutPaymentPlaceholder({
         Total confirmado para este pedido: <strong>{(totalCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</strong>.
         Confira esse valor antes de continuar.
       </p>}
+      {enabled && walletPreferenceId && reservationExpiresAt ?
+        <Suspense fallback={<p role="status">Carregando botão do Mercado Pago…</p>}>
+          <CheckoutWallet key={walletPreferenceId} preferenceId={walletPreferenceId} expiresAt={reservationExpiresAt} />
+        </Suspense> :
       <Button size="lg" className="w-full font-display tracking-wider" disabled={!enabled || busy} onClick={onPay}>
         {!enabled ? "Finalizar compra em breve" : busy ? "Preparando pagamento…" : totalCents === undefined
-          ? "Conferir total do pedido" : "Continuar no Mercado Pago"}
-      </Button>
+          ? "Conferir total do pedido" : "Carregar botão do Mercado Pago"}
+      </Button>}
     </section>
   );
 }

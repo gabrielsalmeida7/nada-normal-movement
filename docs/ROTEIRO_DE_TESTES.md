@@ -185,12 +185,16 @@ No build de staging Cloudflare da home-v2-contraste, o responsável técnico con
 
 - `VITE_CHECKOUT_PRO_ENABLED=true`.
 - `VITE_PAYMENTS_API_URL=https://pagamentos-staging.nadanormalclub.com.br`.
+- `VITE_APP_ENV=staging`, `VITE_CHECKOUT_PRO_MODE=sandbox` e
+  `VITE_MERCADO_PAGO_PUBLIC_KEY` da conta vendedora de teste validada.
+  O pipeline fixa esses valores; não são configurações para copiar para produção.
 
 Conferir também os dados públicos Supabase do frontend e os bindings server-side
 do Worker da loja que atende as APIs de pedido/admin. Secrets do Worker de
 pagamentos não são herdados automaticamente por outro Worker. Nunca colocar
 a chave secreta em VITE_*.
-O redirecionamento direto não usa Public Key Mercado Pago no frontend.
+O Wallet Brick usa somente a Public Key de teste e o preferenceId recebido do
+backend autenticado. Access Token e webhook secret nunca vão para o frontend.
 
 As variáveis do Vite entram no build: gerar novo deployment do preview após
 alterá-las. Não habilitar a flag globalmente em produção nem em previews não confiáveis.
@@ -209,8 +213,12 @@ Começar apenas após a conclusão e confirmação da seção 2.
 3. Preencha identificação, endereço e revisão. Escolha Pix ou cartão conforme o cenário.
 4. Clique em **Conferir total do pedido**. O servidor cria/reobtém o pedido e
    reserva o estoque. Confira o total confirmado; registre o ID com ajuda do técnico.
-5. Clique em **Continuar no Mercado Pago**. Esperado: abrir o checkout de sandbox
-   e mostrar o mesmo total, incluindo frete. Não inserir cartão real nem fazer Pix real.
+5. Clique em **Carregar botão do Mercado Pago**. O backend cria/reutiliza a
+   preferência do mesmo pedido. Espere o botão oficial Wallet aparecer e clique
+   nele. É o SDK que abre o checkout; não troque o domínio da URL manualmente.
+   Confira o mesmo total, incluindo frete. Use somente comprador e cartão de
+   teste; não faça Pix real nem use conta/cartão pessoais. Se a reserva expirar,
+   o Wallet será removido: pare e consulte o pedido, sem reutilizar links antigos.
 6. Use o comprador e os cartões/cenários de teste da documentação oficial vigente.
    Comprador e vendedor devem ser contas de teste distintas conforme o cenário.
 7. Volte à loja pelo retorno do checkout. Só deve aparecer **Pagamento confirmado!**

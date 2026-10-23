@@ -1,6 +1,6 @@
 # Nada Normal — planejamento vigente
 
-Atualizado em 22/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
+Atualizado em 23/10/2026. Branch oficial de desenvolvimento: `home-v2-contraste`.
 
 Este documento descreve o estado entregue e as próximas etapas para abrir a loja.
 O [roteiro de testes](docs/ROTEIRO_DE_TESTES.md) explica o que executar e observar.
@@ -15,7 +15,8 @@ histórico; não orienta novas implementações de Payment Brick.
   seu conflito foi resolvido, mas o merge aguarda a conclusão e o aceite da loja.
 - A `main` só será atualizada quando o projeto estiver pronto. Não usar force push
   nem publicar o ambiente de produção como parte dos testes.
-- Pagamentos: Mercado Pago **Checkout Pro via Preferences API**, com redirecionamento.
+- Pagamentos: Mercado Pago **Checkout Pro via Preferences API**, iniciado pelo
+  Wallet Brick oficial (Public Key de teste + preferenceId), com checkout hospedado.
   Payment Brick e Appmax não fazem parte da implementação atual.
 - Hospedar o site React/Vite e todas as APIs na Cloudflare. A Vercel não faz
   parte da arquitetura de destino, dos testes nem do rollback planejado.
@@ -99,7 +100,9 @@ o que foi verificado remotamente do que existe apenas como código.
 | Quote/orders/payments antigos no Worker | Worker | Stubs; não usar no lugar das rotas acima |
 | Reconciliação agendada | Cloudflare Workers | Pendente; distinta da expiração de reservas |
 
-A Public Key Mercado Pago não é usada no redirecionamento direto atual.
+O frontend de staging usa a Public Key de teste no Wallet Brick oficial; o SDK
+abre o checkout com o preferenceId do backend. Não escolhe nem altera manualmente
+init_point/sandbox_init_point. Valores/dono/reserva continuam server-side.
 Os três secrets ficam no Worker, nunca no frontend. Detalhes no
 [ADR 002](docs/adr/002-checkout-pro.md).
 
@@ -278,6 +281,19 @@ identificados; pagamentos reais continuam bloqueados.
 
 **Estado: código pronto para iniciar a validação após a Etapa 1.**
 
+Atualização em 23/10: o redirecionamento direto abriu o checkout, mas os testes
+com cartão terminaram em `/fatal/`, inclusive com comprador de teste correto.
+A resposta informou `service_error`/`unexpected_error`; não há confirmação de
+causa raiz. Usuário autorizou mudar a inicialização para Wallet Brick oficial,
+mantendo valor, restrições, retorno, webhook e vendedor de teste. A hipótese de
+que `init_point` resolveria não foi comprovada e não motivou troca manual de URL.
+Public Key fixada no build de staging; produção segue bloqueada. O backend e o
+banco não mudam; o frontend usa apenas preferenceId, não checkoutUrl.
+Validar uma tentativa pelo Wallet após confirmar o deployment, com reserva ainda
+válida e contas separadas. Não reutilizar links expirados nem declarar o erro
+resolvido antes de confirmar pagamento + webhook + banco + retorno.
+Detalhes e verificações: [Wallet em staging](docs/WALLET_CHECKOUT_PRO_2026-10-23.md).
+
 - Ativar apenas o sandbox; testar cartão aprovado, recusado e pendente, além
   de Pix quando o ambiente de teste suportar a simulação.
 - Conferir valor total, pedido, evento de webhook, tentativa e estoque.
@@ -357,17 +373,16 @@ Uma etapa só fica concluída quando há evidência do resultado, ambiente, comm
 ID do pedido quando aplicável e avaliação do usuário. Registrar os testes no
 [roteiro](docs/ROTEIRO_DE_TESTES.md), sem credenciais ou dados pessoais completos.
 
-**Próxima ação técnica:** parte 4 da Etapa 1: conferir webhook de teste no painel,
-aplicação e assinatura correspondentes, e preparar ativação exclusiva de sandbox.
-Worker 0.2.0 já publicado e health/CORS/status autenticado verificados. Preservar
-credenciais existentes; não redefinir assinatura sem necessidade. O próximo ajuste
-de flags deve revisar o guard que exige pagamentos false e o build do frontend.
-APIs de pedidos já foram testadas online; não reexecutar migrations.
+**Próxima ação técnica:** conferir release do frontend Wallet e acompanhar uma
+compra de teste ponta a ponta. Não tratar os testes simulados como confirmação
+financeira nem atribuir o `/fatal/` a uma causa ainda não comprovada. Preservar
+credenciais, métodos, valores e webhook; não reexecutar migrations.
 
-**Próxima ação do usuário:** seguir para a conferência de webhook e preparação do sandbox; não reenviar
-tokens, renovar credenciais ou tentar pagar pelo botão bloqueado. Webhook será
-conferido na etapa própria, sem redefinir sua assinatura. Tudo segue na
-home-v2-contraste; main e produção aguardam aceite.
+**Próxima ação do usuário:** após confirmar o deployment, usar o Wallet com
+reserva válida e comprador de teste distinto do vendedor, em janela isolada.
+Parar após uma falha e fornecer apenas erro/IDs/status sem credenciais. Não
+reutilizar links expirados. Tudo segue na home-v2-contraste; main e produção
+aguardam aceite.
 
 Consultar também:
 

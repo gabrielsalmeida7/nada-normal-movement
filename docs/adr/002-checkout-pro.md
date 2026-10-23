@@ -2,6 +2,13 @@
 
 Data: 19/10/2026. Substitui a decisão de Payment Brick do ADR 001.
 
+Atualização de inicialização em 23/10/2026, autorizada pelo usuário: o frontend
+de staging passa a iniciar Checkout Pro pelo Wallet Brick oficial, com Public
+Key de teste e preferenceId. Isso substitui a abertura manual do sandbox_init_point
+descrita na entrega original abaixo. O backend, os limites do sandbox e o modelo
+financeiro não mudam; não é Payment Brick nem coleta de cartão na loja. Ver
+[relatório Wallet](../WALLET_CHECKOUT_PRO_2026-10-23.md).
+
 Atualização de hospedagem em 20/10/2026: site e todas as APIs irão para a
 Cloudflare, sem Vercel. O fluxo financeiro abaixo permanece; as referências à
 Vercel descrevem o estado anterior ao port, não o destino aprovado. Ver

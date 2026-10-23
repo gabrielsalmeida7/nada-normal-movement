@@ -7,13 +7,15 @@ export const root = fileURLToPath(new URL("../../../", import.meta.url));
 export const configPath = "workers/storefront/wrangler.jsonc";
 export const manifestPath = `${root}/.wrangler/storefront-staging.json`;
 const paymentsOrigin = "https://pagamentos-staging.nadanormalclub.com.br";
+const testPublicKey = "APP_USR-e39b420f-08ac-48ed-b17a-3bea9480aa7f";
 const hash = data => createHash("sha256").update(data).digest("hex");
 
 export function sandboxEnabled(vars) {
   const flag = vars.CHECKOUT_PRO_ENABLED ?? "false";
   if (!["false", "true"].includes(flag)) throw new Error("SANDBOX_CONFIGURATION_INVALID");
   if (flag === "true" && (vars.APP_ENV !== "staging" || vars.SHOP_API_ENABLED !== "true" ||
-    vars.CHECKOUT_PRO_MODE !== "sandbox" || vars.PAYMENTS_API_URL !== paymentsOrigin)) {
+    vars.CHECKOUT_PRO_MODE !== "sandbox" || vars.PAYMENTS_API_URL !== paymentsOrigin ||
+    vars.MP_PUBLIC_KEY !== testPublicKey)) {
     throw new Error("SANDBOX_CONFIGURATION_INVALID");
   }
   return flag === "true";
@@ -52,7 +54,9 @@ export function frontendEnv(vars, inherited = process.env) {
   const enabled = sandboxEnabled(vars);
   return { ...inherited, VITE_SUPABASE_URL: vars.SUPABASE_URL,
     VITE_SUPABASE_ANON_KEY: vars.SUPABASE_PUBLISHABLE_KEY,
-    VITE_CHECKOUT_PRO_ENABLED: String(enabled), VITE_PAYMENTS_API_URL: enabled ? paymentsOrigin : "" };
+    VITE_CHECKOUT_PRO_ENABLED: String(enabled), VITE_PAYMENTS_API_URL: enabled ? paymentsOrigin : "",
+    VITE_APP_ENV: "staging", VITE_CHECKOUT_PRO_MODE: enabled ? "sandbox" : "",
+    VITE_MERCADO_PAGO_PUBLIC_KEY: enabled ? testPublicKey : "" };
 }
 
 export function runNode(args, env = process.env, capture = false) {

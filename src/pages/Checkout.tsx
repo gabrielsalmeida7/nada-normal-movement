@@ -21,7 +21,7 @@ import { isValidCpf, isValidPhone, maskCpf, maskPhone, onlyDigits } from "@/lib/
 import type { Address } from "@/types/address";
 import type { ShippingAddress } from "@/types/address";
 import { toast } from "sonner";
-import { checkoutProEnabled, openCheckout, prepareCheckout, type PreparedCheckout } from "@/lib/checkout-pro";
+import { checkoutProEnabled, prepareWalletCheckout, prepareCheckout, type PreparedCheckout } from "@/lib/checkout-pro";
 
 type CheckoutStep = "customer" | "delivery" | "review" | "payment";
 
@@ -68,10 +68,11 @@ export default function Checkout() {
   const [saveForNext, setSaveForNext] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
   const [prepared, setPrepared] = useState<PreparedCheckout | null>(null);
+  const [walletPreferenceId, setWalletPreferenceId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const paymentLock = useRef(false);
 
-  useEffect(() => { setPrepared(null); }, [items, selectedAddress?.id, paymentMethod]);
+  useEffect(() => { setPrepared(null); setWalletPreferenceId(null); }, [items, selectedAddress?.id, paymentMethod, user?.id]);
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddress && !formAddress) {
@@ -114,7 +115,10 @@ export default function Checkout() {
       if (!prepared) {
         setPrepared(await prepareCheckout(user.id, items, selectedAddress.id, paymentMethod));
       } else {
-        window.location.assign(await openCheckout(prepared.orderId));
+        if (Date.parse(prepared.reservationExpiresAt) <= Date.now()) {
+          throw new Error("A reserva deste pedido expirou. Consulte seus pedidos antes de iniciar outra compra.");
+        }
+        setWalletPreferenceId((await prepareWalletCheckout(prepared.orderId)).preferenceId);
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível continuar o pagamento.");
@@ -304,6 +308,8 @@ export default function Checkout() {
             enabled={checkoutProEnabled}
             busy={paying}
             totalCents={prepared?.totalCents}
+            walletPreferenceId={walletPreferenceId ?? undefined}
+            reservationExpiresAt={prepared?.reservationExpiresAt}
             onPay={handlePayment}
           />
         );
