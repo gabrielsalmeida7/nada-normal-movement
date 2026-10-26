@@ -15,10 +15,13 @@ export function validatePaymentRelease(config) {
   const stage = config.env.staging;
   const vars = stage.vars;
   const origin = "https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev";
+  const scheduled = vars.CHECKOUT_RECONCILIATION_ENABLED === "true";
+  const crons = stage.triggers?.crons ?? [];
   if (config.account_id !== "8f6b63890cf677004b89b130cba0dbf6" ||
       stage.name !== "nada-normal-payments-staging" || config.routes?.length ||
       JSON.stringify(stage.routes) !== JSON.stringify([{ pattern: "pagamentos-staging.nadanormalclub.com.br", custom_domain: true }]) ||
-      config.triggers?.crons?.length || stage.triggers?.crons?.length ||
+      config.triggers?.crons?.length ||
+      JSON.stringify(crons) !== JSON.stringify(scheduled ? ["*/5 * * * *"] : []) ||
       stage.observability?.enabled !== true || stage.observability.redact_query_string !== true ||
       stage.observability.logs?.enabled !== true || stage.observability.logs.invocation_logs !== false ||
       stage.observability.logs.persist !== true || stage.observability.traces?.enabled !== false ||
@@ -26,6 +29,8 @@ export function validatePaymentRelease(config) {
       vars.ALLOWED_ORIGINS !== origin || vars.CHECKOUT_RETURN_ORIGIN !== origin ||
       vars.CHECKOUT_WEBHOOK_URL !== "https://pagamentos-staging.nadanormalclub.com.br/webhooks/mercadopago" ||
       vars.MP_COLLECTOR_ID !== "3272217989" ||
+      vars.MP_APPLICATION_ID !== "4897243060269064" ||
+      vars.MP_TEST_APPLICATION_ID !== "5855568499515388" || vars.MP_TEST_BUYER_ID !== "3272217991" ||
       vars.SUPABASE_URL !== "https://bcemyxasbcwcrbinfguu.supabase.co" ||
       !/^sb_publishable_[A-Za-z0-9_-]+$/.test(vars.SUPABASE_PUBLISHABLE_KEY ?? "") ||
       Object.keys(vars).some(key => /SECRET|TOKEN/.test(key))) {

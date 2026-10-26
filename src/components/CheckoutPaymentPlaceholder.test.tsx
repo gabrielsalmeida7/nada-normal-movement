@@ -1,8 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CheckoutPaymentPlaceholder } from "@/components/CheckoutPaymentPlaceholder";
+import { MemoryRouter } from "react-router-dom";
 
 describe("CheckoutPaymentPlaceholder", () => {
+  it("keeps the order consultation action accessible after a failure", () => {
+    const orderId = "11111111-1111-4111-8111-111111111111";
+    render(<MemoryRouter><CheckoutPaymentPlaceholder selectedMethod="pix" onMethodChange={vi.fn()} enabled
+      checkoutError={{ message: "Estamos verificando o pagamento.", orderId }} /></MemoryRouter>);
+    expect(screen.getByRole("alert")).toHaveTextContent("Estamos verificando");
+    expect(screen.getByRole("link", { name: "Consultar este pedido" })).toHaveAttribute("href", `/checkout/pendente?order=${orderId}`);
+  });
   it("confirma o total antes de direcionar ao Mercado Pago, sem coletar cartão", () => {
     const onPay = vi.fn();
     render(<CheckoutPaymentPlaceholder selectedMethod="pix" onMethodChange={vi.fn()} enabled totalCents={12000} onPay={onPay} />);

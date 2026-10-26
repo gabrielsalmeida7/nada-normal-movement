@@ -1,3 +1,5 @@
+import type { CheckoutProConfig } from "./checkout-pro";
+
 export const REQUIRED_SECRETS = [
   "SUPABASE_SECRET_KEY",
   "MP_ACCESS_TOKEN",
@@ -11,7 +13,8 @@ export interface Config {
   environment: "local" | "staging" | "production";
   origins: string[];
   paymentsEnabled: boolean;
-  checkoutPro?: { returnOrigin: string; webhookUrl: string; collectorId: string };
+  checkoutPro?: CheckoutProConfig;
+  reconciliationEnabled?: boolean;
 }
 
 function isLoopback(url: URL): boolean {
@@ -56,12 +59,19 @@ export function readConfig(env: Bindings): Config {
       if (!origins.includes(returnOrigin.origin) || returnOrigin.protocol !== "https:" ||
         webhook.protocol !== "https:" || webhook.username || webhook.password || webhook.search || webhook.hash ||
         webhook.pathname !== "/webhooks/mercadopago" || isLoopback(webhook) ||
-        !/^\d{1,20}$/.test(env.MP_COLLECTOR_ID ?? "")) throw new Error();
-      checkoutPro = { returnOrigin: returnOrigin.origin, webhookUrl: webhook.href, collectorId: env.MP_COLLECTOR_ID! };
+        ![env.MP_COLLECTOR_ID, env.MP_APPLICATION_ID, env.MP_TEST_APPLICATION_ID, env.MP_TEST_BUYER_ID]
+          .every(id => /^[1-9]\d{0,19}$/.test(id ?? "")) ||
+        env.MP_TEST_BUYER_ID === env.MP_COLLECTOR_ID || env.MP_APPLICATION_ID === env.MP_TEST_APPLICATION_ID) throw new Error();
+      checkoutPro = { returnOrigin: returnOrigin.origin, webhookUrl: webhook.href, collectorId: env.MP_COLLECTOR_ID!,
+        applicationId: env.MP_APPLICATION_ID!, testApplicationId: env.MP_TEST_APPLICATION_ID!, testBuyerId: env.MP_TEST_BUYER_ID! };
     }
     if (env.PAYMENTS_ENABLED === "true" && !checkoutPro) throw new Error();
+    if (![undefined, "false", "true"].includes(env.CHECKOUT_RECONCILIATION_ENABLED)) throw new Error();
+    const reconciliationEnabled = env.CHECKOUT_RECONCILIATION_ENABLED === "true";
+    if (reconciliationEnabled && (environment !== "staging" || !checkoutPro)) throw new Error();
     return { environment: environment as Config["environment"], origins: [...new Set(origins)],
-      paymentsEnabled: env.PAYMENTS_ENABLED === "true", checkoutPro };
+      paymentsEnabled: env.PAYMENTS_ENABLED === "true", checkoutPro,
+      ...(reconciliationEnabled ? { reconciliationEnabled: true } : {}) };
   } catch {
     throw new Error("CONFIGURATION_INVALID");
   }

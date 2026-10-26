@@ -1,5 +1,13 @@
 # Supabase – Nada Normal Movement
 
+## Migration local pendente — reconciliação Checkout Pro
+
+`20261025063723_checkout_pro_reconciliation.sql` foi criada e validada em
+PostgreSQL descartável; não foi aplicada ao projeto remoto. O backend novo usa
+RPCs v2 e depende dela antes de publicar. Estado, política de estoque e testes
+em [reconciliação](../docs/NOVA_INTEGRACAO_MERCADO_PAGO_RECONCILIACAO.md).
+O histórico remoto abaixo não foi modificado por essa entrega.
+
 ## Estado remoto confirmado — 19/10/2026
 
 No projeto `NadaNormal` (`bcemyxasbcwcrbinfguu`), estas três migrations foram

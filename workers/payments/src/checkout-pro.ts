@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { HttpError, upstreamJson } from "./http";
 import type { SignatureFailureReason, WebhookDiagnostic } from "./webhook-diagnostic";
+import { createProviderPreference, getProviderPayment, getProviderPreference } from "./mercado-pago";
 
 export const snapshotSchema = z.object({
   orderId: z.string().uuid(), attemptId: z.string().uuid(),
@@ -13,6 +14,9 @@ export interface CheckoutProConfig {
   returnOrigin: string;
   webhookUrl: string;
   collectorId: string;
+  applicationId: string;
+  testApplicationId: string;
+  testBuyerId: string;
 }
 
 export function sandboxCheckoutUrl(value: string): string {
@@ -31,7 +35,9 @@ export function preferencePayload(snapshot: CheckoutSnapshot, config: CheckoutPr
     items: [{ id: snapshot.orderId, title: `Pedido Nada Normal ${snapshot.orderId.slice(0, 8)}`,
       currency_id: "BRL", quantity: 1, unit_price: snapshot.totalCents / 100 }],
     external_reference: snapshot.attemptId,
-    metadata: { order_id: snapshot.orderId, payment_attempt_id: snapshot.attemptId },
+    metadata: { order_id: snapshot.orderId, payment_attempt_id: snapshot.attemptId,
+      integration_application_id: config.applicationId },
+    statement_descriptor: "NADANORMAL",
     back_urls: { success: back("sucesso"), pending: back("pendente"), failure: back("erro") },
     auto_return: "approved",
     notification_url: config.webhookUrl,
@@ -50,14 +56,42 @@ export async function createPreference(snapshot: CheckoutSnapshot, config: Check
     await upstreamJson("https://api.mercadopago.com/users/me", { headers }));
   if (String(identity.id) !== config.collectorId) throw new HttpError("PROVIDER_ACCOUNT_MISMATCH");
   // No automatic retry: Preferences API must not be assumed to honor payment idempotency headers.
-  const result = z.object({ id: z.string().min(1), sandbox_init_point: z.string(),
-    collector_id: z.number().int().optional() }).parse(await upstreamJson(
-    "https://api.mercadopago.com/checkout/preferences",
-    { method: "POST", headers, body: JSON.stringify(preferencePayload(snapshot, config)) }));
-  if (result.collector_id !== undefined && String(result.collector_id) !== config.collectorId) {
-    throw new HttpError("PROVIDER_ACCOUNT_MISMATCH");
+  const result = await createProviderPreference(token, preferencePayload(snapshot, config), snapshot.attemptId);
+  return validatedPreference(result, config, snapshot.orderId, snapshot.attemptId);
+}
+
+function validatedPreference(value: unknown, config: CheckoutProConfig, orderId: string, attemptId?: string) {
+  const parsed = z.object({ id: z.string().min(1).max(200), sandbox_init_point: z.string(),
+    external_reference: z.string().uuid(), metadata: z.object({ order_id: z.string().uuid() }),
+    client_id: z.union([z.string(), z.number().int().positive().safe()]).transform(String),
+    collector_id: z.number().int().positive().safe() }).safeParse(value);
+  if (!parsed.success) throw new HttpError("PROVIDER_RESPONSE_INVALID");
+  const result = parsed.data;
+  if (String(result.collector_id) !== config.collectorId) throw new HttpError("PROVIDER_ACCOUNT_MISMATCH");
+  if (result.client_id !== config.testApplicationId) throw new HttpError("PROVIDER_APPLICATION_MISMATCH");
+  if (result.metadata.order_id !== orderId || (attemptId && result.external_reference !== attemptId)) {
+    throw new HttpError("PROVIDER_PREFERENCE_MISMATCH");
   }
-  return { preferenceId: result.id, checkoutUrl: sandboxCheckoutUrl(result.sandbox_init_point) };
+  const checkoutUrl = sandboxCheckoutUrl(result.sandbox_init_point);
+  const ids = new URL(checkoutUrl).searchParams.getAll("pref_id");
+  if (ids.length !== 1 || ids[0] !== result.id) throw new HttpError("PROVIDER_RESPONSE_INVALID");
+  return { preferenceId: result.id, checkoutUrl };
+}
+
+/** A DB replay must not reopen a preference created by the old application. */
+export async function readPreference(id: string, config: CheckoutProConfig, token: string, orderId: string) {
+  const result = validatedPreference(await getProviderPreference(token, id), config, orderId);
+  if (result.preferenceId !== id) throw new HttpError("PROVIDER_RESPONSE_INVALID");
+  return result;
+}
+
+export async function readReconciliationPreference(id: string, config: CheckoutProConfig, token: string,
+  orderId: string, attemptId: string) {
+  const raw = await getProviderPreference(token, id);
+  const preference = validatedPreference(raw, config, orderId, attemptId);
+  if (preference.preferenceId !== id) throw new HttpError("PROVIDER_PREFERENCE_MISMATCH");
+  const expiry = z.object({ expires: z.boolean(), expiration_date_to: z.string().datetime({ offset: true }).nullable() }).parse(raw);
+  return { ...preference, expires: expiry.expires, expiresAt: expiry.expiration_date_to };
 }
 
 /** Verify the signed query ID, never a resource URL supplied by the caller. */
@@ -67,7 +101,11 @@ export async function verifyWebhook(request: Request, secret: string,
   const id = ids[0] ?? "";
   const requestId = request.headers.get("x-request-id") ?? "";
   const signature = request.headers.get("x-signature") ?? "";
-  const match = /^ts=(\d{10,13}),v1=([a-fA-F0-9]{64})$/.exec(signature.replace(/\s/g, ""));
+  // The documented header is a list of key/value pairs, not a fixed ordering.
+  const parts = signature.split(",").map(part => part.trim());
+  const timestamps = parts.filter(part => /^ts=\d{10,13}$/.test(part));
+  const signatures = parts.filter(part => /^v1=[a-fA-F0-9]{64}$/.test(part));
+  const validFormat = parts.length === 2 && timestamps.length === 1 && signatures.length === 1;
   const reject = (reasons: SignatureFailureReason[]): never => {
     if (diagnostic) diagnostic.signatureFailureReasons = reasons;
     throw new HttpError("WEBHOOK_SIGNATURE_INVALID", 401);
@@ -79,11 +117,12 @@ export async function verifyWebhook(request: Request, secret: string,
   if (!requestId) reasons.push("request_id_missing");
   else if (!/^[A-Za-z0-9._:-]{1,128}$/.test(requestId)) reasons.push("request_id_invalid");
   if (!signature) reasons.push("signature_missing");
-  else if (!match) reasons.push("signature_format_invalid");
+  else if (!validFormat) reasons.push("signature_format_invalid");
   if (reasons.length) reject(reasons);
   // The same strict parser and acceptance rules remain in force.
-  if (!match) return reject(["signature_format_invalid"]);
-  const [, timestamp, mac] = match;
+  if (!validFormat) return reject(["signature_format_invalid"]);
+  const timestamp = timestamps[0].slice(3);
+  const mac = signatures[0].slice(3);
   const seconds = timestamp.length === 13 ? Number(timestamp) / 1000 : Number(timestamp);
   if (Math.abs(Date.now() / 1000 - seconds) > 300) reject(["timestamp_outside_window"]);
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
@@ -106,10 +145,6 @@ export const verifiedPaymentSchema = z.object({
   date_last_updated: z.string().datetime({ offset: true }),
 });
 
-// Deliberately narrow staging exception, not a general production payment switch.
-const TEST_SELLER = 3272217989;
-// Confirmed in the operator's Test Accounts panel; never learned from callbacks.
-const TEST_BUYER = 3272217991;
 const publicIdentitySchema = z.object({
   id: z.number().int().positive(), site_id: z.literal("MLB"),
 });
@@ -125,15 +160,14 @@ async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>
     throw new HttpError("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
   };
   const mismatches = [
-    ...(config.collectorId !== String(TEST_SELLER) ? ["configured_seller"] : []),
-    ...(payment.collector_id !== TEST_SELLER ? ["payment_seller"] : []),
-    ...(payment.payer?.id !== String(TEST_BUYER) ? ["payment_buyer"] : []),
+    ...(String(payment.collector_id) !== config.collectorId ? ["payment_seller"] : []),
+    ...(payment.payer?.id !== config.testBuyerId ? ["payment_buyer"] : []),
   ];
   if (mismatches.length) reject(mismatches);
   const headers = { Authorization: `Bearer ${token}` };
   const [seller, buyer] = await Promise.all([
     upstreamJson("https://api.mercadopago.com/users/me", { headers }),
-    upstreamJson(`https://api.mercadopago.com/users/${TEST_BUYER}`, { headers }),
+    upstreamJson(`https://api.mercadopago.com/users/${config.testBuyerId}`, { headers }),
   ]);
   const verifiedSeller = testIdentitySchema.safeParse(seller);
   // A seller cannot attest another user's test marker from their public profile.
@@ -141,20 +175,19 @@ async function verifyTestAccounts(payment: z.infer<typeof verifiedPaymentSchema>
   const verifiedBuyer = publicIdentitySchema.safeParse(buyer);
   // Only fixed labels from our own schema: no issue messages, paths or values.
   const checks = (result: typeof verifiedSeller | typeof verifiedBuyer,
-    account: "seller" | "buyer", expectedId: number): string[] => {
-    if (result.success) return result.data.id === expectedId ? [] : [`${account}_id`];
+    account: "seller" | "buyer", expectedId: string): string[] => {
+    if (result.success) return String(result.data.id) === expectedId ? [] : [`${account}_id`];
     const fields = ["id", "site_id", "tags", "user_type", "test_marker"]
       .filter(field => result.error.issues.some(issue => issue.path[0] === field));
     return fields.length ? fields.map(field => `${account}_${field}`) : [`${account}_profile`];
   };
-  const rejected = [...checks(verifiedSeller, "seller", TEST_SELLER), ...checks(verifiedBuyer, "buyer", TEST_BUYER)];
+  const rejected = [...checks(verifiedSeller, "seller", config.collectorId), ...checks(verifiedBuyer, "buyer", config.testBuyerId)];
   if (rejected.length) reject(rejected);
 }
 
 export async function readPayment(id: string, config: CheckoutProConfig, token: string,
   diagnostic?: WebhookDiagnostic) {
-  const result = verifiedPaymentSchema.safeParse(await upstreamJson(
-    `https://api.mercadopago.com/v1/payments/${id}`, { headers: { Authorization: `Bearer ${token}` } }));
+  const result = verifiedPaymentSchema.safeParse(await getProviderPayment(token, id));
   if (!result.success) {
     // Output only known schema field names, never Zod issues/messages or provider values.
     if (diagnostic) diagnostic.rejectedPaymentFields = Object.keys(verifiedPaymentSchema.shape)

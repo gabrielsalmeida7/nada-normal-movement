@@ -1,6 +1,7 @@
 import { CreditCard, LockKeyhole, QrCode } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const CheckoutWallet = lazy(() => import("@/components/CheckoutWallet").then(module => ({ default: module.CheckoutWallet })));
 
@@ -15,6 +16,8 @@ interface CheckoutPaymentPlaceholderProps {
   onPay?: () => void;
   walletPreferenceId?: string;
   reservationExpiresAt?: string;
+  orderId?: string;
+  checkoutError?: { message: string; orderId?: string };
 }
 
 const methods: Array<{
@@ -46,6 +49,8 @@ export function CheckoutPaymentPlaceholder({
   onPay,
   walletPreferenceId,
   reservationExpiresAt,
+  orderId,
+  checkoutError,
 }: CheckoutPaymentPlaceholderProps) {
   return (
     <section className="space-y-6" aria-labelledby="payment-step-title">
@@ -115,9 +120,14 @@ export function CheckoutPaymentPlaceholder({
         Total confirmado para este pedido: <strong>{(totalCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</strong>.
         Confira esse valor antes de continuar.
       </p>}
-      {enabled && walletPreferenceId && reservationExpiresAt ?
+      {checkoutError && <div role="alert" className="space-y-3 text-sm">
+        <p>{checkoutError.message}</p>
+        {checkoutError.orderId && <Link className="inline-block underline underline-offset-4 focus-visible:outline focus-visible:outline-2"
+          to={`/checkout/pendente?order=${encodeURIComponent(checkoutError.orderId)}`}>Consultar este pedido</Link>}
+      </div>}
+      {enabled && !checkoutError && walletPreferenceId && reservationExpiresAt ?
         <Suspense fallback={<p role="status">Carregando botão do Mercado Pago…</p>}>
-          <CheckoutWallet key={walletPreferenceId} preferenceId={walletPreferenceId} expiresAt={reservationExpiresAt} />
+          <CheckoutWallet key={walletPreferenceId} preferenceId={walletPreferenceId} expiresAt={reservationExpiresAt} orderId={orderId} />
         </Suspense> :
       <Button size="lg" className="w-full font-display tracking-wider" disabled={!enabled || busy} onClick={onPay}>
         {!enabled ? "Finalizar compra em breve" : busy ? "Preparando pagamento…" : totalCents === undefined

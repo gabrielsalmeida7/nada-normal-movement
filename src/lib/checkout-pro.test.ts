@@ -11,7 +11,7 @@ const enableWallet = () => {
   vi.stubEnv("VITE_APP_ENV", "staging");
   vi.stubEnv("VITE_CHECKOUT_PRO_MODE", "sandbox");
   vi.stubEnv("VITE_PAYMENTS_API_URL", "https://pagamentos-staging.nadanormalclub.com.br");
-  vi.stubEnv("VITE_MERCADO_PAGO_PUBLIC_KEY", "APP_USR-e39b420f-08ac-48ed-b17a-3bea9480aa7f");
+  vi.stubEnv("VITE_MERCADO_PAGO_PUBLIC_KEY", "APP_USR-0b533487-ad9f-4133-8199-5e900694880b");
 };
 
 beforeEach(() => vi.stubGlobal("AbortSignal", { timeout: () => new AbortController().signal }));
@@ -34,6 +34,7 @@ describe("Checkout Pro browser boundary", () => {
   it("returns only the preference ID, never follows the returned checkout URL", async () => {
     enableWallet();
     const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ preferenceId,
+      applicationId: "4897243060269064", testApplicationId: "5855568499515388", orderId,
       checkoutUrl: "https://attacker.example.com" }));
     const { prepareWalletCheckout } = await import("./checkout-pro");
     expect(await prepareWalletCheckout(orderId)).toEqual({ preferenceId });
@@ -45,6 +46,7 @@ describe("Checkout Pro browser boundary", () => {
   it.each([
     ["VITE_APP_ENV", "production"], ["VITE_CHECKOUT_PRO_MODE", "production"],
     ["VITE_MERCADO_PAGO_PUBLIC_KEY", "APP_USR-wrong-app"], ["VITE_MERCADO_PAGO_PUBLIC_KEY", ""],
+    ["VITE_MERCADO_PAGO_PUBLIC_KEY", "APP_USR-e39b420f-08ac-48ed-b17a-3bea9480aa7f"],
     ["VITE_PAYMENTS_API_URL", "https://wrong.example.com"], ["VITE_CHECKOUT_PRO_ENABLED", "false"],
   ])("refuses unsafe wallet settings before external I/O: %s", async (name, value) => {
     enableWallet();
@@ -57,9 +59,19 @@ describe("Checkout Pro browser boundary", () => {
   it.each(["999-wrong-seller", "", "https://sandbox.mercadopago.com.br", "3272217989-<script>"])(
     "rejects malformed/foreign preferences: %s", async preferenceId => {
       enableWallet();
-      const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ preferenceId }));
+      const fetcher = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ preferenceId,
+        applicationId: "4897243060269064", testApplicationId: "5855568499515388", orderId }));
       const { prepareWalletCheckout } = await import("./checkout-pro");
       await expect(prepareWalletCheckout(orderId)).rejects.toThrow();
       expect(fetcher).toHaveBeenCalledOnce();
     });
+  it.each([
+    {}, { applicationId: "6344920694868580", testApplicationId: "760330644412079", orderId },
+    { applicationId: "4897243060269064", testApplicationId: "5855568499515388", orderId: "33333333-3333-4333-8333-333333333333" },
+  ])("does not load a preference without new-application and order attestation (%#)", async metadata => {
+    enableWallet();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ preferenceId, ...metadata }));
+    const { prepareWalletCheckout } = await import("./checkout-pro");
+    await expect(prepareWalletCheckout(orderId)).rejects.toThrow("validar o checkout");
+  });
 });

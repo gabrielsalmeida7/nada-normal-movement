@@ -1,15 +1,9 @@
 import { z } from "zod";
 import type { Bindings, Config } from "./config";
-import { createPreference, readPayment, sandboxCheckoutUrl, snapshotSchema, verifyWebhook } from "./checkout-pro";
+import { createPreference, readPayment, readPreference, snapshotSchema, verifyWebhook } from "./checkout-pro";
 import { HttpError, readJson, upstreamJson } from "./http";
 import type { WebhookDiagnostic } from "./webhook-diagnostic";
-
-async function rpc(env: Bindings, name: string, body: Record<string, unknown>): Promise<unknown> {
-  return upstreamJson(`${env.SUPABASE_URL}/rest/v1/rpc/${name}`, {
-    method: "POST", headers: { apikey: env.SUPABASE_SECRET_KEY!, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-}
+import { rpc } from "./database";
 
 async function userId(request: Request, env: Bindings): Promise<string> {
   const header = request.headers.get("Authorization") ?? "";
@@ -37,7 +31,8 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
     if (diagnostic) diagnostic.stage = "provider_lookup_and_validation";
     const payment = await readPayment(id, pro, env.MP_ACCESS_TOKEN!, diagnostic);
     if (diagnostic) diagnostic.stage = "database_apply";
-    await rpc(env, "apply_checkout_pro_payment", {
+    await rpc(env, "apply_checkout_pro_payment_v2", {
+      p_application_id: pro.applicationId, p_test_application_id: pro.testApplicationId,
       p_attempt_id: payment.external_reference, p_payment_id: String(payment.id),
       p_amount_cents: Math.round(payment.transaction_amount * 100), p_status: payment.status,
       p_refunded_cents: Math.round(payment.transaction_amount_refunded * 100),
@@ -63,9 +58,11 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
   if (!payload.success) throw new HttpError("INVALID_PAYLOAD", 400);
   const claim = z.object({ state: z.enum(["claimed", "ready", "busy", "unavailable"]),
     snapshot: snapshotSchema.optional(), preferenceId: z.string().optional(), checkoutUrl: z.string().optional() })
-    .parse(await rpc(env, "claim_checkout_pro", { p_user_id: owner, p_order_id: payload.data.orderId }));
+    .parse(await rpc(env, "claim_checkout_pro_v2", { p_user_id: owner, p_order_id: payload.data.orderId,
+      p_application_id: pro.applicationId, p_test_application_id: pro.testApplicationId }));
   if (claim.state === "ready" && claim.checkoutUrl && claim.preferenceId) {
-    return Response.json({ preferenceId: claim.preferenceId, checkoutUrl: sandboxCheckoutUrl(claim.checkoutUrl) });
+    return Response.json({ ...await readPreference(claim.preferenceId, pro, env.MP_ACCESS_TOKEN!, payload.data.orderId),
+      applicationId: pro.applicationId, testApplicationId: pro.testApplicationId, orderId: payload.data.orderId });
   }
   if (claim.state === "busy") throw new HttpError("CHECKOUT_RECONCILIATION_REQUIRED", 409);
   if (claim.state !== "claimed" || !claim.snapshot) throw new HttpError("ORDER_UNAVAILABLE", 409);
@@ -73,5 +70,6 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
   const preference = await createPreference(claim.snapshot, pro, env.MP_ACCESS_TOKEN!);
   await rpc(env, "finish_checkout_pro", { p_attempt_id: claim.snapshot.attemptId,
     p_preference_id: preference.preferenceId, p_checkout_url: preference.checkoutUrl });
-  return Response.json(preference, { status: 201 });
+  return Response.json({ ...preference, applicationId: pro.applicationId,
+    testApplicationId: pro.testApplicationId, orderId: payload.data.orderId }, { status: 201 });
 }

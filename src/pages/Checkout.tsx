@@ -21,7 +21,7 @@ import { isValidCpf, isValidPhone, maskCpf, maskPhone, onlyDigits } from "@/lib/
 import type { Address } from "@/types/address";
 import type { ShippingAddress } from "@/types/address";
 import { toast } from "sonner";
-import { checkoutProEnabled, prepareWalletCheckout, prepareCheckout, type PreparedCheckout } from "@/lib/checkout-pro";
+import { checkoutProEnabled, CheckoutStateError, prepareWalletCheckout, prepareCheckout, type PreparedCheckout } from "@/lib/checkout-pro";
 
 type CheckoutStep = "customer" | "delivery" | "review" | "payment";
 
@@ -40,7 +40,7 @@ const steps: Array<{ id: CheckoutStep; label: string }> = [
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const items = useCartStore((s) => s.items);
   const subtotal = useCartStore((s) => s.subtotal());
 
@@ -71,8 +71,13 @@ export default function Checkout() {
   const [walletPreferenceId, setWalletPreferenceId] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const paymentLock = useRef(false);
+  const revision = useRef(0);
+  const [checkoutError, setCheckoutError] = useState<{ message: string; orderId?: string } | null>(null);
 
-  useEffect(() => { setPrepared(null); setWalletPreferenceId(null); }, [items, selectedAddress?.id, paymentMethod, user?.id]);
+  useEffect(() => {
+    revision.current += 1;
+    setPrepared(null); setWalletPreferenceId(null); setCheckoutError(null);
+  }, [items, selectedAddress?.id, paymentMethod, user?.id]);
 
   useEffect(() => {
     if (addresses.length > 0 && !selectedAddress && !formAddress) {
@@ -111,17 +116,25 @@ export default function Checkout() {
     if (!user || !selectedAddress || paymentLock.current) return;
     paymentLock.current = true;
     setPaying(true);
+    setCheckoutError(null);
+    const currentRevision = revision.current;
     try {
       if (!prepared) {
-        setPrepared(await prepareCheckout(user.id, items, selectedAddress.id, paymentMethod));
+        const order = await prepareCheckout(user.id, items, selectedAddress.id, paymentMethod);
+        if (revision.current === currentRevision) setPrepared(order);
       } else {
         if (Date.parse(prepared.reservationExpiresAt) <= Date.now()) {
-          throw new Error("A reserva deste pedido expirou. Consulte seus pedidos antes de iniciar outra compra.");
+          throw new CheckoutStateError("A reserva deste pedido expirou. Consulte o pedido antes de iniciar outra compra.", prepared.orderId);
         }
-        setWalletPreferenceId((await prepareWalletCheckout(prepared.orderId)).preferenceId);
+        const preference = await prepareWalletCheckout(prepared.orderId, user.id);
+        if (revision.current === currentRevision) setWalletPreferenceId(preference.preferenceId);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível continuar o pagamento.");
+      if (revision.current === currentRevision) {
+        const message = error instanceof CheckoutStateError ? error.message : "Não foi possível continuar o pagamento. Seu carrinho permanece salvo.";
+        setCheckoutError({ message, orderId: error instanceof CheckoutStateError ? error.orderId ?? prepared?.orderId : prepared?.orderId });
+        setWalletPreferenceId(null);
+      }
     } finally {
       paymentLock.current = false;
       setPaying(false);
@@ -129,6 +142,7 @@ export default function Checkout() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate("/login?redirect=/checkout", { replace: true });
       return;
@@ -136,7 +150,7 @@ export default function Checkout() {
     if (items.length === 0) {
       navigate("/carrinho", { replace: true });
     }
-  }, [user, items.length, navigate]);
+  }, [user, authLoading, items.length, navigate]);
 
   const handleCustomerNext = async () => {
     if (!user) return;
@@ -310,6 +324,8 @@ export default function Checkout() {
             totalCents={prepared?.totalCents}
             walletPreferenceId={walletPreferenceId ?? undefined}
             reservationExpiresAt={prepared?.reservationExpiresAt}
+            orderId={prepared?.orderId}
+            checkoutError={checkoutError ?? undefined}
             onPay={handlePayment}
           />
         );

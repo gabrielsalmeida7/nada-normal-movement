@@ -1,5 +1,15 @@
 # API de pagamentos — Checkout Pro sandbox
 
+> Atualização local de 25/10/2026: o backend da nova aplicação usa o SDK oficial
+> `mercadopago@3.6.1`. Configuração versionada aponta para a aplicação principal
+> `4897243060269064` e aplicação de teste `5855568499515388`, com novas submissões
+> desativadas. Não houve deploy nem troca dos secrets remotos. O histórico abaixo
+> descreve a integração anterior. Estado e limites da nova entrega em
+> [etapa 3 — backend SDK](../../docs/NOVA_INTEGRACAO_MERCADO_PAGO_ETAPA_3.md).
+>
+> O item de [reconciliação local](../../docs/NOVA_INTEGRACAO_MERCADO_PAGO_RECONCILIACAO.md)
+> também está implementado, desativado e dependente da migration nova antes do deploy.
+
 Estado consolidado em 22/10/2026. Plano vigente: [roadmap](../../roadmap.md).
 Passo a passo para usuário e responsável técnico:
 [roteiro de testes](../../docs/ROTEIRO_DE_TESTES.md).

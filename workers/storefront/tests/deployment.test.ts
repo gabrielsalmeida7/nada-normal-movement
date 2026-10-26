@@ -3,10 +3,16 @@ import { describe, expect, it } from "vitest";
 import { validateStaging, validateBuildContext, frontendEnv } from "../scripts/staging.mjs";
 
 const config = JSON.parse(readFileSync("workers/storefront/wrangler.jsonc", "utf8"));
+// Explicitly enabled test fixture; the versioned rollout remains disabled.
+config.env.staging.vars.CHECKOUT_PRO_ENABLED = "true";
 const head = "a".repeat(40);
 const context = { WORKERS_CI: "1", WORKERS_CI_BRANCH: "home-v2-contraste", WORKERS_CI_COMMIT_SHA: head };
 
 describe("guard de staging", () => {
+  it("keeps the new frontend disabled in the versioned config until coordinated rollout", () => {
+    const saved = JSON.parse(readFileSync("workers/storefront/wrangler.jsonc", "utf8"));
+    expect(saved.env.staging.vars.CHECKOUT_PRO_ENABLED).toBe("false");
+  });
   it("aceita somente a configuração de staging preparada", () => {
     expect(validateStaging(config).APP_ENV).toBe("staging");
     expect(() => validateBuildContext(context, head)).not.toThrow();
@@ -65,9 +71,9 @@ describe("guard de staging", () => {
     stage.env.staging.vars.CHECKOUT_PRO_ENABLED = "false";
     const result = frontendEnv(validateStaging(stage), { VITE_CHECKOUT_PRO_ENABLED: "true" });
     expect(result.VITE_CHECKOUT_PRO_ENABLED).toBe("false");
-    expect(result.VITE_PAYMENTS_API_URL).toBe("");
+    expect(result.VITE_PAYMENTS_API_URL).toBe("https://pagamentos-staging.nadanormalclub.com.br");
     expect(result.VITE_MERCADO_PAGO_PUBLIC_KEY).toBe("");
-    expect(result.VITE_CHECKOUT_PRO_MODE).toBe("");
+    expect(result.VITE_CHECKOUT_PRO_MODE).toBe("sandbox");
   });
   it("never enables checkout in local or production builds", () => {
     for (const APP_ENV of ["local", "production"]) {

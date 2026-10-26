@@ -24,9 +24,10 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(config.env.staging.name).toBe("nada-normal-payments-staging");
     expect(config.env.staging.routes).toEqual([{ pattern: new URL(host).hostname, custom_domain: true }]);
     expect(() => validateDeployment("staging", config.env.staging)).not.toThrow();
-    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: true,
+    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: false,
       origins: [origin], checkoutPro: { returnOrigin: origin,
-        webhookUrl: `${host}/webhooks/mercadopago`, collectorId: "3272217989" } });
+        webhookUrl: `${host}/webhooks/mercadopago`, collectorId: "3272217989",
+        applicationId: "4897243060269064", testApplicationId: "5855568499515388", testBuyerId: "3272217991" } });
   });
   it("uses the same public Supabase settings as the storefront, never secrets in vars", () => {
     const vars = config.env.staging.vars;
@@ -37,7 +38,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS]);
   });
   it("enables only the authorized sandbox frontend, keeping production/previews/schedulers closed", () => {
-    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("true");
+    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(frontendEnv(storefront.env.production.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(config.env.production.vars.PAYMENTS_ENABLED).toBe("false");
     expect(config.env.staging.workers_dev).toBe(false);
@@ -49,11 +50,11 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     const fetch = vi.spyOn(globalThis, "fetch");
     const health = await worker.fetch(new Request(`${host}/health`), bindings);
     expect(health.status).toBe(200);
-    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: true });
+    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: false });
     const preflight = await worker.fetch(new Request(`${host}/v1/checkout/preferences`, {
       method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "authorization,content-type,idempotency-key" },
-    }), bindings);
+    }), { ...bindings, PAYMENTS_ENABLED: "true" });
     expect(preflight.status).toBe(204);
     expect(preflight.headers.get("Access-Control-Allow-Origin")).toBe(origin);
     expect(fetch).not.toHaveBeenCalled();
@@ -63,7 +64,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     const response = await worker.fetch(new Request(`${host}/v1/checkout/preferences`, {
       method: "POST", headers: { Origin: origin, "Content-Type": "application/json" },
       body: JSON.stringify({ orderId: "40000000-0000-4000-8000-000000000001" }),
-    }), bindings);
+    }), { ...bindings, PAYMENTS_ENABLED: "true" });
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({ error: { code: "UNAUTHORIZED" } });
     expect(fetch).not.toHaveBeenCalled();

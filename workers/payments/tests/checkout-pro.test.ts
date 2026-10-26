@@ -8,10 +8,12 @@ const orderId = "11111111-1111-4111-8111-111111111111";
 const attemptId = "22222222-2222-4222-8222-222222222222";
 const owner = "33333333-3333-4333-8333-333333333333";
 const checkoutUrl = "https://sandbox.mercadopago.com.br/checkout/v1/redirect?pref_id=test-pref";
-const config = { returnOrigin: "https://staging.example.com", webhookUrl: "https://api.example.com/webhooks/mercadopago", collectorId: "123" };
+const config = { returnOrigin: "https://staging.example.com", webhookUrl: "https://api.example.com/webhooks/mercadopago", collectorId: "123",
+  applicationId: "100", testApplicationId: "200", testBuyerId: "3272217991" };
 const env = { APP_ENV: "staging", PAYMENTS_ENABLED: "true", ALLOWED_ORIGINS: config.returnOrigin,
   CHECKOUT_PRO_MODE: "sandbox", CHECKOUT_RETURN_ORIGIN: config.returnOrigin, CHECKOUT_WEBHOOK_URL: config.webhookUrl,
   MP_COLLECTOR_ID: "123", MP_ACCESS_TOKEN: "mp-private-sentinel", MP_WEBHOOK_SECRET: "webhook-private-sentinel",
+  MP_APPLICATION_ID: config.applicationId, MP_TEST_APPLICATION_ID: config.testApplicationId, MP_TEST_BUYER_ID: config.testBuyerId,
   SUPABASE_URL: "https://database.example.com", SUPABASE_PUBLISHABLE_KEY: "public", SUPABASE_SECRET_KEY: "db-private-sentinel" };
 const snapshot = { orderId, attemptId, totalCents: 12345, currency: "BRL" as const, method: "pix" as const,
   expiresAt: "2030-01-01T00:30:00Z" };
@@ -77,23 +79,26 @@ describe("Worker checkout endpoints", () => {
       .mockResolvedValueOnce(Response.json({ id: owner }))
       .mockResolvedValueOnce(Response.json({ state: "claimed", snapshot }))
       .mockResolvedValueOnce(Response.json({ id: 123 }))
-      .mockResolvedValueOnce(Response.json({ id: "test-pref", sandbox_init_point: checkoutUrl, collector_id: 123 }))
+      .mockResolvedValueOnce(Response.json({ id: "test-pref", sandbox_init_point: checkoutUrl, collector_id: 123, client_id: "200", external_reference: attemptId, metadata: { order_id: orderId } }))
       .mockResolvedValueOnce(Response.json({ saved: true }));
     const response = await req();
     expect(response.status).toBe(201);
-    expect(await response.json()).toEqual({ preferenceId: "test-pref", checkoutUrl });
+    expect(await response.json()).toEqual({ preferenceId: "test-pref", checkoutUrl,
+      applicationId: config.applicationId, testApplicationId: config.testApplicationId, orderId });
     expect(spy.mock.calls.map(c => String(c[0]))).toEqual([
-      `${env.SUPABASE_URL}/auth/v1/user`, `${env.SUPABASE_URL}/rest/v1/rpc/claim_checkout_pro`,
-      "https://api.mercadopago.com/users/me", "https://api.mercadopago.com/checkout/preferences",
+      `${env.SUPABASE_URL}/auth/v1/user`, `${env.SUPABASE_URL}/rest/v1/rpc/claim_checkout_pro_v2`,
+      "https://api.mercadopago.com/users/me", "https://api.mercadopago.com/checkout/preferences/",
       `${env.SUPABASE_URL}/rest/v1/rpc/finish_checkout_pro`]);
     const providerHeaders = spy.mock.calls[3][1]?.headers as Record<string, string>;
     expect(providerHeaders.Authorization).toBe(`Bearer ${env.MP_ACCESS_TOKEN}`);
   });
-  it("reuses persisted preference instead of posting to the provider again", async () => {
+  it("reuses persisted preference after verifying its application, without another POST", async () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
-      .mockResolvedValueOnce(Response.json({ state: "ready", preferenceId: "test-pref", checkoutUrl }));
+      .mockResolvedValueOnce(Response.json({ state: "ready", preferenceId: "test-pref", checkoutUrl }))
+      .mockResolvedValueOnce(Response.json({ id: "test-pref", sandbox_init_point: checkoutUrl, collector_id: 123, client_id: "200", external_reference: attemptId, metadata: { order_id: orderId } }));
     expect((await req()).status).toBe(200);
-    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(spy.mock.calls[2][1]?.method).toBe("GET");
   });
   it("does not repeat external I/O after an unknown in-flight claim", async () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
@@ -107,7 +112,7 @@ describe("Worker checkout endpoints", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
       .mockResolvedValueOnce(Response.json({ state: "claimed", snapshot }))
       .mockResolvedValueOnce(Response.json({ id: 123 }))
-      .mockResolvedValueOnce(Response.json({ id: "test-pref", sandbox_init_point: checkoutUrl }))
+      .mockResolvedValueOnce(Response.json({ id: "test-pref", sandbox_init_point: checkoutUrl, collector_id: 123, client_id: "200", external_reference: attemptId, metadata: { order_id: orderId } }))
       .mockResolvedValueOnce(Response.json({}, { status: 503 }));
     const response = await req();
     expect(response.status).toBe(503);
@@ -234,7 +239,7 @@ describe("webhook confirmation", () => {
     const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json(body));
     const response = await worker.fetch(await signedRequest(), env);
     expect(response.status).toBe(503);
-    expect(diagnostic()[0].rejectedPaymentFields).toEqual([]);
+    expect(["UPSTREAM_UNAVAILABLE", "CHECKOUT_UNAVAILABLE"]).toContain(diagnostic()[0].errorCode);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(JSON.stringify(vi.mocked(console.info).mock.calls)).not.toContain("provider-private-sentinel");
   });
@@ -303,8 +308,8 @@ describe("staging APP_USR test-account payments", () => {
     expect(response.status).toBe(200);
     expect(spy.mock.calls.map(([url]) => String(url))).toEqual([
       "https://api.mercadopago.com/v1/payments/456", "https://api.mercadopago.com/users/me",
-      "https://api.mercadopago.com/users/3272217991", `${env.SUPABASE_URL}/rest/v1/rpc/apply_checkout_pro_payment`]);
-    expect(JSON.parse(String(spy.mock.calls[3][1]?.body))).toEqual({ p_attempt_id: attemptId,
+      "https://api.mercadopago.com/users/3272217991", `${env.SUPABASE_URL}/rest/v1/rpc/apply_checkout_pro_payment_v2`]);
+    expect(JSON.parse(String(spy.mock.calls[3][1]?.body))).toEqual({ p_application_id: config.applicationId, p_test_application_id: config.testApplicationId, p_attempt_id: attemptId,
       p_payment_id: "456", p_amount_cents: 12345, p_status: "approved", p_refunded_cents: 0,
       p_updated_at: payment.date_last_updated });
     expect(diagnostic()).toMatchObject({ stage: "completed", signatureVerified: true, status: 200 });
@@ -322,11 +327,13 @@ describe("staging APP_USR test-account payments", () => {
     expect((await worker.fetch(await signedRequest(), testEnv)).status).toBe(503);
     expect(spy).toHaveBeenCalledTimes(1);
   });
-  it("rejects other configured collectors even if the response matches that collector", async () => {
-    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ ...testPayment, collector_id: 999 }));
+  it("requires test-account proof even when the payment matches a different configured collector", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ ...testPayment, collector_id: 999 }))
+      .mockResolvedValueOnce(Response.json({ id: 999, site_id: "MLB", tags: [] }))
+      .mockResolvedValueOnce(Response.json(buyer));
     await expect(readPayment("456", { ...testConfig, collectorId: "999" }, "private"))
       .rejects.toThrow("PROVIDER_TEST_ACCOUNT_UNVERIFIED");
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(3);
   });
   it.each([
     [ { ...seller, tags: [] }, buyer ],

@@ -3,13 +3,15 @@ import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { loadMercadoPago } from "@mercadopago/sdk-js";
 import { Button } from "@/components/ui/button";
 import { getWalletPublicKey } from "@/lib/checkout-pro";
+import { Link } from "react-router-dom";
 
 interface CheckoutWalletProps {
   preferenceId: string;
   expiresAt: string;
+  orderId?: string;
 }
 
-export function CheckoutWallet({ preferenceId, expiresAt }: CheckoutWalletProps) {
+export function CheckoutWallet({ preferenceId, expiresAt, orderId }: CheckoutWalletProps) {
   const deadline = Date.parse(expiresAt);
   const [expired, setExpired] = useState(() => !Number.isFinite(deadline) || Date.now() >= deadline);
   const [initialized, setInitialized] = useState(false);
@@ -52,9 +54,10 @@ export function CheckoutWallet({ preferenceId, expiresAt }: CheckoutWalletProps)
     return () => window.clearTimeout(timeout);
   }, [attempt, ready, failed, expired]);
 
-  if (expired) return <p role="alert" className="text-sm text-nn-yellow">
-    A reserva deste pedido expirou. Não tente pagar por um link antigo. Consulte seus pedidos antes de iniciar outra compra.
-  </p>;
+  if (expired) return <div role="alert" className="space-y-3 text-sm">
+    <p>A reserva deste pedido expirou. Consulte o estado do pagamento antes de iniciar outra compra.</p>
+    {orderId && <Link className="inline-block underline underline-offset-4" to={`/checkout/pendente?order=${encodeURIComponent(orderId)}`}>Consultar este pedido</Link>}
+  </div>;
 
   if (failed) return <div className="space-y-3">
     <p role="alert" className="text-sm text-nn-yellow">

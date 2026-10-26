@@ -2,6 +2,7 @@ import { readConfig, type Bindings, type Config } from "./config";
 import { handleCheckoutPro } from "./checkout-pro-handler";
 import { HttpError } from "./http";
 import { diagnosticCode, type WebhookDiagnostic } from "./webhook-diagnostic";
+import { reconcileCheckout } from "./reconciliation";
 
 const VERSION = "0.2.0";
 const ALLOWED_HEADERS = ["authorization", "content-type", "idempotency-key"];
@@ -56,6 +57,10 @@ async function dispatch(request: Request, config: Config, env: Bindings,
 }
 
 export default {
+  async scheduled(_event: ScheduledController, env: Bindings): Promise<void> {
+    const result = await reconcileCheckout(env);
+    console.info(JSON.stringify({ event: "checkout_reconciliation", outcome: result.outcome }));
+  },
   async fetch(request: Request, env: Bindings): Promise<Response> {
     const requestId = crypto.randomUUID();
     let response: Response;
