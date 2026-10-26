@@ -166,3 +166,96 @@ MP_WEBHOOK_SECRET. Às 13:30 (Brasília), o MCP da Cloudflare confirmou os quatr
 secrets no Worker payments correto, com os IDs das aplicações e staging ativos.
 Valores não foram lidos. A publicação do ajuste e a verificação de uma nova
 entrega/reenvio continuam sendo passos distintos.
+
+## Publicação da validação das duas aplicações
+
+Commit `ed70bbe3a650c993d5cdd0e1b055b5fd150f9d38` publicado na
+home-v2-contraste. Build de pagamentos `0239d7a0-7ef5-4402-a7e5-642cc6dbda2c`
+concluído; versão `cb25627e-6cf7-4dda-8a52-6b6cbdca514a` ativa em 100% do
+staging desde 26/10/2026 às 13:35:37 (Brasília).
+
+Build da loja `7421a039-c6a4-4e0a-849c-7c18299a879f` também concluído. Os gates
+executaram 124 testes de aplicação, 236 de pagamentos e 60 da loja, todos
+aprovados. Não há mudança funcional de frontend neste ajuste.
+
+Após publicação, health retorna 200/staging/paymentsEnabled=true. Os quatro
+secrets permanecem tipados como secrets. O pedido pago mantém sua confirmação.
+Baseline antes do reenvio: versão do pedido 3, paid_at 10:50:02 (Brasília),
+uma linha de pagamento, um evento de reserva e estoque 40 para a variante
+`4e040960-e674-489c-887b-18af3eb0a33d`.
+
+No checkpoint imediatamente após publicar, nenhuma nova notificação havia
+chegado. Foi solicitado reenvio do evento da operação existente pelo painel da
+aplicação filha. A verificação final deve observar signatureSource=test_application,
+signatureVerified=true, stage=completed e status=200, além de preservar a
+deduplicação do pagamento e estoque. Não considerar esse resultado comprovado
+apenas pela presença do secret ou pelos testes locais.
+
+O usuário consultou o evento payment.created da operação existente, com falha
+401 e data de envio 13:45:14 UTC (10:45:14 Brasília), anterior ao rollout.
+O payload mostra vendedor 3272217989 e live_mode=true; esse caso já é validado
+pelo backend mediante consulta das identidades de teste, após validar HMAC.
+Não alterar o ambiente nem tratar o flag como motivo do 401 isoladamente.
+
+Consulta aos logs desde 16:35:37 UTC até o checkpoint de 16:38:53 UTC não
+encontrou novos webhook_diagnostic. Logo, o registro histórico não comprova
+uma falha da versão nova. O pedido continua paid, versão 3, com uma única
+linha de pagamento e paid_at original. Foi solicitado um teste assinado no
+painel da aplicação filha (Simular com o pagamento existente) para verificar
+a nova chave sem depender de uma opção de reenvio não confirmada no painel.
+Essa simulação também não substitui a observação de entrega automática.
+
+## Assinatura da aplicação filha e deduplicação verificadas
+
+O usuário simulou payment.updated no painel do vendedor de teste com o pagamento
+existente. O Worker registrou requestId `34cc029f-96b3-4675-8079-1e3c75ccd87f`,
+signatureVerified=true, signatureSource=test_application, stage=completed e
+status=200 na versão `cb25627e-6cf7-4dda-8a52-6b6cbdca514a`.
+
+A auditoria após a entrega confirmou os mesmos valores do baseline:
+pedido paid, versão 3, paid_at original, uma linha de pagamento, um evento de
+reserva e estoque 40. Não houve nova aprovação, evento de estoque ou duplicação
+do pagamento na repetição. A chave adicional foi, portanto, efetivamente usada
+e validada no runtime remoto, não apenas detectada como binding presente.
+
+O usuário foi orientado a realizar uma nova compra pelo fluxo de staging, sem
+usar Simular, para verificar o recebimento e a baixa automática. A assinatura
+da aplicação filha e a deduplicação estão comprovadas; a entrega automática
+após essa correção ainda aguarda esse teste.
+
+## Compra com confirmação automática comprovada
+
+O usuário realizou uma nova compra pelo fluxo de staging, sem simular a
+notificação, e informou a confirmação automática na loja.
+
+- Pedido: `80c0881f-629d-4620-b0e4-c8a4a4d02e71`.
+- Tentativa: `e8d63e6a-7c7d-4ddc-9791-863ac5229000`.
+- Preferência: `3272217989-20c6177a-4849-4239-96e0-468a60a63135`.
+- Operação: `186197242024`, R$ 119,00, status oficial persistido approved.
+- Pedido e tentativa: paid. paid_at: 26/10/2026 às 13:47:34 (Brasília).
+- Aplicações principal/filha correspondem aos IDs novos configurados.
+- Uma linha de pagamento e um evento de reserva para o pedido.
+- Mensagem observada pelo usuário: “Pedido #80c0881f confirmado pela loja.”
+
+O log da mesma janela confirma requestId
+`35b576cd-8bf9-4c2b-af20-2169bf289cfa`, signatureVerified=true,
+signatureSource=test_application, stage=completed e status=200 na versão
+`cb25627e-6cf7-4dda-8a52-6b6cbdca514a`. O pagamento tem atualização do provedor
+às 13:47:33 (Brasília); a gravação do pedido e conclusão do handler ocorreram
+no segundo seguinte. Reconciliação/cron permanecem desativados.
+
+Conclusão deste cenário: cartão aprovado, webhook automático autenticado,
+consulta server-side, persistência transacional e confirmação na loja foram
+comprovados no staging. Não foi necessária intervenção do simulador nessa compra.
+Isso não constitui validação de Pix, recusas, estornos ou ativação em produção.
+
+Na mesma janela ainda existem chamadas recusadas por query_id_missing e
+hmac_mismatch. Os logs disponíveis não identificam a origem/tópico desses
+eventos, portanto não atribuí-los a uma aplicação antiga ou ao pagamento
+aprovado sem investigação adicional. Elas não impediram a confirmação do caso
+testado e continuam rejeitadas. Classificar essas entregas antes do rollout de
+produção; não ampliar as chaves aceitas nem remover a validação para silenciá-las.
+
+O MCP lista apenas as aplicações principais TesteNN e NadaNormalCheckoutPro;
+o histórico da aplicação principal antiga também não retornou notificações.
+Esses resultados não identificam as chamadas recusadas da aplicação filha.

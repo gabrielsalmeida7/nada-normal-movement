@@ -96,6 +96,13 @@ Nenhum valor da query, header, timestamp ou assinatura entra no log. O parser,
 janela de cinco minutos, HMAC e respostas HTTP permanecem iguais. Esse diagnóstico
 não reconstrói os cabeçalhos das entregas anteriores: requer uma nova entrega do
 evento original ou retry automático, não outra simulação fictícia como prova.
+
+O diagnóstico `query` classifica apenas formatos com rótulos fixos: resourceKind
+(`data_id`, `legacy_id`, `mixed`, `missing`), tópico conhecido ou other/missing/
+ambiguous, tipo do parâmetro (`type`, `topic`, `both`, `none`) e origem declarada
+(`webhooks`, `ipn`, `other`, `missing`, `ambiguous`). Não registra IDs nem valores
+desconhecidos. Esses rótulos descrevem a chamada e não autenticam o remetente;
+a validação HMAC e a consulta do pagamento continuam obrigatórias.
 Em falhas do schema do pagamento, `rejectedPaymentFields` contém somente nomes
 de campos conhecidos do schema, sem valores, tipos recebidos ou mensagens Zod.
 As validações, o HTTP 503 e o bloqueio de persistência permanecem inalterados.

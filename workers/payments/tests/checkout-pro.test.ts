@@ -135,6 +135,7 @@ describe("webhook confirmation", () => {
   const diagnostic = () => vi.mocked(console.info).mock.calls
     .map(([line]) => JSON.parse(String(line)))
     .filter(line => line.event === "webhook_diagnostic");
+  const signedQueryDiagnostic = { resourceKind: "data_id", topic: "missing", topicParameter: "none", declaredSource: "missing" };
 
   it.each([
     [env.MP_WEBHOOK_SECRET, "application"],
@@ -181,6 +182,7 @@ describe("webhook confirmation", () => {
     const response = await worker.fetch(await signedRequest("456", "wrong-secret-sentinel"), env);
     expect(response.status).toBe(401);
     expect(diagnostic()).toEqual([{ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
+      query: signedQueryDiagnostic,
       stage: "signature", signatureVerified: false, signatureFailureReasons: ["hmac_mismatch"],
       status: 401, errorCode: "WEBHOOK_SIGNATURE_INVALID" }]);
     expect(spy).not.toHaveBeenCalled();
@@ -272,6 +274,7 @@ describe("webhook confirmation", () => {
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: { code: "CHECKOUT_UNAVAILABLE" } });
     expect(diagnostic()[0]).toEqual({ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
+      query: signedQueryDiagnostic,
       stage: "provider_lookup_and_validation", signatureVerified: true, signatureSource: "application", status: 503,
       errorCode: "CHECKOUT_UNAVAILABLE",
       rejectedPaymentFields: ["external_reference", "live_mode", "payer", "status", "date_last_updated"] });

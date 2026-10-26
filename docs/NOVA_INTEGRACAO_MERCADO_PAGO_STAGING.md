@@ -65,6 +65,20 @@ Worker e consultou o pagamento oficial; o pedido foi gravado como paid em
 26/10 às 10:50:02 (Brasília). Continua pendente resolver/verificar as entregas
 automáticas que falharam em HMAC antes da simulação. O incidente registra
 os checkpoints separados; não considerar a automação homologada ainda.
+O ajuste para validar também a assinatura da aplicação filha foi publicado
+no commit `ed70bbe`, versão payments `cb25627e-6cf7-4dda-8a52-6b6cbdca514a`.
+Ainda aguarda uma nova entrega/reenvio para validação final da automação.
+A simulação posterior da aplicação filha retornou 200 com
+signatureSource=test_application; auditoria confirmou deduplicação sem alteração
+de estoque ou paid_at. Falta observar nova compra com notificação automática,
+sem intervenção pelo painel de simulação.
+Atualização final deste cenário: a compra da operação `186197242024`, pedido
+`80c0881f-629d-4620-b0e4-c8a4a4d02e71`, foi aprovada e confirmada automaticamente
+na loja. Logs mostram assinatura test_application validada e conclusão 200;
+o banco confirma paid, uma linha de pagamento e um evento de reserva.
+O cenário de cartão aprovado com webhook automático está validado no staging.
+Continuam pendentes os demais meios/cenários de homologação, ativação da
+reconciliação e classificação das chamadas recusadas restantes antes de produção.
 
 Referências: [frontend](NOVA_INTEGRACAO_MERCADO_PAGO_FRONTEND.md),
 [reconciliação](NOVA_INTEGRACAO_MERCADO_PAGO_RECONCILIACAO.md).

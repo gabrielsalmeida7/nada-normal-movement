@@ -1,7 +1,7 @@
 import { readConfig, type Bindings, type Config } from "./config";
 import { handleCheckoutPro } from "./checkout-pro-handler";
 import { HttpError } from "./http";
-import { diagnosticCode, type WebhookDiagnostic } from "./webhook-diagnostic";
+import { classifyWebhookQuery, diagnosticCode, type WebhookDiagnostic } from "./webhook-diagnostic";
 import { reconcileCheckout } from "./reconciliation";
 
 const VERSION = "0.2.0";
@@ -67,7 +67,7 @@ export default {
     let config: Config | undefined;
     const diagnostic: WebhookDiagnostic | undefined = env.APP_ENV === "staging" &&
       new URL(request.url).pathname === "/webhooks/mercadopago"
-      ? { stage: "configuration", signatureVerified: false } : undefined;
+      ? { stage: "configuration", signatureVerified: false, query: classifyWebhookQuery(new URL(request.url)) } : undefined;
     let errorCode: string | undefined;
     let upstreamStatus: number | undefined;
     try {
@@ -99,6 +99,7 @@ export default {
     if (diagnostic) console.info(JSON.stringify({ event: "webhook_diagnostic", requestId,
       stage: diagnostic.stage, signatureVerified: diagnostic.signatureVerified,
       signatureSource: diagnostic.signatureSource,
+      query: diagnostic.query,
       signatureFailureReasons: diagnostic.signatureFailureReasons,
       status: response.status, errorCode, upstreamStatus,
       rejectedPaymentFields: diagnostic.rejectedPaymentFields,
