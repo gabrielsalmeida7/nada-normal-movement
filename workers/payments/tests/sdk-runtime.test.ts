@@ -26,7 +26,7 @@ beforeAll(() => {
   } finally { rmSync(configDir, { recursive: true, force: true }); }
 }, 65000);
 
-async function fixture(options: { providerFailure?: boolean; oldApplication?: boolean; dbFailure?: boolean; reconciliation?: boolean } = {}) {
+async function fixture(options: { providerFailure?: boolean; oldApplication?: boolean; dbFailure?: boolean; reconciliation?: boolean; testApplicationSecret?: boolean } = {}) {
   const calls: { url: string; method: string }[] = [];
   let claimed = false;
   let saved = options.oldApplication === true;
@@ -39,7 +39,8 @@ async function fixture(options: { providerFailure?: boolean; oldApplication?: bo
     compatibilityDate: settings.compatibility_date, compatibilityFlags: settings.compatibility_flags,
     bindings: { ...settings.env.staging.vars, PAYMENTS_ENABLED: "true",
       CHECKOUT_RECONCILIATION_ENABLED: options.reconciliation ? "true" : "false", SUPABASE_SECRET_KEY: "fake-db-secret",
-      MP_ACCESS_TOKEN: "fake-mp-token", MP_WEBHOOK_SECRET: "fake-webhook-secret" },
+      MP_ACCESS_TOKEN: "fake-mp-token", MP_WEBHOOK_SECRET: "fake-webhook-secret",
+      ...(options.testApplicationSecret ? { MP_TEST_WEBHOOK_SECRET: "fake-test-application-secret" } : {}) },
     outboundService: async request => {
       const url = new URL(request.url);
       calls.push({ url: request.url, method: request.method });
@@ -96,7 +97,8 @@ async function fixture(options: { providerFailure?: boolean; oldApplication?: bo
     headers: { Authorization: "Bearer fake-user-jwt", "Content-Type": "application/json" }, body: JSON.stringify({ orderId }) });
   const webhook = () => {
     const ts = String(Math.floor(Date.now() / 1000));
-    const signature = createHmac("sha256", "fake-webhook-secret").update(`id:456;request-id:request-123;ts:${ts};`).digest("hex");
+    const signature = createHmac("sha256", options.testApplicationSecret ? "fake-test-application-secret" : "fake-webhook-secret")
+      .update(`id:456;request-id:request-123;ts:${ts};`).digest("hex");
     return mf.dispatchFetch(`${host}/webhooks/mercadopago?data.id=456`, { method: "POST",
       headers: { "x-request-id": "request-123", "x-signature": `v1=${signature}, ts=${ts}` },
       body: JSON.stringify({ type: "payment", data: { id: "456" } }) });
@@ -105,6 +107,15 @@ async function fixture(options: { providerFailure?: boolean; oldApplication?: bo
 }
 
 describe("official SDK in the actual Cloudflare Worker bundle", () => {
+  it("accepts the test-application signature in workerd and still verifies the actual payment before persistence", async () => {
+    const f = await fixture({ testApplicationSecret: true });
+    try {
+      expect((await f.webhook()).status).toBe(200);
+      expect(f.calls.some(c => c.url.endsWith("/v1/payments/456"))).toBe(true);
+      expect(f.calls.at(-1)?.url).toContain("apply_checkout_pro_payment_v2");
+      expect(f.calls.filter(c => c.url.includes("api.mercadopago.com")).every(c => c.method === "GET")).toBe(true);
+    } finally { await f.mf.dispose(); }
+  });
   it("recovers a lost preference and webhook through the scheduled handler using only provider GETs", async () => {
     const f = await fixture({ reconciliation: true });
     try {

@@ -23,7 +23,8 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
   if (path === "/webhooks/mercadopago") {
     // Webhook processing remains available when new submissions are disabled.
     if (diagnostic) diagnostic.stage = "signature";
-    const id = await verifyWebhook(request, env.MP_WEBHOOK_SECRET!, diagnostic);
+    const id = await verifyWebhook(request, env.MP_WEBHOOK_SECRET!, diagnostic,
+      config.environment === "staging" ? env.MP_TEST_WEBHOOK_SECRET : undefined);
     if (diagnostic) { diagnostic.signatureVerified = true; diagnostic.stage = "payload"; }
     const event = z.object({ type: z.literal("payment"), data: z.object({ id: z.union([z.string(), z.number()]) }) })
       .parse(await readJson(request));

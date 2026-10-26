@@ -6,6 +6,7 @@ export type SignatureFailureReason = "query_id_missing" | "query_id_duplicate" |
 export interface WebhookDiagnostic {
   stage: "configuration" | "routing" | "signature" | "payload" | "provider_lookup_and_validation" | "database_apply" | "completed";
   signatureVerified: boolean;
+  signatureSource?: "application" | "test_application";
   signatureFailureReasons?: SignatureFailureReason[];
   rejectedPaymentFields?: string[];
   rejectedTestAccountChecks?: string[];

@@ -35,7 +35,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(vars.SUPABASE_PUBLISHABLE_KEY).toBe(storefront.env.staging.vars.SUPABASE_PUBLISHABLE_KEY);
     expect(vars.SUPABASE_PUBLISHABLE_KEY).toMatch(/^sb_publishable_/);
     expect(Object.keys(vars).filter(name => /SECRET|TOKEN/.test(name))).toEqual([]);
-    expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS]);
+    expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS, "MP_TEST_WEBHOOK_SECRET"]);
   });
   it("enables only the authorized sandbox frontend, keeping production/previews/schedulers closed", () => {
     expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("true");

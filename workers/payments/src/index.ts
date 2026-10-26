@@ -98,6 +98,7 @@ export default {
     console.info(JSON.stringify({ event: "http_response", requestId, status: response.status }));
     if (diagnostic) console.info(JSON.stringify({ event: "webhook_diagnostic", requestId,
       stage: diagnostic.stage, signatureVerified: diagnostic.signatureVerified,
+      signatureSource: diagnostic.signatureSource,
       signatureFailureReasons: diagnostic.signatureFailureReasons,
       status: response.status, errorCode, upstreamStatus,
       rejectedPaymentFields: diagnostic.rejectedPaymentFields,

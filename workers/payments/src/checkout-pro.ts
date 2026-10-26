@@ -96,7 +96,7 @@ export async function readReconciliationPreference(id: string, config: CheckoutP
 
 /** Verify the signed query ID, never a resource URL supplied by the caller. */
 export async function verifyWebhook(request: Request, secret: string,
-  diagnostic?: WebhookDiagnostic): Promise<string> {
+  diagnostic?: WebhookDiagnostic, testApplicationSecret?: string): Promise<string> {
   const ids = new URL(request.url).searchParams.getAll("data.id");
   const id = ids[0] ?? "";
   const requestId = request.headers.get("x-request-id") ?? "";
@@ -125,12 +125,18 @@ export async function verifyWebhook(request: Request, secret: string,
   const mac = signatures[0].slice(3);
   const seconds = timestamp.length === 13 ? Number(timestamp) / 1000 : Number(timestamp);
   if (Math.abs(Date.now() / 1000 - seconds) > 300) reject(["timestamp_outside_window"]);
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
   const bytes = Uint8Array.from(mac.match(/../g)!, (hex) => parseInt(hex, 16));
-  const valid = await crypto.subtle.verify("HMAC", key, bytes,
-    new TextEncoder().encode(`id:${id};request-id:${requestId};ts:${timestamp};`));
-  if (!valid) reject(["hmac_mismatch"]);
+  const manifest = new TextEncoder().encode(`id:${id};request-id:${requestId};ts:${timestamp};`);
+  // Two explicitly configured application secrets, never a caller-selected key.
+  // Verify both before choosing a fixed source label; do not disclose key data.
+  const secrets = testApplicationSecret === undefined ? [secret] : [secret, testApplicationSecret];
+  const verified = await Promise.all(secrets.map(async value => {
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(value),
+      { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    return crypto.subtle.verify("HMAC", key, bytes, manifest);
+  }));
+  if (!verified.some(Boolean)) reject(["hmac_mismatch"]);
+  if (diagnostic) diagnostic.signatureSource = verified[0] ? "application" : "test_application";
   return id;
 }
 

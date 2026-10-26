@@ -26,7 +26,7 @@
       "workers_dev": false,
       "preview_urls": false,
       "routes": [{ "pattern": "pagamentos-staging.nadanormalclub.com.br", "custom_domain": true }],
-      "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] },
+      "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET", "MP_TEST_WEBHOOK_SECRET"] },
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "true",

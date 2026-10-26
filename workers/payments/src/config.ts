@@ -66,6 +66,8 @@ export function readConfig(env: Bindings): Config {
         applicationId: env.MP_APPLICATION_ID!, testApplicationId: env.MP_TEST_APPLICATION_ID!, testBuyerId: env.MP_TEST_BUYER_ID! };
     }
     if (env.PAYMENTS_ENABLED === "true" && !checkoutPro) throw new Error();
+    if (env.MP_TEST_WEBHOOK_SECRET !== undefined &&
+        (environment !== "staging" || !checkoutPro || !env.MP_TEST_WEBHOOK_SECRET.trim())) throw new Error();
     if (![undefined, "false", "true"].includes(env.CHECKOUT_RECONCILIATION_ENABLED)) throw new Error();
     const reconciliationEnabled = env.CHECKOUT_RECONCILIATION_ENABLED === "true";
     if (reconciliationEnabled && (environment !== "staging" || !checkoutPro)) throw new Error();

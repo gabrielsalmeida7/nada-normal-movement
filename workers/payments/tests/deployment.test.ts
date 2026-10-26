@@ -20,6 +20,12 @@ describe("deployment guard", () => {
   it.each(REQUIRED_SECRETS)("rejects secrets stored in vars: %s", (name) => {
     expect(() => validateDeployment("staging", { ...config, vars: { ...config.vars, [name]: "must-not-be-here" } })).toThrow();
   });
+  it("never permits the test webhook secret in public vars or production declarations", () => {
+    expect(() => validateDeployment("staging", { ...config, vars: { ...config.vars,
+      MP_TEST_WEBHOOK_SECRET: "must-not-be-here" } })).toThrow();
+    expect(() => validateDeployment("production", { ...config, vars: { ...config.vars, APP_ENV: "production" },
+      secrets: { required: [...REQUIRED_SECRETS, "MP_TEST_WEBHOOK_SECRET"] } })).toThrow();
+  });
   it.each(["local", "", "preview", "production"])("rejects mismatched target %s", (target) => {
     expect(() => validateDeployment(target, config)).toThrow();
   });

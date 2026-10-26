@@ -57,6 +57,15 @@ visibilidade de schema GraphQL e proteção de senhas. As novas RPCs foram
 verificadas diretamente quanto às permissões; não houve mudança nas políticas
 de cadastro ou catálogo durante esta publicação.
 
+O erro ocorrido na confirmação do cartão de teste e as próximas verificações
+estão registrados no [incidente FL-71e5ebf2](MERCADO_PAGO_INCIDENTE_FL_71E5EBF2.md).
+Atualização: a compra posterior pela loja gerou comprovante da operação
+`185121492029`. A simulação assinada do painel principal foi validada pelo
+Worker e consultou o pagamento oficial; o pedido foi gravado como paid em
+26/10 às 10:50:02 (Brasília). Continua pendente resolver/verificar as entregas
+automáticas que falharam em HMAC antes da simulação. O incidente registra
+os checkpoints separados; não considerar a automação homologada ainda.
+
 Referências: [frontend](NOVA_INTEGRACAO_MERCADO_PAGO_FRONTEND.md),
 [reconciliação](NOVA_INTEGRACAO_MERCADO_PAGO_RECONCILIACAO.md).
 
@@ -135,6 +144,82 @@ A ativação seguinte altera somente PAYMENTS_ENABLED e CHECKOUT_PRO_ENABLED
 no staging para true. Produção e os processadores de reservas/reconciliação
 permanecem desativados. A homologação ainda não deve ser considerada concluída
 até registrar preferência, pagamento e validação de notificação assinada.
+
+### Staging ativado para homologação
+
+Commit publicado: `a8621128358e7dd0e5a5a6eb428aecb0794ef1aa`.
+Backend habilitado antes da loja, sem cron e sem ativação de produção.
+
+| Serviço | Build | Versão ativa |
+| --- | --- | --- |
+| Pagamentos | `72c4b0a8-d32e-4ebd-b7b8-e7cbb3221a35` | `cdb2f944-b721-4f2c-82ef-6c3faedfbdbc` |
+| Loja | `c6866112-fa1e-44fa-a6ae-860d30c0f7b4` | `4ac0e462-fa89-4983-983d-f8ea48173fce` |
+
+Flags remotas confirmadas: PAYMENTS_ENABLED=true, CHECKOUT_PRO_ENABLED=true,
+CHECKOUT_RECONCILIATION_ENABLED=false, RESERVATION_PROCESSOR_ENABLED=false.
+O trigger da loja foi restaurado à branch/comandos originais após o backend.
+O bundle remoto `/assets/index-BP9PmMwE.js` contém a nova Public Key, os IDs,
+a retomada de pagamento e a API de status; não contém a chave antiga.
+
+Teste técnico executado usando somente os endpoints da loja e pagamentos:
+
+- Autenticação de um novo usuário QA da loja, com dados fictícios.
+- Cotação autoritativa, reserva e criação de um único pedido de R$ 119,00.
+- Repetição da mesma criação retornou exatamente o mesmo pedido.
+- Preferência criada pelo SDK no backend e persistida com os IDs novos.
+- Repetição da solicitação retornou a mesma preferência, com resposta 200.
+- Consulta autenticada do status confirmou o mesmo pedido.
+- Auditoria no banco confirmou uma sessão, uma entrada de reconciliação e
+  nenhum pagamento registrado nesse checkpoint. A reserva permanece held.
+
+Pedido: `6ecea996-7319-45d7-acde-68dec5e2de23`.
+Tentativa: `d6c9f40d-aac2-45c4-bdfa-0a389b8d72f0`.
+Preferência: `3272217989-20a96ae4-7873-4816-ae33-3be636de04e8`.
+Expiração: 26/10/2026 às 10:20:39, horário de Brasília.
+
+O pagamento ainda exige login do comprador de teste no Mercado Pago. A senha
+desse comprador não foi fornecida. Foi enviado ao usuário o link da preferência
+e os dados públicos de cartão de teste retornados pelo MCP: Visa, titular APRO,
+validade 11/30, CPF de teste. Não solicitar senha ou cartão real no chat.
+O histórico de notificações da aplicação nova continuava vazio nesse checkpoint.
+Não considerar o webhook ou o pagamento aprovados até verificar o evento e a
+persistência financeira. Não cancelar nem devolver estoque desta tentativa
+automaticamente enquanto o resultado do pagamento estiver indeterminado.
+
+Fonte de teste consultada via MCP: [Realizar compras de teste](https://www.mercadopago.com.br/developers/pt/docs/checkout-pro-preferences/integration-test/test-purchases).
+
+### Incidente na confirmação do cartão de teste
+
+O usuário concluiu login do comprador e preenchimento do cartão; após confirmar
+o pagamento, o Mercado Pago redirecionou para `/checkout/v1/redirect/.../fatal/`.
+Identificador de navegação informado: `b9bfc4d0-21e5-4d5a-bfc7-57cb7db6190f`.
+Isso não fornece, por si só, o motivo da falha nem comprova uma recusa financeira.
+
+Revalidação posterior no Worker retornou a mesma preferência da aplicação nova,
+sem nova criação de pedido ou preferência. O status da loja permanece processing,
+com reserva held. Não há pagamento persistido no ledger. O MCP não encontrou
+notificações da aplicação principal e os logs da Cloudflare não mostraram eventos
+webhook_diagnostic na janela de 30 minutos consultada às 10:02 (Brasília).
+
+A consulta direta à API Mercado Pago a partir deste ambiente retornou 403,
+portanto não foi possível afirmar que a busca de pagamentos no provedor está
+vazia. A consulta autenticada da preferência pelo Worker publicado funcionou.
+O MCP também não permite consultar o histórico da aplicação filha de teste
+por validação de ownership; não confundir essas limitações com erro do checkout.
+
+Próximo teste controlado: reabrir a mesma preferência pelo link inicial em outro
+navegador/janela anônima, com o mesmo comprador de teste e antes da expiração.
+Nenhuma correção de código foi publicada com base apenas na página fatal.
+
+O segundo navegador também terminou em fatal, com identificador de navegação
+`20d8af73-7223-4500-a4d7-21cfb0de852e`. O print do Network mostra tokenização
+com HTTP 201 e a chave pública da aplicação nova; uma requisição XHR com esse
+identificador respondeu HTTP 200 antes da navegação fatal. Esses status HTTP
+não demonstram aprovação financeira nem identificam a causa do erro.
+Foi solicitado somente o conteúdo dos campos de erro da resposta dessa XHR,
+sem tokens/cookies/dados de cartão. Auditoria às 10:08 (Brasília): pedido
+processing/held, sem pagamento persistido e sem webhook_diagnostic nos logs
+dos últimos 20 minutos. A causa continua pendente da resposta da confirmação.
 
 Avisos anteriores do Supabase, fora das novas RPCs: documentação de
 [search_path](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable),

@@ -18,6 +18,7 @@ export function validatePaymentRelease(config) {
   const scheduled = vars.CHECKOUT_RECONCILIATION_ENABLED === "true";
   const crons = stage.triggers?.crons ?? [];
   if (config.account_id !== "8f6b63890cf677004b89b130cba0dbf6" ||
+      !stage.secrets?.required?.includes("MP_TEST_WEBHOOK_SECRET") ||
       stage.name !== "nada-normal-payments-staging" || config.routes?.length ||
       JSON.stringify(stage.routes) !== JSON.stringify([{ pattern: "pagamentos-staging.nadanormalclub.com.br", custom_domain: true }]) ||
       config.triggers?.crons?.length ||

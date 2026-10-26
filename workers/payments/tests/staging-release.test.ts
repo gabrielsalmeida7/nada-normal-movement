@@ -5,6 +5,11 @@ import { reviewedStagingReplacement, validatePaymentRelease } from "../scripts/s
 
 const config = JSON.parse(readFileSync("workers/payments/wrangler.jsonc", "utf8"));
 describe("protected Workers Builds payment release", () => {
+  it("requires the seller test webhook secret before staging publication", () => {
+    const missing = structuredClone(config);
+    missing.env.staging.secrets.required = missing.env.staging.secrets.required.filter(name => name !== "MP_TEST_WEBHOOK_SECRET");
+    expect(() => validatePaymentRelease(missing)).toThrow();
+  });
   it("only replaces API edits for the exact reviewed disabled config in the real build context", () => {
     const disabled = structuredClone(config);
     disabled.env.staging.vars.PAYMENTS_ENABLED = "false";

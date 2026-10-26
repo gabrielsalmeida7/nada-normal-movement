@@ -37,6 +37,13 @@ beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date("2030-01-01T00:
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 describe("sandbox configuration and preference", () => {
+  it("only permits a nonempty test-application secret in staging Checkout Pro", () => {
+    expect(() => readConfig({ ...env, MP_TEST_WEBHOOK_SECRET: "test-application-secret" })).not.toThrow();
+    for (const override of [{ APP_ENV: "local" }, { APP_ENV: "production", PAYMENTS_ENABLED: "false" },
+      { CHECKOUT_PRO_MODE: undefined, PAYMENTS_ENABLED: "false" }, { MP_TEST_WEBHOOK_SECRET: " " }]) {
+      expect(() => readConfig({ ...env, MP_TEST_WEBHOOK_SECRET: "test-application-secret", ...override })).toThrow();
+    }
+  });
   it("only enables a fully configured staging sandbox", () => {
     expect(readConfig(env).paymentsEnabled).toBe(true);
     for (const override of [{ APP_ENV: "production" }, { APP_ENV: "local" }, { CHECKOUT_PRO_MODE: "production" },
@@ -128,6 +135,46 @@ describe("webhook confirmation", () => {
   const diagnostic = () => vi.mocked(console.info).mock.calls
     .map(([line]) => JSON.parse(String(line)))
     .filter(line => line.event === "webhook_diagnostic");
+
+  it.each([
+    [env.MP_WEBHOOK_SECRET, "application"],
+    ["test-application-secret-sentinel", "test_application"],
+  ])("validates configured application signatures and applies only API-confirmed payments (%s)", async (secret, source) => {
+    const spy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json(payment))
+      .mockResolvedValueOnce(Response.json({ applied: true }));
+    const response = await worker.fetch(await signedRequest("456", secret),
+      { ...env, MP_TEST_WEBHOOK_SECRET: "test-application-secret-sentinel" });
+    expect(response.status).toBe(200);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(String(spy.mock.calls[1][0])).toContain("/rpc/apply_checkout_pro_payment_v2");
+    expect(diagnostic()[0]).toMatchObject({ stage: "completed", signatureVerified: true,
+      signatureSource: source, status: 200 });
+    const logs = JSON.stringify(vi.mocked(console.info).mock.calls);
+    for (const value of [env.MP_WEBHOOK_SECRET, "test-application-secret-sentinel", env.MP_ACCESS_TOKEN])
+      expect(logs).not.toContain(value);
+  });
+  it("rejects unknown keys and altered IDs before provider or database access with both secrets configured", async () => {
+    const spy = vi.spyOn(globalThis, "fetch");
+    const signed = await signedRequest("456", "test-application-secret-sentinel");
+    const altered = new Request(signed.url.replace("data.id=456", "data.id=789"), signed);
+    for (const request of [await signedRequest("456", "unknown-key"), altered]) {
+      const response = await worker.fetch(request, { ...env, MP_TEST_WEBHOOK_SECRET: "test-application-secret-sentinel" });
+      expect(response.status).toBe(401);
+    }
+    expect(spy).not.toHaveBeenCalled();
+    expect(diagnostic().every(event => event.signatureFailureReasons[0] === "hmac_mismatch")).toBe(true);
+  });
+  it("does not bypass provider validation or failed persistence after a test-application signature", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ ...payment, collector_id: 999 }));
+    const bindings = { ...env, MP_TEST_WEBHOOK_SECRET: "test-application-secret-sentinel" };
+    expect((await worker.fetch(await signedRequest("456", bindings.MP_TEST_WEBHOOK_SECRET), bindings)).status).toBe(503);
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockReset().mockResolvedValueOnce(Response.json(payment)).mockResolvedValueOnce(Response.json({}, { status: 500 }));
+    expect((await worker.fetch(await signedRequest("456", bindings.MP_TEST_WEBHOOK_SECRET), bindings)).status).toBe(503);
+    expect(diagnostic().at(-1)).toMatchObject({ stage: "database_apply", signatureVerified: true,
+      signatureSource: "test_application", status: 503 });
+  });
 
   it("records signature rejection without logging request or secret data", async () => {
     const spy = vi.spyOn(globalThis, "fetch");
@@ -225,7 +272,7 @@ describe("webhook confirmation", () => {
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: { code: "CHECKOUT_UNAVAILABLE" } });
     expect(diagnostic()[0]).toEqual({ event: "webhook_diagnostic", requestId: response.headers.get("X-Request-Id"),
-      stage: "provider_lookup_and_validation", signatureVerified: true, status: 503,
+      stage: "provider_lookup_and_validation", signatureVerified: true, signatureSource: "application", status: 503,
       errorCode: "CHECKOUT_UNAVAILABLE",
       rejectedPaymentFields: ["external_reference", "live_mode", "payer", "status", "date_last_updated"] });
     expect(spy).toHaveBeenCalledTimes(1);

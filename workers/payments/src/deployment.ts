@@ -28,6 +28,10 @@ export function validateDeployment(target: string, config: DeploymentConfig): vo
       throw new Error("DEPLOYMENT_SECRET_DECLARATION_INVALID");
     }
   }
+  if ("MP_TEST_WEBHOOK_SECRET" in (config.vars ?? {}) ||
+      (target !== "staging" && config.secrets?.required?.includes("MP_TEST_WEBHOOK_SECRET"))) {
+    throw new Error("DEPLOYMENT_SECRET_DECLARATION_INVALID");
+  }
   // Placeholders exist only for offline validation and are never deployed.
   readConfig({ ...config.vars, ...Object.fromEntries(REQUIRED_SECRETS.map((name) => [name, "required-at-deploy"])) });
 }

@@ -53,6 +53,20 @@ não considera a query string como confirmação de pagamento.
 
 ### Diagnóstico temporário do webhook em staging
 
+O staging também suporta `MP_TEST_WEBHOOK_SECRET`, a assinatura da aplicação
+filha do vendedor de teste. `MP_WEBHOOK_SECRET` continua sendo a assinatura da
+aplicação principal. O release de staging exige as duas como secrets; o valor
+adicional não pode estar em vars nem ser configurado fora do Checkout Pro de
+staging. Produção não declara essa assinatura de teste.
+
+As duas assinaturas são verificadas por HMAC com o mesmo manifesto e a mesma
+janela temporal. Os logs registram apenas `signatureSource=application` ou
+`test_application`, sem valores de chave. Após autenticar a notificação, o
+backend continua consultando o pagamento e verificando vendedor, comprador,
+referência, moeda e valor antes da persistência. Uma assinatura válida sozinha
+não aprova um pedido. A correção das entregas automáticas deve ser comprovada
+por entrega/reenvio de evento, distinguindo isso de uma simulação do painel.
+
 O Checkout Pro com vendedor APP_USR de teste pode divergir da antiga exigência
 `live_mode=false`. O parser exige booleano; quando true, somente o vendedor
 3272217989 e comprador 3272217991 são admitidos, após confirmar via API as duas
