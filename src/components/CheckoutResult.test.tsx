@@ -31,7 +31,7 @@ describe("server-authoritative checkout return", () => {
   it("does not display approval just because the URL says approved", async () => {
     vi.mocked(getCheckoutStatus).mockResolvedValue({ orderId, financialStatus: "processing" });
     result(`/checkout/sucesso?order=${orderId}&status=approved&collection_status=approved`);
-    await waitFor(() => expect(getCheckoutStatus).toHaveBeenCalledWith(orderId));
+    await waitFor(() => expect(getCheckoutStatus).toHaveBeenCalledWith(orderId, "customer"));
     expect(screen.queryByText("Pagamento confirmado!")).not.toBeInTheDocument();
     expect(screen.getByRole("heading")).toHaveTextContent("Aguardando confirmação");
   });
@@ -70,12 +70,33 @@ describe("server-authoritative checkout return", () => {
     expect(useCartStore.getState().items).toEqual(purchased);
     expect(readCheckoutDraft("customer")?.order?.orderId).toBe(orderId);
   });
-  it("resumes the saved order explicitly without creating another order", async () => {
-    saveDraft(); vi.mocked(getCheckoutStatus).mockResolvedValue({ orderId, financialStatus: "processing", reservationState: "held" });
+  it("resumes after losing the original tab, using the authenticated server deadline", async () => {
+    vi.mocked(getCheckoutStatus).mockResolvedValue({ orderId, financialStatus: "processing", reservationState: "held",
+      reservationExpiresAt: "2099-01-01T00:00:00Z" });
     vi.mocked(prepareWalletCheckout).mockResolvedValue({ preferenceId: "3272217989-resumed" });
     result(`/checkout/pendente?order=${orderId}`);
     fireEvent.click(await screen.findByRole("button", { name: "Retomar pagamento deste pedido" }));
     expect(await screen.findByText("Wallet do mesmo pedido")).toBeInTheDocument();
     expect(prepareWalletCheckout).toHaveBeenCalledExactlyOnceWith(orderId, "customer");
+  });
+  it("explains expiration and refuses resume even if the local draft is still valid", async () => {
+    saveDraft();
+    vi.mocked(getCheckoutStatus).mockResolvedValue({ orderId, financialStatus: "processing", reservationState: "held",
+      reservationExpiresAt: "2020-01-01T00:00:00Z" });
+    result(`/checkout/pendente?order=${orderId}`);
+    expect(await screen.findByRole("heading", { name: "Reserva de pagamento expirada" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retomar pagamento deste pedido" })).not.toBeInTheDocument();
+    expect(prepareWalletCheckout).not.toHaveBeenCalled();
+  });
+  it.each([
+    { financialStatus: "paid", reservationState: "held", reservationExpiresAt: "2099-01-01T00:00:00Z" },
+    { financialStatus: "processing", reservationState: "released", reservationExpiresAt: "2099-01-01T00:00:00Z" },
+    { financialStatus: "processing", reservationState: "held" },
+  ] as const)("never resumes an ineligible server state (%#)", async state => {
+    saveDraft(); vi.mocked(getCheckoutStatus).mockResolvedValue({ orderId, ...state });
+    result(`/checkout/pendente?order=${orderId}`);
+    await waitFor(() => expect(getCheckoutStatus).toHaveBeenCalled());
+    expect(screen.queryByRole("button", { name: "Retomar pagamento deste pedido" })).not.toBeInTheDocument();
+    expect(prepareWalletCheckout).not.toHaveBeenCalled();
   });
 });

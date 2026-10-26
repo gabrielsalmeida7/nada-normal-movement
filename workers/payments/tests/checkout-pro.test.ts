@@ -71,6 +71,40 @@ describe("sandbox configuration and preference", () => {
 });
 
 describe("Worker checkout endpoints", () => {
+  it("reads the reservation deadline scoped to the authenticated owner without provider I/O", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
+      .mockResolvedValueOnce(Response.json([{ id: orderId, user_id: owner, financial_status: "processing",
+        reservation_state: "held", reservation_expires_at: snapshot.expiresAt }]));
+    const response = await worker.fetch(new Request(`https://api.example.com/v1/checkout/orders/${orderId}/status`,
+      { headers: { Authorization: "Bearer jwt-private-sentinel" } }), { ...env, PAYMENTS_ENABLED: "false" });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ orderId, financialStatus: "processing", reservationState: "held",
+      reservationExpiresAt: snapshot.expiresAt });
+    expect(spy).toHaveBeenCalledTimes(2);
+    const url = new URL(String(spy.mock.calls[1][0]));
+    expect(url.pathname).toBe("/rest/v1/orders");
+    expect(url.searchParams.get("user_id")).toBe(`eq.${owner}`);
+    expect(url.searchParams.get("id")).toBe(`eq.${orderId}`);
+    expect(url.searchParams.get("limit")).toBe("1");
+  });
+  it("returns no reservation details for a nonexistent or another customer's order", async () => {
+    const spy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
+      .mockResolvedValueOnce(Response.json([]));
+    const response = await worker.fetch(new Request(`https://api.example.com/v1/checkout/orders/${orderId}/status`,
+      { headers: { Authorization: "Bearer jwt-private-sentinel" } }), env);
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: { code: "ORDER_NOT_FOUND" } });
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+  it("fails closed if the database returns an owner other than the authenticated customer", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(Response.json({ id: owner }))
+      .mockResolvedValueOnce(Response.json([{ id: orderId, user_id: attemptId, financial_status: "processing",
+        reservation_state: "held", reservation_expires_at: snapshot.expiresAt }]));
+    const response = await worker.fetch(new Request(`https://api.example.com/v1/checkout/orders/${orderId}/status`,
+      { headers: { Authorization: "Bearer jwt-private-sentinel" } }), env);
+    expect(response.status).toBe(503);
+    expect(await response.text()).not.toContain(snapshot.expiresAt);
+  });
   it("blocks new submissions without contacting upstream when switched off", async () => {
     const spy = vi.spyOn(globalThis, "fetch");
     expect((await req(undefined, undefined, { PAYMENTS_ENABLED: "false" })).status).toBe(503);

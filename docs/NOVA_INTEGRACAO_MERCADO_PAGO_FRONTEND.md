@@ -28,10 +28,13 @@ versionada do frontend e do backend. Produção será uma etapa posterior.
   bloqueado, com ação para consulta. Para o mesmo carrinho, uma chave nova só é
   gerada automaticamente após cancelamento/falha com reserva liberada no servidor.
 - A página do pedido permite retomar explicitamente o mesmo pagamento quando
-  há rascunho válido, prazo vigente e estado confirmado pendente/em processamento.
+  há prazo vigente e estado confirmado pendente/em processamento no servidor.
   A ação pede a preferência do pedido existente, sem criar outro pedido.
-- Sem rascunho, o status continua disponível, mas não se monta Wallet somente
-  a partir da URL. O backend verifica dono, prazo e estado financeiro.
+- Após a homologação de cartão recusado, a retomada deixou de depender do
+  rascunho da aba. A consulta autenticada informa reservationExpiresAt; perder
+  a aba não remove a ação enquanto a reserva estiver vigente. A URL sozinha
+  não autoriza pagamento: o backend verifica dono, prazo e estado financeiro
+  e devolve a preferência existente. Reserva expirada recebe explicação.
 - Erros de rede, falhas do SDK e expiração preservam o carrinho. O pedido
   conhecido tem link de consulta. Mudanças nas entradas invalidam o estado local
   do pagamento e respostas assíncronas antigas não devem montar o Wallet.

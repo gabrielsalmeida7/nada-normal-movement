@@ -4,10 +4,10 @@ import { CheckCircle, Clock } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { checkoutProEnabled, checkoutStatusEnabled, getCheckoutStatus, prepareWalletCheckout, CheckoutStateError, type PreparedCheckout } from "@/lib/checkout-pro";
+import { checkoutProEnabled, checkoutStatusEnabled, getCheckoutStatus, prepareWalletCheckout, CheckoutStateError } from "@/lib/checkout-pro";
 import { useAuth } from "@/contexts/AuthContext";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { cartSignature, consumePaidCheckout, readCheckoutDraft } from "@/lib/checkout-state";
+import { cartSignature, consumePaidCheckout } from "@/lib/checkout-state";
 import { useCartStore } from "@/stores/cart-store";
 
 const CheckoutWallet = lazy(() => import("./CheckoutWallet").then(module => ({ default: module.CheckoutWallet })));
@@ -18,28 +18,25 @@ export function CheckoutResult() {
   const orderId = params.get("order") ?? "";
   const { user, loading } = useAuth();
   const userId = user?.id;
-  const [resumeOrder, setResumeOrder] = useState<PreparedCheckout | null>(null);
   const [wallet, setWallet] = useState<{ userId: string; orderId: string; preferenceId: string } | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
   const [resuming, setResuming] = useState(false);
   const resumeLock = useRef(false);
   useEffect(() => {
-    setWallet(null); setResumeOrder(null); setResumeError(null);
-    if (!userId) return;
-    try {
-      const draft = readCheckoutDraft(userId);
-      if (draft?.order?.orderId === orderId) setResumeOrder(draft.order);
-    } catch { /* Status remains available even without browser storage. */ }
+    setWallet(null); setResumeError(null);
   }, [userId, orderId]);
   const validId = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(orderId);
-  const query = useQuery({ queryKey: ["checkout-pro-status", user?.id, orderId], queryFn: () => getCheckoutStatus(orderId),
+  const query = useQuery({ queryKey: ["checkout-pro-status", user?.id, orderId], queryFn: () => getCheckoutStatus(orderId, userId),
     enabled: checkoutStatusEnabled && validId && !!user, retry: 1,
     refetchInterval: (q) => q.state.error || (q.state.data && ["paid", "refunded", "chargeback", "cancelled", "failed"].includes(q.state.data.financialStatus)) ? false : 5000,
   });
   const status = user ? query.data?.financialStatus : undefined;
   const paid = status === "paid";
-  const canResume = checkoutProEnabled && !!user && !query.isError && query.data?.reservationState === "held" && resumeOrder?.orderId === orderId &&
-    ["pending", "processing"].includes(status ?? "") && Date.parse(resumeOrder.reservationExpiresAt) > Date.now();
+  const expiresAt = query.data?.reservationExpiresAt;
+  const awaitingPayment = ["pending", "processing"].includes(status ?? "");
+  const expired = awaitingPayment && !!expiresAt && Date.parse(expiresAt) <= Date.now();
+  const canResume = checkoutProEnabled && !!user && !query.isError && query.data?.reservationState === "held" &&
+    awaitingPayment && !!expiresAt && !expired;
   const resumePayment = async () => {
     if (!canResume || !user || resumeLock.current) return;
     resumeLock.current = true; setResuming(true); setResumeError(null);
@@ -62,7 +59,8 @@ export function CheckoutResult() {
     : paid ? "Pagamento confirmado!" : status === "refunded" ? "Pagamento estornado"
     : status === "partially_refunded" ? "Pagamento parcialmente estornado"
     : status === "chargeback" ? "Pagamento em contestação"
-    : status === "cancelled" || status === "failed" ? "Pagamento não concluído" : "Aguardando confirmação do pagamento";
+    : status === "cancelled" || status === "failed" ? "Pagamento não concluído"
+    : expired ? "Reserva de pagamento expirada" : "Aguardando confirmação do pagamento";
   const Icon = paid ? CheckCircle : Clock;
   return <div className="min-h-screen bg-background">
     <Header />
@@ -76,14 +74,15 @@ export function CheckoutResult() {
         : !checkoutStatusEnabled || !validId ? "Não há confirmação disponível para este pedido."
         : status && ["refunded", "partially_refunded", "chargeback", "cancelled", "failed"].includes(status)
           ? `Consulte o atendimento para mais informações sobre o pedido #${orderId.slice(0, 8)}.`
-          : "Estamos consultando a confirmação. Seu carrinho permanece salvo."}</p>
+          : expired ? "O prazo para pagar este pedido terminou. Precisamos confirmar o resultado do pagamento antes de liberar uma nova tentativa. Consulte este pedido novamente ou entre em contato com o atendimento."
+          : "Este pedido ainda não tem pagamento confirmado. Consulte novamente ou retome o pagamento, se essa opção estiver disponível."}</p>
       {query.isError && <Button variant="outline" className="mb-4" onClick={() => void query.refetch()}>Consultar novamente</Button>}
       {canResume && <div className="mb-6 space-y-4">
         <p className="text-sm text-muted-foreground">Você pode continuar o pagamento deste mesmo pedido.</p>
         {wallet?.userId === user?.id && wallet.orderId === orderId ?
           <Suspense fallback={<p role="status">Carregando botão do Mercado Pago…</p>}>
             <CheckoutWallet key={wallet.preferenceId} preferenceId={wallet.preferenceId}
-              expiresAt={resumeOrder!.reservationExpiresAt} orderId={orderId} />
+              expiresAt={expiresAt!} orderId={orderId} />
           </Suspense>
           : <Button disabled={resuming} onClick={() => void resumePayment()}>{resuming ? "Consultando pedido…" : "Retomar pagamento deste pedido"}</Button>}
         {resumeError && <p role="alert" className="text-sm">{resumeError}</p>}

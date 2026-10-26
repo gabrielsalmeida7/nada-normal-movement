@@ -127,6 +127,7 @@ export async function prepareWalletCheckout(orderId: string, userId?: string): P
 export async function getCheckoutStatus(orderId: string, userId?: string) {
   z.string().uuid().parse(orderId);
   return z.object({ orderId: z.literal(orderId), reservationState: z.enum(["held", "released"]).nullable().optional(),
+    reservationExpiresAt: z.string().datetime({ offset: true }).nullable().optional(),
     financialStatus: z.enum(["pending", "processing", "authorized", "paid", "failed", "cancelled",
     "refund_pending", "partially_refunded", "refunded", "chargeback"]) }).parse(await jsonRequest(
     `${apiOrigin()}/v1/checkout/orders/${orderId}/status`, { headers: await headers(userId) }));

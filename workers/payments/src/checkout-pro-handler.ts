@@ -45,12 +45,20 @@ export async function handleCheckoutPro(request: Request, env: Bindings, config:
   if (request.method !== "GET" && !config.paymentsEnabled) throw new HttpError("PAYMENTS_DISABLED");
   const owner = await userId(request, env);
   if (request.method === "GET") {
-    const orderId = path.split("/")[4];
-    const result = await rpc(env, "checkout_pro_status", { p_user_id: owner, p_order_id: orderId });
-    const status = z.object({ orderId: z.string().uuid(), financialStatus: z.string(),
-      reservationState: z.string() }).nullable().parse(result);
-    if (!status) throw new HttpError("ORDER_NOT_FOUND", 404);
-    return Response.json(status);
+    const orderId = z.string().uuid().parse(path.split("/")[4]);
+    // Scope the service-key read to the authenticated owner, including after a lost tab.
+    const query = new URLSearchParams({ select: "id,user_id,financial_status,reservation_state,reservation_expires_at",
+      id: `eq.${orderId}`, user_id: `eq.${owner}`, limit: "1" });
+    const rows = z.array(z.object({ id: z.literal(orderId), user_id: z.literal(owner),
+      financial_status: z.string(), reservation_state: z.string().nullable(),
+      reservation_expires_at: z.string().datetime({ offset: true }).nullable() })).max(1).parse(
+      await upstreamJson(`${env.SUPABASE_URL}/rest/v1/orders?${query}`, {
+        headers: { apikey: env.SUPABASE_SECRET_KEY! },
+      }));
+    const order = rows[0];
+    if (!order) throw new HttpError("ORDER_NOT_FOUND", 404);
+    return Response.json({ orderId: order.id, financialStatus: order.financial_status,
+      reservationState: order.reservation_state, reservationExpiresAt: order.reservation_expires_at });
   }
   if (!request.headers.get("Content-Type")?.toLowerCase().startsWith("application/json")) {
     throw new HttpError("INVALID_PAYLOAD", 400);
