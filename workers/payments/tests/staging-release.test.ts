@@ -1,9 +1,29 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { validatePaymentRelease } from "../scripts/staging-release.mjs";
+import { reviewedStagingReplacement, validatePaymentRelease } from "../scripts/staging-release.mjs";
 
 const config = JSON.parse(readFileSync("workers/payments/wrangler.jsonc", "utf8"));
 describe("protected Workers Builds payment release", () => {
+  it("only replaces API edits for the exact reviewed disabled config in the real build context", () => {
+    const raw = JSON.stringify(config);
+    const head = "a".repeat(40);
+    const env = { WORKERS_CI: "1", WORKERS_CI_BRANCH: "home-v2-contraste", WORKERS_CI_COMMIT_SHA: head,
+      PAYMENTS_REVIEWED_STAGING_CONFIG_SHA256: createHash("sha256").update(raw).digest("hex") };
+    expect(reviewedStagingReplacement(config, raw, {}, head)).toBe(false);
+    expect(reviewedStagingReplacement(config, raw, env, head)).toBe(true);
+    expect(() => reviewedStagingReplacement(config, `${raw}\n`, env, head)).toThrow();
+    expect(() => reviewedStagingReplacement(config, raw, { ...env, WORKERS_CI: "0" }, head)).toThrow();
+    expect(() => reviewedStagingReplacement(config, raw, env, "b".repeat(40))).toThrow();
+    for (const field of ["PAYMENTS_ENABLED", "CHECKOUT_RECONCILIATION_ENABLED"]) {
+      const enabled = structuredClone(config);
+      enabled.env.staging.vars[field] = "true";
+      if (field === "CHECKOUT_RECONCILIATION_ENABLED") enabled.env.staging.triggers = { crons: ["*/5 * * * *"] };
+      const text = JSON.stringify(enabled);
+      expect(() => reviewedStagingReplacement(enabled, text, { ...env,
+        PAYMENTS_REVIEWED_STAGING_CONFIG_SHA256: createHash("sha256").update(text).digest("hex") }, head)).toThrow();
+    }
+  });
   it("requires the exact bounded cron only when reconciliation is explicitly enabled", () => {
     const stage = structuredClone(config);
     stage.env.staging.vars.CHECKOUT_RECONCILIATION_ENABLED = "true";

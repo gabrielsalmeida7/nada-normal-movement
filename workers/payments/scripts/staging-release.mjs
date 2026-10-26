@@ -38,6 +38,21 @@ export function validatePaymentRelease(config) {
   }
 }
 
+// One reviewed config may replace dashboard/API edits during this staging rollout.
+// The default remains strict, and enabled payments or any other config are refused.
+export function reviewedStagingReplacement(config, raw, env, head) {
+  const expected = env.PAYMENTS_REVIEWED_STAGING_CONFIG_SHA256;
+  if (expected === undefined) return false;
+  validateBuildContext(env, head);
+  validatePaymentRelease(config);
+  if (!/^[a-f0-9]{64}$/.test(expected) || expected !== digest(raw) ||
+      config.env.staging.vars.PAYMENTS_ENABLED !== "false" ||
+      config.env.staging.vars.CHECKOUT_RECONCILIATION_ENABLED !== "false") {
+    throw new Error("REVIEWED_STAGING_CONFIG_MISMATCH");
+  }
+  return true;
+}
+
 async function main(mode) {
   const raw = await readFile(`${root}/${configPath}`, "utf8");
   const config = JSON.parse(raw);

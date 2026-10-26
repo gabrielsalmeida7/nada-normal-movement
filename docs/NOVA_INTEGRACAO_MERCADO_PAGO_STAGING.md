@@ -32,6 +32,14 @@ O trigger automático da loja foi temporariamente pausado para publicar primeiro
 o backend; deve ser restaurado para `home-v2-contraste` antes de publicar a loja.
 Não simular variáveis WORKERS_CI nem contornar os guards com upload direto.
 
+O primeiro build (`a39f141c-d2e5-422f-95c2-c49c6a9ce828`) passou todos os testes,
+mas o upload foi bloqueado pelo `--strict` porque o Worker tinha sido atualizado
+via API ao desativar compras. Foi adicionada uma opção explícita de substituição
+da configuração revisada: `PAYMENTS_REVIEWED_STAGING_CONFIG_SHA256` deve coincidir
+com o SHA-256 exato do arquivo, passar o guard de Workers Builds e manter compras
+e reconciliação desativadas. Sem a opção, `--strict` continua obrigatório.
+O override do comando de build é temporário e deve ser removido após o rollout.
+
 Manter PAYMENTS_ENABLED, CHECKOUT_PRO_ENABLED, CHECKOUT_RECONCILIATION_ENABLED
 e RESERVATION_PROCESSOR_ENABLED desativados. Não há cron configurado.
 Produção, pedidos e estoque não devem ser alterados nesta etapa.
