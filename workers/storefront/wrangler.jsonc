@@ -36,7 +36,7 @@
       "vars": {
         "APP_ENV": "staging",
         "SHOP_API_ENABLED": "true",
-        "CHECKOUT_PRO_ENABLED": "false",
+        "CHECKOUT_PRO_ENABLED": "true",
         "CHECKOUT_PRO_MODE": "sandbox",
         "MP_PUBLIC_KEY": "APP_USR-0b533487-ad9f-4133-8199-5e900694880b",
         "PAYMENTS_API_URL": "https://pagamentos-staging.nadanormalclub.com.br",

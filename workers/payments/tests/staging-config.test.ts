@@ -24,7 +24,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(config.env.staging.name).toBe("nada-normal-payments-staging");
     expect(config.env.staging.routes).toEqual([{ pattern: new URL(host).hostname, custom_domain: true }]);
     expect(() => validateDeployment("staging", config.env.staging)).not.toThrow();
-    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: false,
+    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: true,
       origins: [origin], checkoutPro: { returnOrigin: origin,
         webhookUrl: `${host}/webhooks/mercadopago`, collectorId: "3272217989",
         applicationId: "4897243060269064", testApplicationId: "5855568499515388", testBuyerId: "3272217991" } });
@@ -38,7 +38,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS]);
   });
   it("enables only the authorized sandbox frontend, keeping production/previews/schedulers closed", () => {
-    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
+    expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("true");
     expect(frontendEnv(storefront.env.production.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(config.env.production.vars.PAYMENTS_ENABLED).toBe("false");
     expect(config.env.staging.workers_dev).toBe(false);
@@ -50,7 +50,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     const fetch = vi.spyOn(globalThis, "fetch");
     const health = await worker.fetch(new Request(`${host}/health`), bindings);
     expect(health.status).toBe(200);
-    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: false });
+    expect(await health.json()).toMatchObject({ environment: "staging", paymentsEnabled: true });
     const preflight = await worker.fetch(new Request(`${host}/v1/checkout/preferences`, {
       method: "OPTIONS", headers: { Origin: origin, "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "authorization,content-type,idempotency-key" },
@@ -80,7 +80,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     const fetch = vi.spyOn(globalThis, "fetch");
     const response = await worker.fetch(new Request(
       `${host}/v1/checkout/orders/40000000-0000-4000-8000-000000000001/status`,
-      { headers: { Origin: origin } }), bindings);
+      { headers: { Origin: origin } }), { ...bindings, PAYMENTS_ENABLED: "false" });
     expect(response.status).toBe(401);
     expect(fetch).not.toHaveBeenCalled();
   });
