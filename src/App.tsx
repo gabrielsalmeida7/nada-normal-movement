@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 import { CheckoutResult } from "./components/CheckoutResult";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/street" element={<CategoryStreet />} />
             <Route path="/carrinho" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/meus-pedidos" element={<MyOrders />} />
             <Route path="/checkout/sucesso" element={<CheckoutResult />} />
             <Route path="/checkout/erro" element={<CheckoutResult />} />
             <Route path="/checkout/pendente" element={<CheckoutResult />} />

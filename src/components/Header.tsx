@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, AlertTriangle, Gauge, LogOut, ShoppingBag, User } from "lucide-react";
+import { Menu, X, AlertTriangle, Gauge, LogOut, ShoppingBag, User, Package } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -157,6 +157,12 @@ export const Header = () => {
                       Início
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/meus-pedidos" className="cursor-pointer" onClick={() => setIsOpen(false)}>
+                      <Package className="mr-2 h-4 w-4" />
+                      Meus pedidos
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="cursor-pointer">
@@ -227,6 +233,11 @@ export const Header = () => {
               </Link>
               {user ? (
                 <>
+                  <Link to="/meus-pedidos" onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 py-2 font-display text-2xl uppercase tracking-wider text-foreground hover:text-nn-pink">
+                    <Package className="h-6 w-6" />
+                    Meus pedidos
+                  </Link>
                   {isAdmin && (
                     <Link
                       to="/admin"
