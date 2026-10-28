@@ -27,10 +27,11 @@
       "preview_urls": false,
       "routes": [{ "pattern": "pagamentos-staging.nadanormalclub.com.br", "custom_domain": true }],
       "secrets": { "required": ["SUPABASE_SECRET_KEY", "MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET", "MP_TEST_WEBHOOK_SECRET"] },
+      "triggers": { "crons": ["*/5 * * * *"] },
       "vars": {
         "APP_ENV": "staging",
         "PAYMENTS_ENABLED": "true",
-        "CHECKOUT_RECONCILIATION_ENABLED": "false",
+        "CHECKOUT_RECONCILIATION_ENABLED": "true",
         "ALLOWED_ORIGINS": "https://nada-normal-storefront-staging.gabriel-salmeida7.workers.dev",
         "SUPABASE_URL": "https://bcemyxasbcwcrbinfguu.supabase.co",
         "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_HWo2KFFmedy4nsd5eTp9_g_RJUwOPr5",

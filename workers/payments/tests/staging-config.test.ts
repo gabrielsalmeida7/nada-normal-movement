@@ -24,7 +24,7 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(config.env.staging.name).toBe("nada-normal-payments-staging");
     expect(config.env.staging.routes).toEqual([{ pattern: new URL(host).hostname, custom_domain: true }]);
     expect(() => validateDeployment("staging", config.env.staging)).not.toThrow();
-    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: true,
+    expect(readConfig(bindings)).toEqual({ environment: "staging", paymentsEnabled: true, reconciliationEnabled: true,
       origins: [origin], checkoutPro: { returnOrigin: origin,
         webhookUrl: `${host}/webhooks/mercadopago`, collectorId: "3272217989",
         applicationId: "4897243060269064", testApplicationId: "5855568499515388", testBuyerId: "3272217991" } });
@@ -37,13 +37,15 @@ describe("versioned payment staging configuration with sandbox submissions", () 
     expect(Object.keys(vars).filter(name => /SECRET|TOKEN/.test(name))).toEqual([]);
     expect(config.env.staging.secrets.required).toEqual([...REQUIRED_SECRETS, "MP_TEST_WEBHOOK_SECRET"]);
   });
-  it("enables only the authorized sandbox frontend, keeping production/previews/schedulers closed", () => {
+  it("enables sandbox reconciliation while keeping production, previews and legacy scheduling closed", () => {
     expect(frontendEnv(storefront.env.staging.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("true");
     expect(frontendEnv(storefront.env.production.vars, {}).VITE_CHECKOUT_PRO_ENABLED).toBe("false");
     expect(config.env.production.vars.PAYMENTS_ENABLED).toBe("false");
     expect(config.env.staging.workers_dev).toBe(false);
     expect(config.env.staging.preview_urls).toBe(false);
-    expect(config.env.staging.triggers?.crons ?? []).toEqual([]);
+    expect(config.env.staging.vars.CHECKOUT_RECONCILIATION_ENABLED).toBe("true");
+    expect(config.env.staging.triggers?.crons).toEqual(["*/5 * * * *"]);
+    expect(config.env.production.triggers?.crons ?? []).toEqual([]);
     expect(config.main).toBe("src/index.ts");
   });
   it("serves health and exact-origin preflight locally without upstream", async () => {
