@@ -58,6 +58,13 @@ o fluxo normal de Workers Builds. A validação remota deve conferir flag, cron,
 versão ativa, log checkout_reconciliation e checked_at/last_result no banco.
 Uma configuração publicada sozinha não comprova execução do agendamento.
 
+O primeiro build de storefront revelou uma asserção intermitente preexistente
+no teste de privacidade do webhook: a verificação de substrings de bindings
+curtos (por exemplo 200) colidia com o UUID aleatório gerado para a requisição.
+O teste agora fixa o UUID sem alterar os valores privados nem as asserções de
+ausência nos logs. Não houve alteração em logs ou autenticação de produção.
+Os 245 testes de pagamentos passaram novamente após o ajuste.
+
 Na fila existente, a validação remota observa consultas reais e idempotência
 sobre operações já conhecidas. Não será forjado um pagamento nem regredido um
 pedido pago para simular perda de webhook. A recuperação desse cenário já é

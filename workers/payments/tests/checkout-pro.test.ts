@@ -212,6 +212,8 @@ describe("webhook confirmation", () => {
   });
 
   it("records signature rejection without logging request or secret data", async () => {
+    // Avoid accidental substring matches between random request IDs and fixture IDs (e.g. "200").
+    vi.spyOn(crypto, "randomUUID").mockReturnValue("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
     const spy = vi.spyOn(globalThis, "fetch");
     const response = await worker.fetch(await signedRequest("456", "wrong-secret-sentinel"), env);
     expect(response.status).toBe(401);
